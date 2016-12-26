@@ -29,6 +29,7 @@
 
 
 #include <cstdlib>
+#include <cassert>
 
 
 namespace Cats {
