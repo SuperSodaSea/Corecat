@@ -56,7 +56,7 @@ private:
     
     void allocateBlock(std::size_t size) {
         
-        auto block = static_cast<Block*>(malloc(sizeof(Block) + size));
+        auto block = static_cast<Block*>(std::malloc(sizeof(Block) + size));
         block->next = nullptr;
         block->size = size;
         block->free = 0;
