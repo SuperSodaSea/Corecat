@@ -28,9 +28,8 @@
 #define CATS_CORECAT_STREAM_HPP
 
 
-#include <cerrno>
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
 
 #include <iostream>
 #include <system_error>

@@ -28,8 +28,8 @@
 #define CATS_CORECAT_MEMORYPOOL_HPP
 
 
-#include <cstdlib>
 #include <cassert>
+#include <cstdlib>
 
 
 namespace Cats {
@@ -87,7 +87,7 @@ public:
     
     void clear() {
         
-        for(auto p = firstBlock; p; ) { auto next = p->next; free(p); p = next; }
+        for(auto p = firstBlock; p; ) { auto next = p->next; std::free(p); p = next; }
         firstBlock = lastBlock = nullptr;
     
     }
