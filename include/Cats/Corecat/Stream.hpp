@@ -23,7 +23,7 @@
  * SOFTWARE.
  *
  */
- 
+
 #ifndef CATS_CORECAT_STREAM_HPP
 #define CATS_CORECAT_STREAM_HPP
 

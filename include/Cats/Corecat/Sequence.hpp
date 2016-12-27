@@ -23,7 +23,7 @@
  * SOFTWARE.
  *
  */
- 
+
 #ifndef CATS_CORECAT_SEQUENCE_HPP
 #define CATS_CORECAT_SEQUENCE_HPP
 
