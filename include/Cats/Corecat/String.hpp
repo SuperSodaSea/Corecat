@@ -29,6 +29,9 @@
 
 
 #include <cstdlib>
+#include <cstring>
+
+#include <iostream>
 
 
 namespace Cats {
@@ -52,6 +55,13 @@ public:
     std::size_t getLength() const { return length; }
     
 };
+
+inline std::ostream& operator <<(std::ostream& stream, StringView sv) {
+    
+    stream.write(sv.getData(), sv.getLength());
+    return stream;
+    
+}
 
 }
 }
