@@ -49,10 +49,23 @@ public:
     StringView() = default;
     StringView(const char* data_) : data(data_), length(std::strlen(data_)) {}
     StringView(const char* data_, std::size_t length_) : data(data_), length(length_) {}
-    StringView(const StringView& src) : data(src.data), length(src.length) {}
+    StringView(const StringView& src) = default;
+    ~StringView() = default;
     
-    const char* getData() const { return data; }
-    std::size_t getLength() const { return length; }
+    StringView& operator =(const StringView& src) = default;
+    bool operator ==(StringView sv) const noexcept {
+        
+        if(length != sv.length) return false;
+        const char* p = data;
+        const char* q = sv.data;
+        for(const char* end = data + length; p != end; ++p, ++q) if(*p != *q) return false;
+        return true;
+        
+    }
+    bool operator !=(StringView sv) const noexcept { return !(*this == sv); }
+    
+    const char* getData() const noexcept { return data; }
+    std::size_t getLength() const noexcept { return length; }
     
 };
 
