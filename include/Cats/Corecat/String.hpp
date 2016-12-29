@@ -53,6 +53,7 @@ public:
     ~StringView() = default;
     
     StringView& operator =(const StringView& src) = default;
+    const char& operator [](std::size_t index) const noexcept { return data[index]; }
     bool operator ==(StringView sv) const noexcept {
         
         if(length != sv.length) return false;
@@ -65,7 +66,9 @@ public:
     bool operator !=(StringView sv) const noexcept { return !(*this == sv); }
     
     const char* getData() const noexcept { return data; }
+    void setData(const char* data_) noexcept { data = data_; }
     std::size_t getLength() const noexcept { return length; }
+    void setLength(std::size_t length_) noexcept { length = length_; }
     
 };
 
