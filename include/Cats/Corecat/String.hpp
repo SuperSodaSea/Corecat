@@ -29,55 +29,61 @@
 
 
 #include <cstdlib>
-#include <cstring>
 
 #include <iostream>
+#include <string>
+
+#include "Encoding/Base.hpp"
 
 
 namespace Cats {
 namespace Corecat {
 
-class StringView {
+template <typename T>
+class StringViewBase {
     
 private:
     
-    const char* data;
+    const T* data;
     std::size_t length;
     
 public:
     
-    StringView() = default;
-    StringView(const char* data_) : data(data_), length(std::strlen(data_)) {}
-    StringView(const char* data_, std::size_t length_) : data(data_), length(length_) {}
-    StringView(const StringView& src) = default;
-    ~StringView() = default;
+    StringViewBase() = default;
+    StringViewBase(const T* data_) : data(data_), length(std::char_traits<T>::length(data_)) {}
+    StringViewBase(const T* data_, std::size_t length_) : data(data_), length(length_) {}
+    StringViewBase(const StringViewBase& src) = default;
+    ~StringViewBase() = default;
     
-    StringView& operator =(const StringView& src) = default;
-    const char& operator [](std::size_t index) const noexcept { return data[index]; }
-    bool operator ==(StringView sv) const noexcept {
+    StringViewBase& operator =(const StringViewBase& src) = default;
+    const T& operator [](std::size_t index) const noexcept { return data[index]; }
+    bool operator ==(StringViewBase sv) const noexcept {
         
         if(length != sv.length) return false;
-        const char* p = data;
-        const char* q = sv.data;
-        for(const char* end = data + length; p != end; ++p, ++q) if(*p != *q) return false;
+        const T* p = data;
+        const T* q = sv.data;
+        for(const T* end = data + length; p != end; ++p, ++q) if(*p != *q) return false;
         return true;
         
     }
-    bool operator !=(StringView sv) const noexcept { return !(*this == sv); }
+    bool operator !=(StringViewBase sv) const noexcept { return !(*this == sv); }
     
-    const char* getData() const noexcept { return data; }
-    void setData(const char* data_) noexcept { data = data_; }
+    const T* getData() const noexcept { return data; }
+    void setData(const T* data_) noexcept { data = data_; }
     std::size_t getLength() const noexcept { return length; }
     void setLength(std::size_t length_) noexcept { length = length_; }
     
 };
 
-inline std::ostream& operator <<(std::ostream& stream, StringView sv) {
+template <typename T>
+inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, StringViewBase<T> sv) {
     
     stream.write(sv.getData(), sv.getLength());
     return stream;
     
 }
+
+using StringView = StringViewBase<char>;
 
 }
 }

@@ -28,7 +28,7 @@
 #define CATS_CORECAT_SEQUENCE_HPP
 
 
-#include <cstddef>
+#include <cstdlib>
 
 
 namespace Cats {
