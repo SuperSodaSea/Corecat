@@ -34,16 +34,19 @@
 #include <iostream>
 #include <system_error>
 
+#include "Encoding.hpp"
+
 
 namespace Cats {
 namespace Corecat {
-namespace Stream {
 
-struct Base {
+template <typename T, template <typename> class E>
+struct StreamBase {
+    
+    using CharType = T;
+    using Encoding = E<T>;
     
     enum class SeekOrigin { Begin, Current, End };
-    
-    virtual ~Base() {}
     
     virtual bool isReadable() const { return false; };
     virtual std::size_t read(char* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
@@ -58,10 +61,12 @@ struct Base {
     
 };
 
+using Stream = StreamBase<char, Encoding::UTF8>;
+
 template <typename T>
-class Warpper;
+class StreamWrapper;
 template <>
-class Warpper<std::FILE*> : public Base {
+class StreamWrapper<std::FILE*> : public Stream {
     
 private:
     
@@ -69,7 +74,7 @@ private:
     
 public:
     
-    Warpper(std::FILE* file_) : file(file_) {}
+    StreamWrapper(std::FILE* file_) : file(file_) {}
     
     bool isReadable() const override { return true; };
     std::size_t read(char* data, std::size_t size) override {
@@ -111,7 +116,7 @@ public:
     
 };
 template <>
-class Warpper<std::istream> : public Base {
+class StreamWrapper<std::istream> : public Stream {
     
 private:
     
@@ -119,7 +124,7 @@ private:
     
 public:
     
-    Warpper(std::istream& is_) : is(&is_) {}
+    StreamWrapper(std::istream& is_) : is(&is_) {}
     
     bool isReadable() const override { return true; };
     std::size_t read(char* data, std::size_t size) override { is->read(data, size); return is->gcount(); }
@@ -144,7 +149,7 @@ public:
     
 };
 template <>
-class Warpper<std::ostream> : public Base {
+class StreamWrapper<std::ostream> : public Stream {
     
 private:
     
@@ -152,7 +157,7 @@ private:
     
 public:
     
-    Warpper(std::ostream& os_) : os(&os_) {}
+    StreamWrapper(std::ostream& os_) : os(&os_) {}
     
     bool isWriteable() const override { return true; };
     void write(const char* data, std::size_t size) override { os->write(data, size); }
@@ -178,7 +183,7 @@ public:
     
 };
 template <>
-class Warpper<std::iostream> : public Base {
+class StreamWrapper<std::iostream> : public Stream {
     
 private:
     
@@ -186,7 +191,7 @@ private:
     
 public:
     
-    Warpper(std::iostream& ios_) : ios(&ios_) {}
+    StreamWrapper(std::iostream& ios_) : ios(&ios_) {}
     
     bool isReadable() const override { return true; };
     std::size_t read(char* data, std::size_t size) override { ios->read(data, size); return ios->gcount(); }
@@ -215,9 +220,8 @@ public:
 };
 
 template <typename T>
-inline Warpper<T> createWrapper(T& t) { return Warpper<T>(t); }
+inline StreamWrapper<T> createStreamWrapper(T& t) { return StreamWrapper<T>(t); }
 
-}
 }
 }
 

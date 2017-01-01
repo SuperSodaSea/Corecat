@@ -39,7 +39,7 @@
 namespace Cats {
 namespace Corecat {
 
-template <typename T, template<typename> class E>
+template <typename T, template <typename> class E>
 class StringViewBase {
     
 public:
