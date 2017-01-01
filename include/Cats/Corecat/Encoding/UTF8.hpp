@@ -36,10 +36,11 @@
 namespace Cats {
 namespace Corecat {
 namespace Encoding {
-
-struct UTF8 : public Base {
     
-    virtual const char* getName() const noexcept { return "UTF-8"; }
+template <typename T>
+struct UTF8 : public Base<T> {
+    
+    static const char* getName() noexcept { return "UTF-8"; }
     
 };
 

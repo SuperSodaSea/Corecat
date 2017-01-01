@@ -33,14 +33,19 @@
 #include <iostream>
 #include <string>
 
-#include "Encoding/Base.hpp"
+#include "Encoding.hpp"
 
 
 namespace Cats {
 namespace Corecat {
 
-template <typename T>
+template <typename T, template<typename> class E>
 class StringViewBase {
+    
+public:
+    
+    using CharType = T;
+    using EncodingType = E<T>;
     
 private:
     
@@ -75,15 +80,15 @@ public:
     
 };
 
-template <typename T>
-inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, StringViewBase<T> sv) {
+template <typename T, template<typename> class E>
+inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, StringViewBase<T, E> sv) {
     
     stream.write(sv.getData(), sv.getLength());
     return stream;
     
 }
 
-using StringView = StringViewBase<char>;
+using StringView = StringViewBase<char, Encoding::UTF8>;
 
 }
 }

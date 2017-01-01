@@ -35,9 +35,10 @@ namespace Cats {
 namespace Corecat {
 namespace Encoding {
 
+template <typename T>
 struct Base {
     
-    virtual const char* getName() = 0;
+    static const char* getName();
     
 };
 
