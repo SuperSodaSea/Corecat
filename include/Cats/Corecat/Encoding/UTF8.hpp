@@ -42,6 +42,55 @@ struct UTF8 : public Base<T> {
     
     static const char* getName() noexcept { return "UTF-8"; }
     
+    static void encode(Stream& stream, char32_t codepoint) {
+        
+        if(codepoint <= 0x007F) {
+            
+            // 0xxxxxxx
+            T data[] = {
+                static_cast<T>(codepoint),
+            };
+            stream.write(data, 1);
+            
+        } else if(codepoint <= 0x07FF) {
+            
+            // 110xxxxx 10xxxxxx
+            T data[] = {
+                0xC0 | static_cast<T>(codepoint >> 6),
+                0x80 | static_cast<T>(codepoint & 0x3F),
+            };
+            stream.write(data, 2);
+            
+        } else if(codepoint <= 0xFFFF) {
+            
+            // 1110xxxx 10xxxxxx 10xxxxxx
+            T data[] = {
+                0xE0 | static_cast<T>(codepoint >> 12),
+                0x80 | static_cast<T>((codepoint >> 6) & 0x3F),
+                0x80 | static_cast<T>(codepoint & 0x3F),
+            };
+            stream.write(data, 3);
+            
+        } else if(codepoint <= 0x10FFFF) {
+            
+            // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+            T data[] = {
+                0xF0 | static_cast<T>(codepoint >> 18),
+                0x80 | static_cast<T>((codepoint >> 12) & 0x3F),
+                0x80 | static_cast<T>((codepoint >> 6) & 0x3F),
+                0x80 | static_cast<T>(codepoint & 0x3F),
+            };
+            stream.write(data, 4);
+            
+        }
+        else {
+            
+            // TODO: Invalid code point
+            
+        }
+        
+    }
+    
 };
 
 }

@@ -34,17 +34,14 @@
 #include <iostream>
 #include <system_error>
 
-#include "Encoding.hpp"
-
 
 namespace Cats {
 namespace Corecat {
 
-template <typename T, template <typename> class E>
+template <typename T>
 struct StreamBase {
     
     using CharType = T;
-    using Encoding = E<T>;
     
     enum class SeekOrigin { Begin, Current, End };
     
@@ -61,7 +58,7 @@ struct StreamBase {
     
 };
 
-using Stream = StreamBase<char, Encoding::UTF8>;
+using Stream = StreamBase<char>;
 
 template <typename T>
 class StreamWrapper;

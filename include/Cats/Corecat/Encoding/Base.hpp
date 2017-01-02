@@ -30,6 +30,8 @@
 
 #include <cstdlib>
 
+#include "../Stream.hpp"
+
 
 namespace Cats {
 namespace Corecat {
@@ -39,6 +41,9 @@ template <typename T>
 struct Base {
     
     static const char* getName();
+    
+    static void encode(Stream& stream, char32_t code);
+    static char32_t decode(Stream& stream);
     
 };
 
