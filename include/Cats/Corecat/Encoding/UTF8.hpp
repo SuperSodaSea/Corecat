@@ -37,12 +37,12 @@ namespace Cats {
 namespace Corecat {
 namespace Encoding {
     
-template <typename T>
+template <typename T = char>
 struct UTF8 : public Base<T> {
     
     static const char* getName() noexcept { return "UTF-8"; }
     
-    static void encode(Stream& stream, char32_t codepoint) {
+    static void encode(StreamBase<T>& stream, char32_t codepoint) {
         
         if(codepoint <= 0x007F) {
             
@@ -56,8 +56,8 @@ struct UTF8 : public Base<T> {
             
             // 110xxxxx 10xxxxxx
             T data[] = {
-                0xC0 | static_cast<T>(codepoint >> 6),
-                0x80 | static_cast<T>(codepoint & 0x3F),
+                static_cast<T>(0xC0 | (codepoint >> 6)),
+                static_cast<T>(0x80 | (codepoint & 0x3F)),
             };
             stream.write(data, 2);
             
@@ -65,9 +65,9 @@ struct UTF8 : public Base<T> {
             
             // 1110xxxx 10xxxxxx 10xxxxxx
             T data[] = {
-                0xE0 | static_cast<T>(codepoint >> 12),
-                0x80 | static_cast<T>((codepoint >> 6) & 0x3F),
-                0x80 | static_cast<T>(codepoint & 0x3F),
+                static_cast<T>(0xE0 | (codepoint >> 12)),
+                static_cast<T>(0x80 | ((codepoint >> 6) & 0x3F)),
+                static_cast<T>(0x80 | (codepoint & 0x3F)),
             };
             stream.write(data, 3);
             
@@ -75,10 +75,10 @@ struct UTF8 : public Base<T> {
             
             // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
             T data[] = {
-                0xF0 | static_cast<T>(codepoint >> 18),
-                0x80 | static_cast<T>((codepoint >> 12) & 0x3F),
-                0x80 | static_cast<T>((codepoint >> 6) & 0x3F),
-                0x80 | static_cast<T>(codepoint & 0x3F),
+                static_cast<T>(0xF0 | (codepoint >> 18)),
+                static_cast<T>(0x80 | ((codepoint >> 12) & 0x3F)),
+                static_cast<T>(0x80 | ((codepoint >> 6) & 0x3F)),
+                static_cast<T>(0x80 | (codepoint & 0x3F)),
             };
             stream.write(data, 4);
             

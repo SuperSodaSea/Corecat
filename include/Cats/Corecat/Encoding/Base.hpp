@@ -40,10 +40,12 @@ namespace Encoding {
 template <typename T>
 struct Base {
     
+    using CharType = T;
+    
     static const char* getName();
     
-    static void encode(Stream& stream, char32_t code);
-    static char32_t decode(Stream& stream);
+    static void encode(StreamBase<T>& stream, char32_t code);
+    static char32_t decode(StreamBase<T>& stream);
     
 };
 

@@ -39,56 +39,56 @@
 namespace Cats {
 namespace Corecat {
 
-template <typename T, template <typename> class E>
+template <typename E>
 class StringViewBase {
     
 public:
     
-    using CharType = T;
-    using EncodingType = E<T>;
+    using CharType = typename E::CharType;
+    using EncodingType = E;
     
 private:
     
-    const T* data;
+    const CharType* data;
     std::size_t length;
     
 public:
     
     StringViewBase() = default;
-    StringViewBase(const T* data_) : data(data_), length(std::char_traits<T>::length(data_)) {}
-    StringViewBase(const T* data_, std::size_t length_) : data(data_), length(length_) {}
+    StringViewBase(const CharType* data_) : data(data_), length(std::char_traits<CharType>::length(data_)) {}
+    StringViewBase(const CharType* data_, std::size_t length_) : data(data_), length(length_) {}
     StringViewBase(const StringViewBase& src) = default;
     ~StringViewBase() = default;
     
     StringViewBase& operator =(const StringViewBase& src) = default;
-    const T& operator [](std::size_t index) const noexcept { return data[index]; }
+    const CharType& operator [](std::size_t index) const noexcept { return data[index]; }
     bool operator ==(StringViewBase sv) const noexcept {
         
         if(length != sv.length) return false;
-        const T* p = data;
-        const T* q = sv.data;
-        for(const T* end = data + length; p != end; ++p, ++q) if(*p != *q) return false;
+        const CharType* p = data;
+        const CharType* q = sv.data;
+        for(const CharType* end = data + length; p != end; ++p, ++q) if(*p != *q) return false;
         return true;
         
     }
     bool operator !=(StringViewBase sv) const noexcept { return !(*this == sv); }
     
-    const T* getData() const noexcept { return data; }
-    void setData(const T* data_) noexcept { data = data_; }
+    const CharType* getData() const noexcept { return data; }
+    void setData(const CharType* data_) noexcept { data = data_; }
     std::size_t getLength() const noexcept { return length; }
     void setLength(std::size_t length_) noexcept { length = length_; }
     
 };
 
-template <typename T, template<typename> class E>
-inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, StringViewBase<T, E> sv) {
+template <typename E, typename T = typename E::CharType>
+inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, StringViewBase<E> sv) {
     
     stream.write(sv.getData(), sv.getLength());
     return stream;
     
 }
 
-using StringView = StringViewBase<char, Encoding::UTF8>;
+using StringView = StringViewBase<Encoding::UTF8<>>;
 
 }
 }
