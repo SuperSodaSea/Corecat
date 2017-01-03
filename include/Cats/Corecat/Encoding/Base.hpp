@@ -44,8 +44,8 @@ struct Base {
     
     static const char* getName();
     
-    static void encode(StreamBase<T>& stream, char32_t code);
     static char32_t decode(StreamBase<T>& stream);
+    static void encode(StreamBase<T>& stream, char32_t code);
     
 };
 

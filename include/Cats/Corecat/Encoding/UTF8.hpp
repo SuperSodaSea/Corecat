@@ -42,6 +42,9 @@ struct UTF8 : public Base<T> {
     
     static const char* getName() noexcept { return "UTF-8"; }
     
+    static char32_t decode(StreamBase<T>& stream) {
+        
+    }
     static void encode(StreamBase<T>& stream, char32_t codepoint) {
         
         if(codepoint <= 0x007F) {

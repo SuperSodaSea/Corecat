@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <system_error>
+#include <type_traits>
 
 
 namespace Cats {
@@ -60,7 +61,7 @@ struct StreamBase {
 
 using Stream = StreamBase<char>;
 
-template <typename T>
+template <typename T, typename = void>
 class StreamWrapper;
 template <>
 class StreamWrapper<std::FILE*> : public Stream {
@@ -112,8 +113,8 @@ public:
     }
     
 };
-template <>
-class StreamWrapper<std::istream> : public Stream {
+template <typename T>
+class StreamWrapper<T, typename std::enable_if<std::is_base_of<std::istream, T>::value && !std::is_base_of<std::ostream, T>::value>::type> : public Stream {
     
 private:
     
@@ -145,8 +146,8 @@ public:
     std::intmax_t getPosition() override { return is->tellg(); }
     
 };
-template <>
-class StreamWrapper<std::ostream> : public Stream {
+template <typename T>
+class StreamWrapper<T, typename std::enable_if<std::is_base_of<std::ostream, T>::value && !std::is_base_of<std::istream, T>::value>::type> : public Stream {
     
 private:
     
@@ -179,8 +180,8 @@ public:
     std::intmax_t getPosition() override { return os->tellp(); }
     
 };
-template <>
-class StreamWrapper<std::iostream> : public Stream {
+template <typename T>
+class StreamWrapper<T, typename std::enable_if<std::is_base_of<std::iostream, T>::value>::type> : public Stream {
     
 private:
     
