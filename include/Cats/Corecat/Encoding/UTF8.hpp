@@ -30,6 +30,8 @@
 
 #include <cstdlib>
 
+#include "../Sequence.hpp"
+
 #include "Base.hpp"
 
 
@@ -43,6 +45,74 @@ struct UTF8 : public Base<T> {
     static const char* getName() noexcept { return "UTF-8"; }
     
     static char32_t decode(StreamBase<T>& stream) {
+        
+        using namespace Sequence;
+        
+        struct DecodeTable {
+            
+            static constexpr unsigned char get(unsigned char c) {
+                
+                return c <= 0x7F ? 0
+                    : c <= 0xBF ? 1
+                    : c <= 0xDF ? 2
+                    : c <= 0xEF ? 3
+                    : c <= 0xF7 ? 4
+                    : 5;
+                
+            }
+            
+        };
+        
+        T c = stream.read();
+        switch(Table<Mapper<DecodeTable, Index<unsigned char, 0, 255>>>::get(static_cast<unsigned char>(c))) {
+        
+        case 0: return c;
+        case 1: {
+            
+            while((stream.peek() & 0xC0) == 0x80) stream.read();
+            break;
+            
+        }
+        case 2: {
+            
+            char32_t codepoint = static_cast<char32_t>(c & 0x1F) << 6;
+            if(((c = stream.peek()) & 0xC0) != 0x80) break;
+            stream.read();
+            codepoint |= c & 0x3F;
+            return codepoint;
+            
+        }
+        case 3: {
+            
+            char32_t codepoint = static_cast<char32_t>(c & 0x0F) << 12;
+            if(((c = stream.peek()) & 0xC0) != 0x80) break;
+            stream.read();
+            codepoint |= static_cast<char32_t>(c & 0x3F) << 6;
+            if(((c = stream.peek()) & 0xC0) != 0x80) break;
+            stream.read();
+            codepoint |= c & 0x3F;
+            return codepoint;
+            
+        }
+        case 4: {
+            
+            char32_t codepoint = static_cast<char32_t>(c & 0x07) << 18;
+            if(((c = stream.peek()) & 0xC0) != 0x80) break;
+            stream.read();
+            codepoint |= static_cast<char32_t>(c & 0x3F) << 12;
+            if(((c = stream.peek()) & 0xC0) != 0x80) break;
+            stream.read();
+            codepoint |= static_cast<char32_t>(c & 0x3F) << 6;
+            if(((c = stream.peek()) & 0xC0) != 0x80) break;
+            stream.read();
+            codepoint |= c & 0x3F;
+            return codepoint;
+            
+        }
+        case 5: break;
+        
+        }
+        return 0xFFFD;
         
     }
     static void encode(StreamBase<T>& stream, char32_t codepoint) {

@@ -47,10 +47,12 @@ struct StreamBase {
     enum class SeekOrigin { Begin, Current, End };
     
     virtual bool isReadable() const { return false; };
-    virtual std::size_t read(char* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
+    virtual std::size_t read(T* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
+    virtual T peek() { throw std::runtime_error("not implemented"); }
+    T read() { T t; return read(&t, 1) ? t : 0; }
     
     virtual bool isWriteable() const { return false; };
-    virtual void write(const char* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
+    virtual void write(const T* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
     virtual void flush() { throw std::runtime_error("not implemented"); }
     
     virtual bool isSeekable() const { return false; };
@@ -126,6 +128,7 @@ public:
     
     bool isReadable() const override { return true; };
     std::size_t read(char* data, std::size_t size) override { is->read(data, size); return is->gcount(); }
+    char peek() override { return is->eof() ? 0 : is->peek(); }
     
     bool isSeekable() const override { return true; };
     std::intmax_t seek(std::intmax_t offset, SeekOrigin origin) override {
@@ -193,6 +196,7 @@ public:
     
     bool isReadable() const override { return true; };
     std::size_t read(char* data, std::size_t size) override { ios->read(data, size); return ios->gcount(); }
+    char peek() override { return ios->eof() ? 0 : ios->peek(); }
     
     bool isWriteable() const override { return true; };
     void write(const char* data, std::size_t size) override { ios->write(data, size); }
