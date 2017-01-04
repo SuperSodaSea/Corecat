@@ -156,7 +156,7 @@ struct UTF8 : public Base<T> {
         } else {
             
             // Invalid code point
-            T data[] = { 0xEF, 0xBF, 0xBD};
+            T data[] = { 0xEF, 0xBF, 0xBD };
             stream.write(data, 3);
             
         }
