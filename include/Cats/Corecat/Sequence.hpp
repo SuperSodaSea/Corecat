@@ -38,10 +38,17 @@ namespace Sequence {
 template <typename T, T... V>
 struct Base {
     
-    static constexpr T table[] = { V... };
-    
     static constexpr std::size_t size() { return sizeof...(V); }
-    static constexpr T get(std::size_t index) { return table[index]; }
+    
+};
+
+template <typename S>
+struct Get;
+template <typename T, T... V>
+struct Get<Base<T, V...>> {
+    
+    static constexpr T table[] = { V... };
+    static constexpr std::size_t get(std::size_t index) { return table[index]; }
     
 };
 
@@ -58,7 +65,7 @@ struct Contain<Base<T, V...>, I1, I2, typename std::enable_if<sizeof...(V) == 0>
 template <typename T, T... V, std::size_t I1, std::size_t I2>
 struct Contain<Base<T, V...>, I1, I2, typename std::enable_if<I1 == I2>::type> {
     
-    static constexpr bool get(T t) { return t == Base<T, V...>::get(I1); }
+    static constexpr bool get(T t) { return t == Get<Base<T, V...>>::get(I1); }
     
 };
 template <typename T, T... V, std::size_t I1, std::size_t I2>

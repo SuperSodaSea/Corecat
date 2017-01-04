@@ -120,10 +120,8 @@ struct UTF8 : public Base<T> {
         if(codepoint <= 0x007F) {
             
             // 0xxxxxxx
-            T data[] = {
-                static_cast<T>(codepoint),
-            };
-            stream.write(data, 1);
+            T data = codepoint;
+            stream.write(&data, 1);
             
         } else if(codepoint <= 0x07FF) {
             
@@ -155,10 +153,11 @@ struct UTF8 : public Base<T> {
             };
             stream.write(data, 4);
             
-        }
-        else {
+        } else {
             
-            // TODO: Invalid code point
+            // Invalid code point
+            T data[] = { 0xEF, 0xBF, 0xBD};
+            stream.write(data, 3);
             
         }
         
