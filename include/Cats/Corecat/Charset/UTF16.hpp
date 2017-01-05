@@ -24,21 +24,21 @@
  *
  */
 
-#ifndef CATS_CORECAT_ENCODING_UTF16_HPP
-#define CATS_CORECAT_ENCODING_UTF16_HPP
+#ifndef CATS_CORECAT_CHARSET_UTF16_HPP
+#define CATS_CORECAT_CHARSET_UTF16_HPP
 
 
 #include <cstdlib>
 
-#include "Base.hpp"
+#include "Charset.hpp"
 
 
 namespace Cats {
 namespace Corecat {
-namespace Encoding {
+namespace Charset {
     
 template <typename T = char16_t>
-struct UTF16 : public Base<T> {
+struct UTF16 : public Charset<T> {
     
     static const char* getName() noexcept { return "UTF-16"; }
     

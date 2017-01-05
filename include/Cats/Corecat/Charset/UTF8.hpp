@@ -24,23 +24,23 @@
  *
  */
 
-#ifndef CATS_CORECAT_ENCODING_UTF8_HPP
-#define CATS_CORECAT_ENCODING_UTF8_HPP
+#ifndef CATS_CORECAT_CHARSET_UTF8_HPP
+#define CATS_CORECAT_CHARSET_UTF8_HPP
 
 
 #include <cstdlib>
 
 #include "../Sequence.hpp"
 
-#include "Base.hpp"
+#include "Charset.hpp"
 
 
 namespace Cats {
 namespace Corecat {
-namespace Encoding {
+namespace Charset {
     
 template <typename T = char>
-struct UTF8 : public Base<T> {
+struct UTF8 : public Charset<T> {
     
     static const char* getName() noexcept { return "UTF-8"; }
     

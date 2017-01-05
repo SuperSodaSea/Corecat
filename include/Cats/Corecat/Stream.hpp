@@ -69,7 +69,16 @@ struct Stream {
 template <typename T>
 class BufferedStream : public Stream<T> {
     
+private:
     
+    Stream<T>* stream;
+    
+public:
+    
+    BufferedStream(Stream<T>& stream_) : stream(&stream) {}
+    
+    Stream<T>& getStream() { return *stream; }
+    void setStream(Stream<T>& stream_) { stream = &stream_; }
     
 };
 

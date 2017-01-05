@@ -24,28 +24,36 @@
  *
  */
 
-#ifndef CATS_CORECAT_ENCODING_BASE_HPP
-#define CATS_CORECAT_ENCODING_BASE_HPP
+#ifndef CATS_CORECAT_CHARSET_UTF32_HPP
+#define CATS_CORECAT_CHARSET_UTF32_HPP
 
 
 #include <cstdlib>
 
-#include "../Stream.hpp"
+#include "Charset.hpp"
 
 
 namespace Cats {
 namespace Corecat {
-namespace Encoding {
-
-template <typename T>
-struct Base {
+namespace Charset {
     
-    using CharType = T;
+template <typename T = char32_t>
+struct UTF32 : public Charset<T> {
     
-    static const char* getName();
+    static const char* getName() noexcept { return "UTF-32"; }
     
-    static char32_t decode(Stream::Stream<T>& stream);
-    static void encode(Stream::Stream<T>& stream, char32_t code);
+    static char32_t decode(Stream::Stream<T>& stream) {
+        
+        char32_t codepoint = stream.read();
+        return codepoint <= 0x10FFFF ? codepoint : 0xFFFD;
+        
+    }
+    static void encode(Stream::Stream<T>& stream, char32_t codepoint) {
+        
+        T data = codepoint <= 0x10FFFF ? codepoint : 0xFFFD;
+        stream.write(&data, 1);
+        
+    }
     
 };
 

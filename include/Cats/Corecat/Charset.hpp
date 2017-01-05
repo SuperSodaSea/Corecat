@@ -24,15 +24,15 @@
  *
  */
 
-#ifndef CATS_CORECAT_ENCODING_HPP
-#define CATS_CORECAT_ENCODING_HPP
+#ifndef CATS_CORECAT_CHARSET_HPP
+#define CATS_CORECAT_CHARSET_HPP
 
 
-#include "Encoding/Base.hpp"
+#include "Charset/Charset.hpp"
 
-#include "Encoding/UTF8.hpp"
-#include "Encoding/UTF16.hpp"
-#include "Encoding/UTF32.hpp"
+#include "Charset/UTF8.hpp"
+#include "Charset/UTF16.hpp"
+#include "Charset/UTF32.hpp"
 
 
 #endif
