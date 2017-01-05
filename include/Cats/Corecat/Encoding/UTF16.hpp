@@ -42,7 +42,7 @@ struct UTF16 : public Base<T> {
     
     static const char* getName() noexcept { return "UTF-16"; }
     
-    static char32_t decode(StreamBase<T>& stream) {
+    static char32_t decode(Stream::Stream<T>& stream) {
         
         T c = stream.read();
         if((c & 0xDC00) == 0xD800) {
@@ -60,7 +60,7 @@ struct UTF16 : public Base<T> {
         }
         
     }
-    static void encode(StreamBase<T>& stream, char32_t codepoint) {
+    static void encode(Stream::Stream<T>& stream, char32_t codepoint) {
         
         if(codepoint <= 0xFFFF) {
             

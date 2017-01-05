@@ -39,21 +39,23 @@
 
 namespace Cats {
 namespace Corecat {
-
-template <typename T>
-struct StreamBase {
+namespace Stream {
+    
+template <typename T = char>
+struct Stream {
     
     using CharType = T;
     
     enum class SeekOrigin { Begin, Current, End };
     
     virtual bool isReadable() const { return false; };
-    virtual T read() { T t; return read(&t, 1) ? t : 0; }
+    virtual T read() { T data; return read(&data, 1) ? data : 0; }
     virtual std::size_t read(T* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
-    virtual T peek() { T t; return peek(&t, 1) ? t : 0; }
+    virtual T peek() { T data; return peek(&data, 1) ? data : 0; }
     virtual std::size_t peek(T* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
     
     virtual bool isWriteable() const { return false; };
+    virtual void write(T data) { write(&data, 1); }
     virtual void write(const T* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
     virtual void flush() { throw std::runtime_error("not implemented"); }
     
@@ -63,12 +65,19 @@ struct StreamBase {
     
 };
 
-using Stream = StreamBase<char>;
+
+template <typename T>
+class BufferedStream : public Stream<T> {
+    
+    
+    
+};
+
 
 template <typename T, typename = void>
-class StreamWrapper;
+class WrapperStream;
 template <>
-class StreamWrapper<std::FILE*> : public Stream {
+class WrapperStream<std::FILE*> : public Stream<> {
     
 private:
     
@@ -76,7 +85,7 @@ private:
     
 public:
     
-    StreamWrapper(std::FILE* file_) : file(file_) {}
+    WrapperStream(std::FILE* file_) : file(file_) {}
     
     bool isReadable() const override { return true; };
     std::size_t read(char* data, std::size_t size) override {
@@ -118,7 +127,8 @@ public:
     
 };
 template <typename T>
-class StreamWrapper<T, typename std::enable_if<std::is_base_of<std::istream, T>::value && !std::is_base_of<std::ostream, T>::value>::type> : public Stream {
+class WrapperStream<T, typename std::enable_if<std::is_base_of<std::istream, T>::value && !std::is_base_of<std::ostream, T>::value>::type>
+    : public Stream<> {
     
 private:
     
@@ -126,7 +136,7 @@ private:
     
 public:
     
-    StreamWrapper(std::istream& is_) : is(&is_) {}
+    WrapperStream(std::istream& is_) : is(&is_) {}
     
     bool isReadable() const override { return true; };
     std::size_t read(char* data, std::size_t size) override { is->read(data, size); return is->gcount(); }
@@ -151,7 +161,8 @@ public:
     
 };
 template <typename T>
-class StreamWrapper<T, typename std::enable_if<std::is_base_of<std::ostream, T>::value && !std::is_base_of<std::istream, T>::value>::type> : public Stream {
+class WrapperStream<T, typename std::enable_if<std::is_base_of<std::ostream, T>::value && !std::is_base_of<std::istream, T>::value>::type>
+    : public Stream<> {
     
 private:
     
@@ -159,7 +170,7 @@ private:
     
 public:
     
-    StreamWrapper(std::ostream& os_) : os(&os_) {}
+    WrapperStream(std::ostream& os_) : os(&os_) {}
     
     bool isWriteable() const override { return true; };
     void write(const char* data, std::size_t size) override { os->write(data, size); }
@@ -185,7 +196,8 @@ public:
     
 };
 template <typename T>
-class StreamWrapper<T, typename std::enable_if<std::is_base_of<std::iostream, T>::value>::type> : public Stream {
+class WrapperStream<T, typename std::enable_if<std::is_base_of<std::iostream, T>::value>::type>
+    : public Stream<> {
     
 private:
     
@@ -193,7 +205,7 @@ private:
     
 public:
     
-    StreamWrapper(std::iostream& ios_) : ios(&ios_) {}
+    WrapperStream(std::iostream& ios_) : ios(&ios_) {}
     
     bool isReadable() const override { return true; };
     std::size_t read(char* data, std::size_t size) override { ios->read(data, size); return ios->gcount(); }
@@ -222,8 +234,9 @@ public:
 };
 
 template <typename T>
-inline StreamWrapper<T> createStreamWrapper(T& t) { return StreamWrapper<T>(t); }
+inline WrapperStream<T> createWrapperStream(T& t) { return WrapperStream<T>(t); }
 
+}
 }
 }
 

@@ -44,7 +44,7 @@ struct UTF8 : public Base<T> {
     
     static const char* getName() noexcept { return "UTF-8"; }
     
-    static char32_t decode(StreamBase<T>& stream) {
+    static char32_t decode(Stream::Stream<T>& stream) {
         
         using namespace Sequence;
         
@@ -115,7 +115,7 @@ struct UTF8 : public Base<T> {
         return 0xFFFD;
         
     }
-    static void encode(StreamBase<T>& stream, char32_t codepoint) {
+    static void encode(Stream::Stream<T>& stream, char32_t codepoint) {
         
         if(codepoint <= 0x007F) {
             

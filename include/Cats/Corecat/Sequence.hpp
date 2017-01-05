@@ -36,7 +36,7 @@ namespace Corecat {
 namespace Sequence {
 
 template <typename T, T... V>
-struct Base {
+struct Sequence {
     
     static constexpr std::size_t size() { return sizeof...(V); }
     
@@ -45,7 +45,7 @@ struct Base {
 template <typename S>
 struct Get;
 template <typename T, T... V>
-struct Get<Base<T, V...>> {
+struct Get<Sequence<T, V...>> {
     
     static constexpr T table[] = { V... };
     static constexpr std::size_t get(std::size_t index) { return table[index]; }
@@ -57,23 +57,23 @@ namespace Impl {
 template <typename S, std::size_t I1, std::size_t I2, typename = void>
 struct Contain;
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct Contain<Base<T, V...>, I1, I2, typename std::enable_if<sizeof...(V) == 0>::type> {
+struct Contain<Sequence<T, V...>, I1, I2, typename std::enable_if<sizeof...(V) == 0>::type> {
     
     static constexpr bool get(T /*t*/) { return false; }
     
 };
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct Contain<Base<T, V...>, I1, I2, typename std::enable_if<I1 == I2>::type> {
+struct Contain<Sequence<T, V...>, I1, I2, typename std::enable_if<I1 == I2>::type> {
     
-    static constexpr bool get(T t) { return t == Get<Base<T, V...>>::get(I1); }
+    static constexpr bool get(T t) { return t == Get<Sequence<T, V...>>::get(I1); }
     
 };
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct Contain<Base<T, V...>, I1, I2, typename std::enable_if<(I1 < I2)>::type> {
+struct Contain<Sequence<T, V...>, I1, I2, typename std::enable_if<(I1 < I2)>::type> {
     
     static constexpr bool get(T t) {
         
-        return Contain<Base<T, V...>, I1, (I1 + I2) / 2>::get(t) || Contain<Base<T, V...>, (I1 + I2) / 2 + 1, I2>::get(t);
+        return Contain<Sequence<T, V...>, I1, (I1 + I2) / 2>::get(t) || Contain<Sequence<T, V...>, (I1 + I2) / 2 + 1, I2>::get(t);
         
     }
     
@@ -88,7 +88,7 @@ namespace Impl {
 template <typename S1, typename S2>
 struct Concat;
 template <typename T, T... V1, T... V2>
-struct Concat<Base<T, V1...>, Base<T, V2...>> { using Type = Base<T, V1..., V2...>; };
+struct Concat<Sequence<T, V1...>, Sequence<T, V2...>> { using Type = Sequence<T, V1..., V2...>; };
 
 }
 template <typename S1, typename S2>
@@ -101,7 +101,7 @@ struct Index;
 template <typename T, T Begin, T End>
 struct Index<T, Begin, End, typename std::enable_if<Begin == End>::type> {
     
-    using Type = Base<T, Begin>;
+    using Type = Sequence<T, Begin>;
     
 };
 template <typename T, T Begin, T End>
@@ -121,9 +121,9 @@ namespace Impl {
 template <typename F, typename S>
 struct Mapper;
 template <typename F, typename T, T... V>
-struct Mapper<F, Base<T, V...>> {
+struct Mapper<F, Sequence<T, V...>> {
     
-    using Type = Base<typename std::result_of<decltype(&F::get)(T)>::type, F::get(V)...>;
+    using Type = Sequence<typename std::result_of<decltype(&F::get)(T)>::type, F::get(V)...>;
     
 };
 
@@ -134,14 +134,14 @@ using Mapper = typename Impl::Mapper<F, S>::Type;
 template <typename S>
 struct Table;
 template <typename T, T... V>
-struct Table<Base<T, V...>> {
+struct Table<Sequence<T, V...>> {
     
     static const T table[];
     static T get(std::size_t t) { return table[t]; }
     
 };
 template <typename T, T... V>
-const T Table<Base<T, V...>>::table[] = { V... };
+const T Table<Sequence<T, V...>>::table[] = { V... };
 
 }
 }
