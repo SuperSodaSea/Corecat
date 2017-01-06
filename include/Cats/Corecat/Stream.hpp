@@ -80,8 +80,19 @@ private:
     
 public:
     
-    StreamBuffer(std::size_t size_ = 4096) : data(new T[size_]), size(data), end(data), size(size_), avail() {}
+    StreamBuffer(std::size_t size_ = 4096) : data(new T[size_]), start(data), end(data), size(size_), avail() {}
     
+    void read(Stream<T>& stream) {
+        
+        if(avail == size) return;
+        std::size_t count;
+        if(end < start) count = stream.read(end, start - end);
+        else count = stream.read(end, data + size - end);
+        end += count;
+        if(end == data + size) end = data;
+        avail += count;
+        
+    }
     void read(T* data_, std::size_t count) noexcept {
         
         if(start - data + count < size) {
@@ -99,6 +110,16 @@ public:
         avail -= size;
         
     }
+    
+    void reset() noexcept {
+        
+        start = data;
+        end = data;
+        avail = 0;
+        
+    }
+    
+    std::size_t getAvail() noexcept { return avail; }
     
 };
 
