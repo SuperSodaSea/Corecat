@@ -33,6 +33,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <memory>
 #include <system_error>
 #include <type_traits>
 
@@ -67,15 +68,58 @@ struct Stream {
 
 
 template <typename T>
+class StreamBuffer {
+    
+private:
+    
+    T* data;
+    T* start;
+    T* end;
+    std::size_t size;
+    std::size_t avail;
+    
+public:
+    
+    StreamBuffer(std::size_t size_ = 4096) : data(new T[size_]), size(data), end(data), size(size_), avail() {}
+    
+    void read(T* data_, std::size_t count) noexcept {
+        
+        if(start - data + count < size) {
+            
+            std::copy(start, start + count, data_);
+            start += count;
+            
+        } else {
+            
+            auto p = std::copy(start, data + size, data_);
+            start = data + count - (p - data_);
+            std::copy(data, start, p);
+            
+        }
+        avail -= size;
+        
+    }
+    
+};
+
+template <typename T>
 class BufferedStream : public Stream<T> {
     
 private:
     
     Stream<T>* stream;
+    StreamBuffer<T> readBuffer;
+    StreamBuffer<T> writeBuffer;
     
 public:
     
-    BufferedStream(Stream<T>& stream_) : stream(&stream) {}
+    BufferedStream(Stream<T>& stream_) : stream(&stream), readBuffer(), writeBuffer() {}
+    
+    bool isReadable() const override { return stream->isReadable(); };
+    
+    bool isWriteable() const override { return stream->isWriteable(); };
+    
+    bool isSeekable() const override { return stream->isSeekable(); };
     
     Stream<T>& getStream() { return *stream; }
     void setStream(Stream<T>& stream_) { stream = &stream_; }
@@ -136,8 +180,8 @@ public:
     
 };
 template <typename T>
-class WrapperStream<T, typename std::enable_if<std::is_base_of<std::istream, T>::value && !std::is_base_of<std::ostream, T>::value>::type>
-    : public Stream<> {
+class WrapperStream<T, typename std::enable_if<std::is_base_of<std::istream, T>::value && !std::is_base_of<std::ostream, T>::value>::type> :
+    public Stream<> {
     
 private:
     
@@ -170,8 +214,8 @@ public:
     
 };
 template <typename T>
-class WrapperStream<T, typename std::enable_if<std::is_base_of<std::ostream, T>::value && !std::is_base_of<std::istream, T>::value>::type>
-    : public Stream<> {
+class WrapperStream<T, typename std::enable_if<std::is_base_of<std::ostream, T>::value && !std::is_base_of<std::istream, T>::value>::type> :
+    public Stream<> {
     
 private:
     
@@ -205,8 +249,8 @@ public:
     
 };
 template <typename T>
-class WrapperStream<T, typename std::enable_if<std::is_base_of<std::iostream, T>::value>::type>
-    : public Stream<> {
+class WrapperStream<T, typename std::enable_if<std::is_base_of<std::iostream, T>::value>::type> :
+    public Stream<> {
     
 private:
     
