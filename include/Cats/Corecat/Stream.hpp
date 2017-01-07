@@ -68,60 +68,62 @@ struct Stream {
 
 
 template <typename T>
-class StreamBuffer {
-    
-private:
-    
-    T* data;
-    T* start;
-    T* end;
-    std::size_t size;
-    
-public:
-    
-    StreamBuffer(std::size_t size_ = 4096) : data(new T[size_]), start(data), end(data), size(size_) {}
-    
-    void read(Stream<T>& stream) {
-        
-        std::size_t count = stream.read(end, data + size - end);
-        end += count;
-        
-    }
-    std::size_t read(T* data_, std::size_t count) noexcept {
-        
-        count = std::min(count, end - start);
-        std::copy(start, start + count, data_);
-        start += count;
-        if(start == end) start = end = data;
-        return count;
-        
-    }
-    
-    void reset() noexcept {
-        
-        start = data;
-        end = data;
-        
-    }
-    
-    std::size_t getAvail() const noexcept { return end - start; }
-    
-};
-
-template <typename T>
 class BufferedStream : public Stream<T> {
     
 private:
     
     Stream<T>* stream;
-    StreamBuffer<T> readBuffer;
-    StreamBuffer<T> writeBuffer;
+    
+    std::size_t bufferSize;
+    
+    T* readBufferData;
+    T* readBufferStart;
+    T* readBufferEnd;
+    
+    T* writeBufferData;
+    T* writeBufferEnd;
+    
+private:
+    
+    std::size_t readToBuffer() {
+        
+        std::size_t res = stream->read(readBufferEnd, readBufferData + bufferSize - readBufferEnd);
+        return res;
+        
+    }
+    std::size_t readFromBuffer(T* data, std::size_t count) noexcept {
+        
+        std::copy(readBufferStart, readBufferStart + count, data);
+        readBufferStart += count;
+        if(readBufferStart == readBufferEnd) readBufferStart = readBufferEnd = readBufferData;
+        return count;
+        
+    }
     
 public:
     
-    BufferedStream(Stream<T>& stream_) : stream(&stream), readBuffer(), writeBuffer() {}
+    BufferedStream(Stream<T>& stream_, std::size_t bufferSize_ = 4096) :
+        stream(&stream_), bufferSize(bufferSize_),
+        readBufferData(), readBufferStart(), readBufferEnd(),
+        writeBufferData(), writeBufferEnd() {}
+    ~BufferedStream() {
+        
+        if(readBufferData) { delete[] readBufferData; readBufferData = nullptr; }
+        if(writeBufferData) { delete[] writeBufferData; writeBufferData = nullptr; }
+        
+    }
     
     bool isReadable() const override { return stream->isReadable(); };
+    std::size_t read(char* data, std::size_t count) override {
+        
+        if(!readBufferData) {
+            
+            readBufferData = new T[bufferSize];
+            readBufferStart = readBufferEnd = readBufferData;
+            
+        }
+        
+    }
     
     bool isWriteable() const override { return stream->isWriteable(); };
     
