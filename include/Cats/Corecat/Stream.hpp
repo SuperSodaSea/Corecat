@@ -88,6 +88,7 @@ private:
     std::size_t readToBuffer() {
         
         std::size_t res = stream->read(readBufferEnd, readBufferData + bufferSize - readBufferEnd);
+        readBufferEnd += res;
         return res;
         
     }
@@ -109,12 +110,18 @@ public:
     ~BufferedStream() {
         
         if(readBufferData) { delete[] readBufferData; readBufferData = nullptr; }
-        if(writeBufferData) { delete[] writeBufferData; writeBufferData = nullptr; }
+        if(writeBufferData) {
+            
+            if(isWriteable()) flush();
+            delete[] writeBufferData; writeBufferData = nullptr;
+            
+        }
         
     }
     
     bool isReadable() const override { return stream->isReadable(); };
-    std::size_t read(char* data, std::size_t count) override {
+    using Stream<T>::read;
+    std::size_t read(T* data, std::size_t count) override {
         
         if(!readBufferData) {
             
@@ -122,17 +129,51 @@ public:
             readBufferStart = readBufferEnd = readBufferData;
             
         }
+        if(readBufferStart == readBufferData) readToBuffer();
+        return readFromBuffer(data, std::min(count, static_cast<std::size_t>(readBufferEnd - readBufferStart)));
         
     }
     
     bool isWriteable() const override { return stream->isWriteable(); };
+    using Stream<T>::write;
+    void write(const T* data, std::size_t count) override {
+        
+        if(!writeBufferData) {
+            
+            writeBufferData = new T[bufferSize];
+            writeBufferEnd = writeBufferData;
+            
+        }
+        if(writeBufferEnd - writeBufferData + count > bufferSize) {
+            
+            flush();
+            if(count >= bufferSize) { stream->write(data, count); return; }
+            
+        }
+        writeBufferEnd = std::copy(data, data + count, writeBufferEnd);
+        
+    }
+    void flush() override {
+        
+        stream->write(writeBufferData, writeBufferEnd - writeBufferData);
+        writeBufferEnd = writeBufferData;
+        
+    }
     
     bool isSeekable() const override { return stream->isSeekable(); };
     
     Stream<T>& getStream() { return *stream; }
-    void setStream(Stream<T>& stream_) { stream = &stream_; }
+    void setStream(Stream<T>& stream_) {
+        
+        if(isWriteable()) flush();
+        stream = &stream_;
+        
+    }
     
 };
+
+template <typename T>
+inline BufferedStream<T> createBufferedStream(Stream<T>& t) { return BufferedStream<T>(t); }
 
 
 template <typename T, typename = void>
@@ -149,6 +190,7 @@ public:
     WrapperStream(std::FILE* file_) : file(file_) {}
     
     bool isReadable() const override { return true; };
+    using Stream<>::read;
     std::size_t read(char* data, std::size_t count) override {
         
         std::size_t ret = std::fread(data, 1, count, file);
@@ -157,6 +199,7 @@ public:
     }
     
     bool isWriteable() const override { return true; };
+    using Stream<>::write;
     void write(const char* data, std::size_t count) override {
         
         std::fwrite(data, 1, count, file);
@@ -200,6 +243,7 @@ public:
     WrapperStream(std::istream& is_) : is(&is_) {}
     
     bool isReadable() const override { return true; };
+    using Stream<>::read;
     std::size_t read(char* data, std::size_t count) override { is->read(data, count); return is->gcount(); }
     
     bool isSeekable() const override { return true; };
@@ -234,6 +278,7 @@ public:
     WrapperStream(std::ostream& os_) : os(&os_) {}
     
     bool isWriteable() const override { return true; };
+    using Stream<>::write;
     void write(const char* data, std::size_t count) override { os->write(data, count); }
     void flush() override { os->flush(); };
     
@@ -269,9 +314,11 @@ public:
     WrapperStream(std::iostream& ios_) : ios(&ios_) {}
     
     bool isReadable() const override { return true; };
+    using Stream<>::read;
     std::size_t read(char* data, std::size_t count) override { ios->read(data, count); return ios->gcount(); }
     
     bool isWriteable() const override { return true; };
+    using Stream<>::write;
     void write(const char* data, std::size_t count) override { ios->write(data, count); }
     void flush() override { ios->flush(); };
     
