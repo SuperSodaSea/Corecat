@@ -51,13 +51,13 @@ struct Stream {
     
     virtual bool isReadable() const { return false; };
     virtual T read() { T data; return read(&data, 1) ? data : 0; }
-    virtual std::size_t read(T* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
+    virtual std::size_t read(T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("not implemented"); }
     virtual T peek() { T data; return peek(&data, 1) ? data : 0; }
-    virtual std::size_t peek(T* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
+    virtual std::size_t peek(T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("not implemented"); }
     
     virtual bool isWriteable() const { return false; };
     virtual void write(T data) { write(&data, 1); }
-    virtual void write(const T* /*data*/, std::size_t /*size*/) { throw std::runtime_error("not implemented"); }
+    virtual void write(const T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("not implemented"); }
     virtual void flush() { throw std::runtime_error("not implemented"); }
     
     virtual bool isSeekable() const { return false; };
@@ -76,38 +76,24 @@ private:
     T* start;
     T* end;
     std::size_t size;
-    std::size_t avail;
     
 public:
     
-    StreamBuffer(std::size_t size_ = 4096) : data(new T[size_]), start(data), end(data), size(size_), avail() {}
+    StreamBuffer(std::size_t size_ = 4096) : data(new T[size_]), start(data), end(data), size(size_) {}
     
     void read(Stream<T>& stream) {
         
-        if(avail == size) return;
-        std::size_t count;
-        if(end < start) count = stream.read(end, start - end);
-        else count = stream.read(end, data + size - end);
+        std::size_t count = stream.read(end, data + size - end);
         end += count;
-        if(end == data + size) end = data;
-        avail += count;
         
     }
-    void read(T* data_, std::size_t count) noexcept {
+    std::size_t read(T* data_, std::size_t count) noexcept {
         
-        if(start - data + count < size) {
-            
-            std::copy(start, start + count, data_);
-            start += count;
-            
-        } else {
-            
-            auto p = std::copy(start, data + size, data_);
-            start = data + count - (p - data_);
-            std::copy(data, start, p);
-            
-        }
-        avail -= size;
+        count = std::min(count, end - start);
+        std::copy(start, start + count, data_);
+        start += count;
+        if(start == end) start = end = data;
+        return count;
         
     }
     
@@ -115,11 +101,10 @@ public:
         
         start = data;
         end = data;
-        avail = 0;
         
     }
     
-    std::size_t getAvail() noexcept { return avail; }
+    std::size_t getAvail() const noexcept { return end - start; }
     
 };
 
@@ -162,17 +147,17 @@ public:
     WrapperStream(std::FILE* file_) : file(file_) {}
     
     bool isReadable() const override { return true; };
-    std::size_t read(char* data, std::size_t size) override {
+    std::size_t read(char* data, std::size_t count) override {
         
-        std::size_t ret = std::fread(data, 1, size, file);
+        std::size_t ret = std::fread(data, 1, count, file);
         return ret;
         
     }
     
     bool isWriteable() const override { return true; };
-    void write(const char* data, std::size_t size) override {
+    void write(const char* data, std::size_t count) override {
         
-        std::fwrite(data, 1, size, file);
+        std::fwrite(data, 1, count, file);
         
     }
     void flush() override { std::fflush(file); };
@@ -213,7 +198,7 @@ public:
     WrapperStream(std::istream& is_) : is(&is_) {}
     
     bool isReadable() const override { return true; };
-    std::size_t read(char* data, std::size_t size) override { is->read(data, size); return is->gcount(); }
+    std::size_t read(char* data, std::size_t count) override { is->read(data, count); return is->gcount(); }
     
     bool isSeekable() const override { return true; };
     std::intmax_t seek(std::intmax_t offset, SeekOrigin origin) override {
@@ -247,7 +232,7 @@ public:
     WrapperStream(std::ostream& os_) : os(&os_) {}
     
     bool isWriteable() const override { return true; };
-    void write(const char* data, std::size_t size) override { os->write(data, size); }
+    void write(const char* data, std::size_t count) override { os->write(data, count); }
     void flush() override { os->flush(); };
     
     bool isSeekable() const override { return true; };
@@ -282,10 +267,10 @@ public:
     WrapperStream(std::iostream& ios_) : ios(&ios_) {}
     
     bool isReadable() const override { return true; };
-    std::size_t read(char* data, std::size_t size) override { ios->read(data, size); return ios->gcount(); }
+    std::size_t read(char* data, std::size_t count) override { ios->read(data, count); return ios->gcount(); }
     
     bool isWriteable() const override { return true; };
-    void write(const char* data, std::size_t size) override { ios->write(data, size); }
+    void write(const char* data, std::size_t count) override { ios->write(data, count); }
     void flush() override { ios->flush(); };
     
     bool isSeekable() const override { return true; };
