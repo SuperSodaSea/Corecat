@@ -51,18 +51,18 @@ struct Stream {
     
     virtual bool isReadable() const { return false; };
     virtual T read() { T data; return read(&data, 1) ? data : 0; }
-    virtual std::size_t read(T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("not implemented"); }
+    virtual std::size_t read(T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("stream is not readable"); }
     virtual T peek() { T data; return peek(&data, 1) ? data : 0; }
-    virtual std::size_t peek(T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("not implemented"); }
+    virtual std::size_t peek(T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("stream is not readable"); }
     
     virtual bool isWriteable() const { return false; };
     virtual void write(T data) { write(&data, 1); }
-    virtual void write(const T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("not implemented"); }
-    virtual void flush() { throw std::runtime_error("not implemented"); }
+    virtual void write(const T* /*data*/, std::size_t /*count*/) { throw std::runtime_error("stream is not writeable"); }
+    virtual void flush() { throw std::runtime_error("stream is not writeable"); }
     
     virtual bool isSeekable() const { return false; };
-    virtual std::intmax_t seek(std::intmax_t /*offset*/, SeekOrigin /*method*/) { throw std::runtime_error("not implemented"); }
-    virtual std::intmax_t getPosition() { throw std::runtime_error("not implemented"); }
+    virtual std::intmax_t seek(std::intmax_t /*offset*/, SeekOrigin /*method*/) { throw std::runtime_error("stream is not seekable"); }
+    virtual std::intmax_t getPosition() { throw std::runtime_error("stream is not seekable"); }
     
 };
 
@@ -83,30 +83,19 @@ private:
     T* writeBufferData;
     T* writeBufferEnd;
     
-private:
-    
-    std::size_t readToBuffer() {
-        
-        std::size_t res = stream->read(readBufferEnd, readBufferData + bufferSize - readBufferEnd);
-        readBufferEnd += res;
-        return res;
-        
-    }
-    std::size_t readFromBuffer(T* data, std::size_t count) noexcept {
-        
-        std::copy(readBufferStart, readBufferStart + count, data);
-        readBufferStart += count;
-        if(readBufferStart == readBufferEnd) readBufferStart = readBufferEnd = readBufferData;
-        return count;
-        
-    }
+    std::intmax_t position;
     
 public:
     
     BufferedStream(Stream<T>& stream_, std::size_t bufferSize_ = 4096) :
         stream(&stream_), bufferSize(bufferSize_),
         readBufferData(), readBufferStart(), readBufferEnd(),
-        writeBufferData(), writeBufferEnd() {}
+        writeBufferData(), writeBufferEnd(),
+        position() {
+        
+        if(isSeekable()) position = stream->getPosition();
+        
+    }
     ~BufferedStream() {
         
         if(readBufferData) { delete[] readBufferData; readBufferData = nullptr; }
@@ -129,8 +118,36 @@ public:
             readBufferStart = readBufferEnd = readBufferData;
             
         }
-        if(readBufferStart == readBufferData) readToBuffer();
-        return readFromBuffer(data, std::min(count, static_cast<std::size_t>(readBufferEnd - readBufferStart)));
+        if(readBufferStart == readBufferData) readBufferEnd += stream->read(readBufferEnd, readBufferData + bufferSize - readBufferEnd);
+        std::size_t res = std::min(count, static_cast<std::size_t>(readBufferEnd - readBufferStart));
+        std::copy(readBufferStart, readBufferStart + res, data);
+        readBufferStart += res;
+        if(readBufferStart == readBufferEnd) readBufferStart = readBufferEnd = readBufferData;
+        return res;
+        
+    }
+    using Stream<T>::peek;
+    std::size_t peek(T* data, std::size_t count) override {
+        
+        if(!readBufferData) {
+            
+            readBufferData = new T[bufferSize];
+            readBufferStart = readBufferEnd = readBufferData;
+            
+        }
+        if(static_cast<std::size_t>(readBufferEnd - readBufferStart) >= count) {
+            
+            std::copy(readBufferStart, readBufferStart + count, data);
+            return count;
+            
+        } else {
+            
+            readBufferEnd += stream->read(readBufferEnd, readBufferData + bufferSize - readBufferEnd);
+            std::size_t res = std::min(count, static_cast<std::size_t>(readBufferEnd - readBufferStart));
+            std::copy(readBufferStart, readBufferStart + res, data);
+            return res;
+            
+        }
         
     }
     
@@ -161,12 +178,20 @@ public:
     }
     
     bool isSeekable() const override { return stream->isSeekable(); };
+    std::intmax_t seek(std::intmax_t offset, SeekOrigin origin) override {
+    }
+    std::intmax_t getPosition() override {
+        
+        return position;
+        
+    }
     
     Stream<T>& getStream() { return *stream; }
     void setStream(Stream<T>& stream_) {
         
         if(isWriteable()) flush();
         stream = &stream_;
+        if(isSeekable()) position = stream->getPosition();
         
     }
     
