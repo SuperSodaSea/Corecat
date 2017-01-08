@@ -54,6 +54,8 @@ struct Stream {
     virtual std::size_t read(T* /*buffer*/, std::size_t /*count*/) { throw std::runtime_error("stream is not readable"); }
     virtual T peek() { T value; return peek(&value, 1) ? value : 0; }
     virtual std::size_t peek(T* /*buffer*/, std::size_t /*count*/) { throw std::runtime_error("stream is not readable"); }
+    virtual void skip() { skip(1); }
+    virtual void skip(std::size_t /*count*/) { throw std::runtime_error("stream is not readable"); }
     
     virtual bool isWriteable() const { return false; };
     virtual void write(T value) { write(&value, 1); }
@@ -67,7 +69,7 @@ struct Stream {
 };
 
 
-template <typename T>
+template <typename T = char>
 class BufferedStream : public Stream<T> {
     
 private:
@@ -205,7 +207,7 @@ template <typename T>
 inline BufferedStream<T> createBufferedStream(Stream<T>& t) { return BufferedStream<T>(t); }
 
 
-template <typename T>
+template <typename T = char>
 class MemoryStream : public Stream<T> {
     
 private:
@@ -246,6 +248,17 @@ public:
         return res;
         
     }
+    void skip() override {
+        
+        if(cur <=  end) cur++;
+        
+    }
+    void skip(std::size_t count) override {
+        
+        if(cur - data + count <=  end - data) cur += count;
+        else cur = end;
+        
+    }
     
     bool isWriteable() const override { return true; }
     void write(T value) override {
@@ -282,6 +295,9 @@ public:
         
     }
     std::intmax_t getPosition() override { return cur - data; }
+    
+    T* getData() { return data; }
+    T* getCurrent() { return cur; }
     
 };
 
@@ -358,6 +374,8 @@ public:
     bool isReadable() const override { return true; };
     using Stream<>::read;
     std::size_t read(char* buffer, std::size_t count) override { is->read(buffer, count); return is->gcount(); }
+    using Stream<>::skip;
+    void skip(std::size_t count) override { is->ignore(count); }
     
     bool isSeekable() const override { return true; };
     std::intmax_t seek(std::intmax_t offset, SeekOrigin origin) override {
@@ -429,6 +447,8 @@ public:
     bool isReadable() const override { return true; };
     using Stream<>::read;
     std::size_t read(char* buffer, std::size_t count) override { ios->read(buffer, count); return ios->gcount(); }
+    using Stream<>::skip;
+    void skip(std::size_t count) override { ios->ignore(count); }
     
     bool isWriteable() const override { return true; };
     using Stream<>::write;
