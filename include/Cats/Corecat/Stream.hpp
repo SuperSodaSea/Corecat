@@ -298,11 +298,49 @@ public:
     
     T* getData() { return data; }
     T* getCurrent() { return cur; }
+    T* getEnd() { return end; }
     
 };
 
 template <typename T>
 inline MemoryStream<T> createMemoryStream(T* buffer, std::size_t size) { return MemoryStream<T>(buffer, size); }
+
+
+template <typename T = char>
+class TransformStream : public Stream<T> {
+    
+private:
+    
+    Stream<>* stream;
+    
+public:
+    
+    TransformStream(Stream<>& stream_) : stream(&stream_) {}
+    
+    bool isReadable() const override { return stream->isReadable(); }
+    using Stream<T>::read;
+    std::size_t read(T* buffer, std::size_t count) override {
+    }
+    using Stream<T>::peek;
+    std::size_t peek(T* buffer, std::size_t count) override {
+    }
+    
+    bool isWriteable() const override { return stream->isWriteable(); }
+    using Stream<T>::write;
+    void write(const T* buffer, std::size_t count) override {
+    }
+    void flush() override {
+    }
+    
+    bool isSeekable() const override { return stream->isSeekable(); }
+
+    Stream<>& getStream() { return *stream; }
+    void setStream(Stream<>& stream_) { stream = &stream_; }
+    
+};
+
+template <typename T>
+inline TransformStream<T> createTransformyStream(Stream<>& stream) { return TransformStream<T>(stream); }
 
 
 template <typename T, typename = void>
