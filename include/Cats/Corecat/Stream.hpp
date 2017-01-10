@@ -320,16 +320,31 @@ public:
     bool isReadable() const override { return stream->isReadable(); }
     using Stream<T>::read;
     std::size_t read(T* buffer, std::size_t count) override {
+        
+        std::size_t res = stream->peek(reinterpret_cast<char*>(buffer), count * sizeof(T));
+        stream->skip(res - res % sizeof(T));
+        return res / sizeof(T);
+        
     }
     using Stream<T>::peek;
     std::size_t peek(T* buffer, std::size_t count) override {
+        
+        std::size_t res = stream->peek(reinterpret_cast<char*>(buffer), count * sizeof(T));
+        return res / sizeof(T);
+        
     }
     
     bool isWriteable() const override { return stream->isWriteable(); }
     using Stream<T>::write;
     void write(const T* buffer, std::size_t count) override {
+        
+        stream->write(reinterpret_cast<const char*>(buffer), count * sizeof(T));
+        
     }
     void flush() override {
+        
+        stream->flush();
+        
     }
     
     bool isSeekable() const override { return stream->isSeekable(); }
