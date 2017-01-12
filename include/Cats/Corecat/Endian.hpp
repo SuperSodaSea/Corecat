@@ -31,6 +31,7 @@
 #include <cstdlib>
 
 #include <type_traits>
+#include <utility>
 
 
 namespace Cats {
@@ -52,8 +53,9 @@ struct SwapBytes<T, typename std::enable_if<sizeof(T) == 2>::type> {
     
     static T swapBytes(T t) {
         
-        auto v = static_cast<std::uint16_t>(t);
-        return static_cast<T>((v >> 8) | (v << 8));
+        auto p = reinterpret_cast<char*>(&t);
+        std::swap(p[0], p[1]);
+        return t;
         
     }
     
@@ -63,8 +65,10 @@ struct SwapBytes<T, typename std::enable_if<sizeof(T) == 4>::type> {
     
     static T swapBytes(T t) {
         
-        auto v = static_cast<std::uint32_t>(t);
-        return static_cast<T>((v >> 24) | ((v >> 8) & 0xFF00) | ((v << 8) & 0xFF0000) | ((v << 24) & 0xFF000000));
+        auto p = reinterpret_cast<char*>(&t);
+        std::swap(p[0], p[3]);
+        std::swap(p[1], p[2]);
+        return t;
         
     }
     
@@ -74,9 +78,12 @@ struct SwapBytes<T, typename std::enable_if<sizeof(T) == 8>::type> {
     
     static T swapBytes(T t) {
         
-        auto v = static_cast<std::uint64_t>(t);
-        return static_cast<T>((v >> 56) | ((v >> 40) & 0xFF00) | ((v >> 24) & 0xFF0000) | ((v >> 8) & 0xFF000000)
-            | ((v << 8) & 0xFF00000000) | ((v << 24) & 0xFF0000000000) | ((v << 40) & 0xFF000000000000) | (v << 56));
+        auto p = reinterpret_cast<char*>(&t);
+        std::swap(p[0], p[7]);
+        std::swap(p[1], p[6]);
+        std::swap(p[2], p[5]);
+        std::swap(p[3], p[4]);
+        return t;
         
     }
     
