@@ -30,11 +30,62 @@
 
 #include <cstdlib>
 
+#include <type_traits>
+
 
 namespace Cats {
 namespace Corecat {
 namespace Endian {
 
+namespace Impl {
+
+template <typename T, typename = void>
+struct SwapBytes;
+template <typename T>
+struct SwapBytes<T, typename std::enable_if<sizeof(T) == 1>::type> {
+    
+    static T swapBytes(T t) { return t; }
+    
+};
+template <typename T>
+struct SwapBytes<T, typename std::enable_if<sizeof(T) == 2>::type> {
+    
+    static T swapBytes(T t) {
+        
+        auto v = static_cast<std::uint16_t>(t);
+        return static_cast<T>((v >> 8) | (v << 8));
+        
+    }
+    
+};
+template <typename T>
+struct SwapBytes<T, typename std::enable_if<sizeof(T) == 4>::type> {
+    
+    static T swapBytes(T t) {
+        
+        auto v = static_cast<std::uint32_t>(t);
+        return static_cast<T>((v >> 24) | ((v >> 8) & 0xFF00) | ((v << 8) & 0xFF0000) | ((v << 24) & 0xFF000000));
+        
+    }
+    
+};
+template <typename T>
+struct SwapBytes<T, typename std::enable_if<sizeof(T) == 8>::type> {
+    
+    static T swapBytes(T t) {
+        
+        auto v = static_cast<std::uint64_t>(t);
+        return static_cast<T>((v >> 56) | ((v >> 40) & 0xFF00) | ((v >> 24) & 0xFF0000) | ((v >> 8) & 0xFF000000)
+            | ((v << 8) & 0xFF00000000) | ((v << 24) & 0xFF0000000000) | ((v << 40) & 0xFF000000000000) | (v << 56));
+        
+    }
+    
+};
+
+}
+
+template <typename T>
+inline T swapBytes(T t) { return Impl::SwapBytes<T>::swapBytes(t); }
 
 }
 }
