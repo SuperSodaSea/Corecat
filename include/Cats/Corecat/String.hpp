@@ -40,6 +40,37 @@ namespace Cats {
 namespace Corecat {
 
 template <typename C>
+class StringBase {
+    
+public:
+    
+    using CharType = typename C::CharType;
+    using CharsetType = C;
+    
+private:
+    
+    CharType* data;
+    std::size_t length;
+    
+public:
+    
+    StringBase() : data(), length() {}
+    StringBase(const CharType* data_) {}
+    StringBase(const CharType* data_, std::size_t length_) {}
+    StringBase(const StringBase& src) {}
+    StringBase(StringBase&& src) {}
+    ~StringBase() {}
+    
+    StringBase& operator =(const StringBase& src) {}
+    
+};
+
+using String = StringBase<Charset::UTF8<>>;
+using String16 = StringBase<Charset::UTF16<>>;
+using String32 = StringBase<Charset::UTF32<>>;
+
+
+template <typename C>
 class StringViewBase {
     
 public:
@@ -54,7 +85,7 @@ private:
     
 public:
     
-    StringViewBase() = default;
+    StringViewBase() : data(""), length() {}
     StringViewBase(const CharType* data_) : data(data_), length(std::char_traits<CharType>::length(data_)) {}
     StringViewBase(const CharType* data_, std::size_t length_) : data(data_), length(length_) {}
     StringViewBase(const StringViewBase& src) = default;
@@ -89,6 +120,8 @@ inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, StringV
 }
 
 using StringView = StringViewBase<Charset::UTF8<>>;
+using StringView16 = StringViewBase<Charset::UTF16<>>;
+using StringView32 = StringViewBase<Charset::UTF32<>>;
 
 }
 }
