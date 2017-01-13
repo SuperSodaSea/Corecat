@@ -47,10 +47,14 @@ public:
     using CharType = typename C::CharType;
     using CharsetType = C;
     
+    static constexpr std::size_t SIZE = 16;
+    
 private:
     
     CharType* data;
     std::size_t length;
+    std::size_t capacity;
+    CharType buffer[];
     
 public:
     
@@ -62,6 +66,11 @@ public:
     ~StringBase() {}
     
     StringBase& operator =(const StringBase& src) {}
+    
+    CharType* getData() noexcept { return data; }
+    const CharType* getData() const noexcept { return data; }
+    std::size_t getLength() const noexcept { return length; }
+    std::size_t getCapacity() const noexcept { return capacity; }
     
 };
 
