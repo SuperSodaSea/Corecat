@@ -30,6 +30,7 @@
 
 #include <cstdlib>
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 
@@ -47,32 +48,75 @@ public:
     using CharType = typename C::CharType;
     using CharsetType = C;
     
-    static constexpr std::size_t SIZE = 16;
+    static constexpr std::size_t BUFFER_SIZE = 16;
     
 private:
     
     CharType* data;
     std::size_t length;
     std::size_t capacity;
-    CharType buffer[];
+    struct { CharType data[BUFFER_SIZE]; } buffer;
     
 public:
     
-    StringBase() : data(), length() {}
-    StringBase(const CharType* data_) {}
-    StringBase(const CharType* data_, std::size_t length_) {}
-    StringBase(const StringBase& src) {}
-    StringBase(StringBase&& src) {}
-    ~StringBase() {}
+    StringBase() noexcept : data(buffer.data), length(), capacity(BUFFER_SIZE) { buffer.data[0] = 0; }
+    StringBase(const CharType* data_, std::size_t length_) : StringBase() { append(data_, length_); }
+    StringBase(const CharType* data_) : StringBase() { append(data_); }
+    StringBase(const StringBase& src) : StringBase() { append(src); }
+    StringBase(StringBase&& src) noexcept : StringBase() { swap(src); }
+    ~StringBase() noexcept { if(data != buffer.data) delete[] data; }
     
-    StringBase& operator =(const StringBase& src) {}
+    StringBase& operator =(const CharType* data_) { length = 0; append(data_); return *this; }
+    StringBase& operator =(const StringBase& src) { length = 0; append(src); return *this; }
+    StringBase& operator =(StringBase&& src) noexcept { swap(src); return *this; }
+    
+    StringBase& operator +=(const CharType* data_) { append(data_); return *this; }
+    StringBase& operator +=(const StringBase& src) { append(src); return *this; }
     
     CharType* getData() noexcept { return data; }
     const CharType* getData() const noexcept { return data; }
     std::size_t getLength() const noexcept { return length; }
     std::size_t getCapacity() const noexcept { return capacity; }
     
+    bool isEmpty() const noexcept { return length == 0; }
+    
+    StringBase& append(const CharType* data_, std::size_t length_) {
+        
+        if(length + length_ >= capacity) {
+            
+            auto old = data;
+            data = new CharType[length + length_ + 1];
+            std::copy(old, old + length, data);
+            if(old != buffer.data) delete[] old;
+            
+        }
+        *std::copy(data_, data_ + length_, data + length) = 0;
+        length += length_;
+        
+    }
+    StringBase& append(const CharType* data_) { return append(data_, std::char_traits<CharType>::length(data_)); }
+    StringBase& append(const StringBase& src) { return append(src.data_, src.length); }
+    
+    void clear() noexcept { length = 0; }
+    
+    void swap(StringBase& src) noexcept {
+        
+        std::swap(data, src.data);
+        std::swap(length, src.length);
+        std::swap(capacity, src.capacity);
+        std::swap(buffer, src.buffer);
+        
+    }
+    
 };
+
+template <typename C, typename T = typename C::CharType>
+inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, const StringBase<C>& str) {
+    
+    stream.write(str.getData(), str.getLength());
+    return stream;
+    
+}
 
 using String = StringBase<Charset::UTF8<>>;
 using String16 = StringBase<Charset::UTF16<>>;
