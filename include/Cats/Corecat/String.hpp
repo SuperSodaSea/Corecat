@@ -41,6 +41,9 @@ namespace Cats {
 namespace Corecat {
 
 template <typename C>
+class StringViewBase;
+
+template <typename C>
 class StringBase {
     
 public:
@@ -48,7 +51,9 @@ public:
     using CharType = typename C::CharType;
     using CharsetType = C;
     
-    static constexpr std::size_t BUFFER_SIZE = 16;
+    using View = StringViewBase<C>;
+    
+    static constexpr std::size_t BUFFER_SIZE = 32;
     
 private:
     
@@ -60,18 +65,33 @@ private:
 public:
     
     StringBase() noexcept : data(buffer.data), length(), capacity(BUFFER_SIZE) { buffer.data[0] = 0; }
-    StringBase(const CharType* data_, std::size_t length_) : StringBase() { append(data_, length_); }
+    StringBase(CharType ch, std::size_t count = 1) : StringBase() { append(ch, count); }
     StringBase(const CharType* data_) : StringBase() { append(data_); }
+    StringBase(const CharType* data_, std::size_t length_) : StringBase() { append(data_, length_); }
+    StringBase(const View& sv) : StringBase() { append(sv); }
+    
     StringBase(const StringBase& src) : StringBase() { append(src); }
     StringBase(StringBase&& src) noexcept : StringBase() { swap(src); }
     ~StringBase() noexcept { if(data != buffer.data) delete[] data; }
     
-    StringBase& operator =(const CharType* data_) { length = 0; append(data_); return *this; }
     StringBase& operator =(const StringBase& src) { length = 0; append(src); return *this; }
     StringBase& operator =(StringBase&& src) noexcept { swap(src); return *this; }
     
+    StringBase& operator =(const CharType* data_) { length = 0; append(data_); return *this; }
+    StringBase& operator =(const View& sv) { length = 0; append(sv); return *this; }
+    
+    StringBase& operator +=(CharType ch) { append(ch); return *this; }
     StringBase& operator +=(const CharType* data_) { append(data_); return *this; }
-    StringBase& operator +=(const StringBase& src) { append(src); return *this; }
+    StringBase& operator +=(const StringBase& str) { append(str); return *this; }
+    StringBase& operator +=(const View& sv) { append(sv); return *this; }
+    
+    friend StringBase operator+(const StringBase& a, CharType b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator+(const StringBase& a, const CharType* b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator+(const StringBase& a, const StringBase& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator+(const StringBase& a, const View& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator+(CharType a, const StringBase& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator+(const CharType* a, const StringBase& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator+(const View& a, const StringBase& b) { StringBase t(a); t += b; return t; }
     
     CharType* getData() noexcept { return data; }
     const CharType* getData() const noexcept { return data; }
@@ -80,28 +100,49 @@ public:
     
     bool isEmpty() const noexcept { return length == 0; }
     
-    StringBase& append(const CharType* data_, std::size_t length_) {
+    void clear() noexcept { length = 0; data[0] = 0; }
+    
+    void reserve(std::size_t cap) {
         
-        if(length + length_ >= capacity) {
+        if(cap > capacity) {
             
             auto old = data;
-            data = new CharType[length + length_ + 1];
-            std::copy(old, old + length, data);
+            data = new CharType[cap + 1];
+            capacity = cap;
+            *std::copy(old, old + length, data) = 0;
             if(old != buffer.data) delete[] old;
             
         }
+        
+    }
+    
+    StringBase& append(CharType ch, std::size_t count = 1) {
+        
+        reserve(length + count);
+        std::fill(data + length, data + length + count, ch);
+        length += count;
+        data[length] = 0;
+        
+    }
+    StringBase& append(const CharType* data_, std::size_t length_) {
+        
+        reserve(length + length_);
         *std::copy(data_, data_ + length_, data + length) = 0;
         length += length_;
         
     }
     StringBase& append(const CharType* data_) { return append(data_, std::char_traits<CharType>::length(data_)); }
-    StringBase& append(const StringBase& src) { return append(src.data_, src.length); }
-    
-    void clear() noexcept { length = 0; }
+    StringBase& append(const StringBase& str) { return append(str.data, str.length); }
+    StringBase& append(const View& sv) { return append(sv.getData(), sv.getLength()); }
     
     void swap(StringBase& src) noexcept {
         
-        std::swap(data, src.data);
+        if(data == buffer.data)
+            if(src.data == src.buffer.data) { data = buffer.data; src.data = src.buffer.data; }
+            else { data = src.data; src.data = src.buffer.data; }
+        else
+            if(src.data == src.buffer.data) { src.data = data; data = buffer.data; }
+            else std::swap(data, src.data);
         std::swap(length, src.length);
         std::swap(capacity, src.capacity);
         std::swap(buffer, src.buffer);
@@ -141,6 +182,7 @@ public:
     StringViewBase() : data(""), length() {}
     StringViewBase(const CharType* data_) : data(data_), length(std::char_traits<CharType>::length(data_)) {}
     StringViewBase(const CharType* data_, std::size_t length_) : data(data_), length(length_) {}
+    
     StringViewBase(const StringViewBase& src) = default;
     ~StringViewBase() = default;
     
