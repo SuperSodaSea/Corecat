@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <type_traits>
 
 #include "Charset.hpp"
 
@@ -42,6 +43,7 @@ namespace Corecat {
 
 template <typename C>
 class StringViewBase;
+
 
 template <typename C>
 class StringBase {
@@ -57,14 +59,31 @@ public:
     
 private:
     
-    CharType* data;
-    std::size_t length;
-    std::size_t capacity;
-    struct { CharType data[BUFFER_SIZE]; } buffer;
+    union {
+        
+        struct {
+            
+            CharType* data;
+            std::size_t length;
+            std::size_t capacity;
+            
+        };
+        struct {
+            
+            CharType data[BUFFER_SIZE - 1];
+            CharType length;
+            
+        } buffer;
+        
+    } storage;
+    
+private:
+    
+    bool isSmall() const noexcept { return storage.buffer.length < BUFFER_SIZE; }
     
 public:
     
-    StringBase() noexcept : data(buffer.data), length(), capacity(BUFFER_SIZE) { buffer.data[0] = 0; }
+    StringBase() noexcept { storage.buffer.data[0] = 0; storage.buffer.length = BUFFER_SIZE - 1; }
     StringBase(CharType ch, std::size_t count = 1) : StringBase() { append(ch, count); }
     StringBase(const CharType* data_) : StringBase() { append(data_); }
     StringBase(const CharType* data_, std::size_t length_) : StringBase() { append(data_, length_); }
@@ -72,45 +91,55 @@ public:
     
     StringBase(const StringBase& src) : StringBase() { append(src); }
     StringBase(StringBase&& src) noexcept : StringBase() { swap(src); }
-    ~StringBase() noexcept { if(data != buffer.data) delete[] data; }
+    ~StringBase() noexcept { if(!isSmall()) delete[] storage.data; }
     
-    StringBase& operator =(const StringBase& src) { length = 0; append(src); return *this; }
+    StringBase& operator =(const StringBase& src) { clear(); append(src); return *this; }
     StringBase& operator =(StringBase&& src) noexcept { swap(src); return *this; }
     
-    StringBase& operator =(const CharType* data_) { length = 0; append(data_); return *this; }
-    StringBase& operator =(const View& sv) { length = 0; append(sv); return *this; }
+    StringBase& operator =(const CharType* data_) { clear(); append(data_); return *this; }
+    StringBase& operator =(const View& sv) { clear(); append(sv); return *this; }
     
     StringBase& operator +=(CharType ch) { append(ch); return *this; }
     StringBase& operator +=(const CharType* data_) { append(data_); return *this; }
     StringBase& operator +=(const StringBase& str) { append(str); return *this; }
     StringBase& operator +=(const View& sv) { append(sv); return *this; }
     
-    friend StringBase operator+(const StringBase& a, CharType b) { StringBase t(a); t += b; return t; }
-    friend StringBase operator+(const StringBase& a, const CharType* b) { StringBase t(a); t += b; return t; }
-    friend StringBase operator+(const StringBase& a, const StringBase& b) { StringBase t(a); t += b; return t; }
-    friend StringBase operator+(const StringBase& a, const View& b) { StringBase t(a); t += b; return t; }
-    friend StringBase operator+(CharType a, const StringBase& b) { StringBase t(a); t += b; return t; }
-    friend StringBase operator+(const CharType* a, const StringBase& b) { StringBase t(a); t += b; return t; }
-    friend StringBase operator+(const View& a, const StringBase& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator +(const StringBase& a, CharType b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator +(const StringBase& a, const CharType* b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator +(const StringBase& a, const StringBase& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator +(const StringBase& a, const View& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator +(CharType a, const StringBase& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator +(const CharType* a, const StringBase& b) { StringBase t(a); t += b; return t; }
+    friend StringBase operator +(const View& a, const StringBase& b) { StringBase t(a); t += b; return t; }
     
-    CharType* getData() noexcept { return data; }
-    const CharType* getData() const noexcept { return data; }
-    std::size_t getLength() const noexcept { return length; }
-    std::size_t getCapacity() const noexcept { return capacity; }
+    operator View() const noexcept { return { getData(), getLength() }; }
     
-    bool isEmpty() const noexcept { return length == 0; }
+    CharType* getData() noexcept { return isSmall() ? storage.buffer.data : storage.data; }
+    const CharType* getData() const noexcept { return isSmall() ? storage.buffer.data : storage.data; }
+    std::size_t getLength() const noexcept { return isSmall() ? BUFFER_SIZE - storage.buffer.length - 1 : storage.length; }
+    std::size_t getCapacity() const noexcept { return isSmall() ? BUFFER_SIZE - 1 : storage.capacity; }
     
-    void clear() noexcept { length = 0; data[0] = 0; }
+    bool isEmpty() const noexcept { return getLength() == 0; }
+    
+    void clear() noexcept {
+        
+        if(isSmall()) { storage.buffer.data[0] = 0; storage.buffer.length = BUFFER_SIZE - 1; }
+        else { storage.data[0] = 0; storage.length = 0; }
+        
+    }
     
     void reserve(std::size_t cap) {
         
-        if(cap > capacity) {
+        if(cap > getCapacity()) {
             
-            auto old = data;
-            data = new CharType[cap + 1];
-            capacity = cap;
-            *std::copy(old, old + length, data) = 0;
-            if(old != buffer.data) delete[] old;
+            auto length = getLength();
+            auto oldData = getData();
+            auto newData = new CharType[cap + 1];
+            std::copy(oldData, oldData + length + 1, newData);
+            storage.data = newData;
+            storage.capacity = cap;
+            if(isSmall()) storage.buffer.length = BUFFER_SIZE;
+            else delete[] oldData;
             
         }
         
@@ -118,36 +147,32 @@ public:
     
     StringBase& append(CharType ch, std::size_t count = 1) {
         
+        auto length = getLength();
         reserve(length + count);
+        auto data = getData();
         std::fill(data + length, data + length + count, ch);
         length += count;
         data[length] = 0;
+        if(isSmall()) storage.buffer.length = BUFFER_SIZE - length - 1;
+        else storage.length = length;
         
     }
     StringBase& append(const CharType* data_, std::size_t length_) {
         
+        auto length = getLength();
         reserve(length + length_);
+        auto data = getData();
         *std::copy(data_, data_ + length_, data + length) = 0;
         length += length_;
+        if(isSmall()) storage.buffer.length = BUFFER_SIZE - length - 1;
+        else storage.length = length;
         
     }
     StringBase& append(const CharType* data_) { return append(data_, std::char_traits<CharType>::length(data_)); }
-    StringBase& append(const StringBase& str) { return append(str.data, str.length); }
+    StringBase& append(const StringBase& str) { return append(str.getData(), str.getLength()); }
     StringBase& append(const View& sv) { return append(sv.getData(), sv.getLength()); }
     
-    void swap(StringBase& src) noexcept {
-        
-        if(data == buffer.data)
-            if(src.data == src.buffer.data) { data = buffer.data; src.data = src.buffer.data; }
-            else { data = src.data; src.data = src.buffer.data; }
-        else
-            if(src.data == src.buffer.data) { src.data = data; data = buffer.data; }
-            else std::swap(data, src.data);
-        std::swap(length, src.length);
-        std::swap(capacity, src.capacity);
-        std::swap(buffer, src.buffer);
-        
-    }
+    void swap(StringBase& src) noexcept { std::swap(storage, src.storage); }
     
 };
 
