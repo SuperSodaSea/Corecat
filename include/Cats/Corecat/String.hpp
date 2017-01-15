@@ -79,19 +79,19 @@ private:
     
 private:
     
-    bool isSmall() const noexcept { return storage.buffer.length < BUFFER_SIZE; }
+    bool isSmall() const noexcept { return static_cast<std::size_t>(storage.buffer.length) < BUFFER_SIZE; }
     
 public:
+
+    StringBase(const StringBase& src) : StringBase() { append(src); }
+    StringBase(StringBase&& src) noexcept : StringBase() { swap(src); }
+    ~StringBase() noexcept { if(!isSmall()) delete[] storage.data; }
     
     StringBase() noexcept { storage.buffer.data[0] = 0; storage.buffer.length = BUFFER_SIZE - 1; }
     StringBase(CharType ch, std::size_t count = 1) : StringBase() { append(ch, count); }
     StringBase(const CharType* data_) : StringBase() { append(data_); }
     StringBase(const CharType* data_, std::size_t length_) : StringBase() { append(data_, length_); }
     StringBase(const View& sv) : StringBase() { append(sv); }
-    
-    StringBase(const StringBase& src) : StringBase() { append(src); }
-    StringBase(StringBase&& src) noexcept : StringBase() { swap(src); }
-    ~StringBase() noexcept { if(!isSmall()) delete[] storage.data; }
     
     StringBase& operator =(const StringBase& src) { clear(); append(src); return *this; }
     StringBase& operator =(StringBase&& src) noexcept { swap(src); return *this; }
@@ -155,6 +155,7 @@ public:
         data[length] = 0;
         if(isSmall()) storage.buffer.length = BUFFER_SIZE - length - 1;
         else storage.length = length;
+        return *this;
         
     }
     StringBase& append(const CharType* data_, std::size_t length_) {
@@ -166,6 +167,7 @@ public:
         length += length_;
         if(isSmall()) storage.buffer.length = BUFFER_SIZE - length - 1;
         else storage.length = length;
+        return *this;
         
     }
     StringBase& append(const CharType* data_) { return append(data_, std::char_traits<CharType>::length(data_)); }
@@ -204,15 +206,17 @@ private:
     
 public:
     
+    StringViewBase(const StringViewBase& src) = default;
+    ~StringViewBase() = default;
+    
     StringViewBase() : data(""), length() {}
     StringViewBase(const CharType* data_) : data(data_), length(std::char_traits<CharType>::length(data_)) {}
     StringViewBase(const CharType* data_, std::size_t length_) : data(data_), length(length_) {}
     
-    StringViewBase(const StringViewBase& src) = default;
-    ~StringViewBase() = default;
-    
     StringViewBase& operator =(const StringViewBase& src) = default;
+    
     const CharType& operator [](std::size_t index) const noexcept { return data[index]; }
+    
     bool operator ==(StringViewBase sv) const noexcept {
         
         if(length != sv.length) return false;
