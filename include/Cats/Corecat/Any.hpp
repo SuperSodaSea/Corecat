@@ -53,10 +53,10 @@ private:
         virtual ~HolderBase() {}
         
         virtual void* get() noexcept = 0;
-        virtual const void* get() const noexcept = 0;
+        const void* get() const noexcept { return const_cast<HolderBase*>(this)->get(); }
         virtual std::size_t getSize() const noexcept = 0;
         virtual const std::type_info& getType() const noexcept = 0;
-        virtual void clone(void* dst) const = 0;
+        virtual void copy(void* dst) const = 0;
         virtual void move(void* dst) = 0;
         
     };
@@ -78,10 +78,9 @@ private:
         Holder(T&& t_) : t(std::move(t_)) {}
         
         void* get() noexcept final { return &t; }
-        const void* get() const noexcept final { return &t; }
-        std::size_t getSize() const noexcept final { return sizeof(Holder<T>); }
+        std::size_t getSize() const noexcept final { return sizeof(Holder); }
         const std::type_info& getType() const noexcept final { return typeid(T); }
-        void clone(void* dst) const final { new(static_cast<Holder*>(dst)) Holder<T>(*this); }
+        void copy(void* dst) const final { new(static_cast<Holder*>(dst)) Holder<T>(*this); }
         void move(void* dst) final { new(static_cast<Holder*>(dst)) Holder(std::move(t)); };
         
     };
@@ -113,9 +112,9 @@ public:
         
         if(!src.empty) {
             
-            auto holder = reinterpret_cast<HolderBase*>(src.data);
+            auto holder = reinterpret_cast<const HolderBase*>(src.data);
             allocate(holder->getSize());
-            holder->clone(data);
+            holder->copy(data);
             empty = false;
             
         }
@@ -133,9 +132,9 @@ public:
         clear();
         if(!src.empty) {
             
-            auto holder = reinterpret_cast<HolderBase*>(src.data);
+            auto holder = reinterpret_cast<const HolderBase*>(src.data);
             allocate(holder->getSize());
-            holder->clone(data);
+            holder->copy(data);
             empty = false;
             
         }
