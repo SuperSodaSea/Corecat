@@ -182,7 +182,8 @@ public:
             
             if(!src.empty) {
                 
-                if(data == buffer)
+                if(data == buffer) {
+                    
                     if(src.data == src.buffer) reinterpret_cast<HolderBase*>(src.buffer)->move(buffer);
                     else {
                         
@@ -190,7 +191,9 @@ public:
                         src.data = src.buffer; src.capacity = BUFFER_SIZE;
                         
                     }
-                else
+                    
+                } else {
+                    
                     if(src.data == src.buffer) {
                         
                         reinterpret_cast<HolderBase*>(src.buffer)->move(buffer);
@@ -198,6 +201,8 @@ public:
                         data = buffer; capacity = BUFFER_SIZE;
                         
                     } else { std::swap(data, src.data); std::swap(capacity, src.capacity); }
+                    
+                }
                 empty = false; src.empty = true;
                 
             }
@@ -206,7 +211,8 @@ public:
             
             if(src.empty) {
                 
-                if(data == buffer)
+                if(data == buffer) {
+                    
                     if(src.data == src.buffer) {
                         
                         char tmp[BUFFER_SIZE];
@@ -221,7 +227,9 @@ public:
                         src.data = src.buffer; src.capacity = BUFFER_SIZE;
                         
                     }
-                else
+                    
+                } else {
+                    
                     if(src.data == src.buffer) {
                         
                         reinterpret_cast<HolderBase*>(src.buffer)->move(buffer);
@@ -229,10 +237,13 @@ public:
                         data = buffer; capacity = BUFFER_SIZE;
                         
                     } else { std::swap(data, src.data); std::swap(capacity, src.capacity); }
+                    
+                }
                 
             } else {
                 
-                if(data == buffer)
+                if(data == buffer) {
+                    
                     if(src.data == src.buffer) reinterpret_cast<HolderBase*>(buffer)->move(src.buffer);
                     else {
                         
@@ -241,13 +252,17 @@ public:
                         src.data = src.buffer; src.capacity = BUFFER_SIZE;
                         
                     }
-                else
+                    
+                } else {
+                    
                     if(src.data == src.buffer) {
                         
                         src.data = data; src.capacity = capacity;
                         data = buffer; capacity = BUFFER_SIZE;
                         
                     } else { std::swap(data, src.data); std::swap(capacity, src.capacity); }
+                    
+                }
                 empty = true; src.empty = false;
                 
             }
