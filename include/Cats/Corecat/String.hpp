@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <type_traits>
 
@@ -50,12 +51,17 @@ class StringBase {
     
 public:
     
+    static constexpr std::size_t BUFFER_SIZE = 32;
+    
     using CharType = typename C::CharType;
     using CharsetType = C;
     
-    using View = StringViewBase<C>;
+    using Iterator = CharType*;
+    using ConstIterator = const CharType*;
+    using ReverseIterator = std::reverse_iterator<Iterator>;
+    using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
     
-    static constexpr std::size_t BUFFER_SIZE = 32;
+    using View = StringViewBase<C>;
     
 private:
     
@@ -113,6 +119,13 @@ public:
     friend StringBase operator +(const View& a, const StringBase& b) { StringBase t(a); t += b; return t; }
     
     operator View() const noexcept { return { getData(), getLength() }; }
+
+    friend std::basic_ostream<CharType>& operator <<(std::basic_ostream<CharType>& stream, const StringBase<C>& str) {
+        
+        stream.write(str.getData(), str.getLength());
+        return stream;
+        
+    }
     
     CharType* getData() noexcept { return isSmall() ? storage.buffer.data : storage.data; }
     const CharType* getData() const noexcept { return isSmall() ? storage.buffer.data : storage.data; }
@@ -176,15 +189,19 @@ public:
     
     void swap(StringBase& src) noexcept { std::swap(storage, src.storage); }
     
+    Iterator begin() noexcept { return getData(); }
+    ConstIterator begin() const noexcept { return getData(); }
+    
+    Iterator end() noexcept { return getData() + getLength(); }
+    ConstIterator end() const noexcept { return getData() + getLength(); }
+    
+    ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
+    ConstReverseIterator rbegin() const noexcept { return ReverseIterator(end()); }
+    
+    ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
+    ConstReverseIterator rend() const noexcept { return ReverseIterator(begin()); }
+    
 };
-
-template <typename C, typename T = typename C::CharType>
-inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, const StringBase<C>& str) {
-    
-    stream.write(str.getData(), str.getLength());
-    return stream;
-    
-}
 
 using String = StringBase<Charset::UTF8<>>;
 using String16 = StringBase<Charset::UTF16<>>;
@@ -198,6 +215,9 @@ public:
     
     using CharType = typename C::CharType;
     using CharsetType = C;
+    
+    using Iterator = const CharType*;
+    using ReverseIterator = std::reverse_iterator<Iterator>;
     
 private:
     
@@ -228,20 +248,27 @@ public:
     }
     bool operator !=(StringViewBase sv) const noexcept { return !(*this == sv); }
     
+    friend std::basic_ostream<CharType>& operator <<(std::basic_ostream<CharType>& stream, const StringViewBase& sv) {
+        
+        stream.write(sv.getData(), sv.getLength());
+        return stream;
+        
+    }
+    
     const CharType* getData() const noexcept { return data; }
     void setData(const CharType* data_) noexcept { data = data_; }
     std::size_t getLength() const noexcept { return length; }
     void setLength(std::size_t length_) noexcept { length = length_; }
     
+    Iterator begin() const noexcept { return getData(); }
+    
+    Iterator end() const noexcept { return getData() + getLength(); }
+    
+    ReverseIterator rbegin() const noexcept { return ReverseIterator(end()); }
+    
+    ReverseIterator rend() const noexcept { return ReverseIterator(begin()); }
+    
 };
-
-template <typename C, typename T = typename C::CharType>
-inline std::basic_ostream<T>& operator <<(std::basic_ostream<T>& stream, StringViewBase<C> sv) {
-    
-    stream.write(sv.getData(), sv.getLength());
-    return stream;
-    
-}
 
 using StringView = StringViewBase<Charset::UTF8<>>;
 using StringView16 = StringViewBase<Charset::UTF16<>>;
