@@ -118,8 +118,11 @@ public:
     friend StringBase operator +(const CharType* a, const StringBase& b) { StringBase t(a); t += b; return t; }
     friend StringBase operator +(const View& a, const StringBase& b) { StringBase t(a); t += b; return t; }
     
+    CharType& operator [](std::size_t index) noexcept { return getData()[index]; };
+    const CharType& operator [](std::size_t index) const noexcept { return getData()[index]; };
+    
     operator View() const noexcept { return { getData(), getLength() }; }
-
+    
     friend std::basic_ostream<CharType>& operator <<(std::basic_ostream<CharType>& stream, const StringBase<C>& str) {
         
         stream.write(str.getData(), str.getLength());
@@ -128,7 +131,7 @@ public:
     }
     
     CharType* getData() noexcept { return isSmall() ? storage.buffer.data : storage.data; }
-    const CharType* getData() const noexcept { return isSmall() ? storage.buffer.data : storage.data; }
+    const CharType* getData() const noexcept { return const_cast<StringBase*>(this)->getData(); }
     std::size_t getLength() const noexcept { return isSmall() ? BUFFER_SIZE - storage.buffer.length - 1 : storage.length; }
     std::size_t getCapacity() const noexcept { return isSmall() ? BUFFER_SIZE - 1 : storage.capacity; }
     
@@ -191,15 +194,19 @@ public:
     
     Iterator begin() noexcept { return getData(); }
     ConstIterator begin() const noexcept { return getData(); }
+    ConstIterator cbegin() const noexcept { return getData(); }
     
     Iterator end() noexcept { return getData() + getLength(); }
     ConstIterator end() const noexcept { return getData() + getLength(); }
+    ConstIterator cend() const noexcept { return getData() + getLength(); }
     
     ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
-    ConstReverseIterator rbegin() const noexcept { return ReverseIterator(end()); }
+    ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(end()); }
+    ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
     
     ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
-    ConstReverseIterator rend() const noexcept { return ReverseIterator(begin()); }
+    ConstReverseIterator rend() const noexcept { return ConstReverseIterator(begin()); }
+    ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
     
 };
 
