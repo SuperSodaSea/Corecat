@@ -121,7 +121,7 @@ public:
     CharType& operator [](std::size_t index) noexcept { return getData()[index]; };
     const CharType& operator [](std::size_t index) const noexcept { return getData()[index]; };
     
-    operator View() const noexcept { return { getData(), getLength() }; }
+    operator View() const noexcept { return getView(); }
     
     friend std::basic_ostream<CharType>& operator <<(std::basic_ostream<CharType>& stream, const StringBase<C>& str) {
         
@@ -134,6 +134,8 @@ public:
     const CharType* getData() const noexcept { return const_cast<StringBase*>(this)->getData(); }
     std::size_t getLength() const noexcept { return isSmall() ? BUFFER_SIZE - storage.buffer.length - 1 : storage.length; }
     std::size_t getCapacity() const noexcept { return isSmall() ? BUFFER_SIZE - 1 : storage.capacity; }
+    
+    View getView() const noexcept { return View(getData(), getLength()); }
     
     bool isEmpty() const noexcept { return getLength() == 0; }
     
@@ -153,6 +155,7 @@ public:
             auto newData = new CharType[cap + 1];
             std::copy(oldData, oldData + length + 1, newData);
             storage.data = newData;
+            storage.length = length;
             storage.capacity = cap;
             if(isSmall()) storage.buffer.length = BUFFER_SIZE;
             else delete[] oldData;
@@ -192,6 +195,11 @@ public:
     
     void swap(StringBase& src) noexcept { std::swap(storage, src.storage); }
     
+    StringBase repeat(std::size_t count) const { return getView().repeat(count); }
+    
+    View substr(std::size_t pos) const noexcept { return getView().substr(pos); }
+    View substr(std::size_t pos, std::size_t count) const noexcept { return getView().substr(pos, count); }
+    
     Iterator begin() noexcept { return getData(); }
     ConstIterator begin() const noexcept { return getData(); }
     ConstIterator cbegin() const noexcept { return getData(); }
@@ -225,6 +233,8 @@ public:
     
     using Iterator = const CharType*;
     using ReverseIterator = std::reverse_iterator<Iterator>;
+    
+    using String = StringBase<C>;
     
 private:
     
@@ -266,6 +276,28 @@ public:
     void setData(const CharType* data_) noexcept { data = data_; }
     std::size_t getLength() const noexcept { return length; }
     void setLength(std::size_t length_) noexcept { length = length_; }
+    
+    String repeat(std::size_t count) const {
+        
+        String t;
+        t.reserve(getLength() * count);
+        for(std::size_t i = 0; i < count; ++i) { t += *this; }
+        return t;
+        
+    }
+    
+    StringViewBase substr(std::size_t pos) const noexcept {
+        
+        if(pos <= length) return {data + pos, length - pos};
+        else return {};
+        
+    }
+    StringViewBase substr(std::size_t pos, std::size_t count) const noexcept {
+        
+        if(pos <= length) return {data + pos, std::min(count, length - pos)};
+        else return {};
+        
+    }
     
     Iterator begin() const noexcept { return getData(); }
     
