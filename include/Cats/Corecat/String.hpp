@@ -28,7 +28,7 @@
 #define CATS_CORECAT_STRING_HPP
 
 
-#include <cstdlib>
+#include <cstddef>
 
 #include <algorithm>
 #include <iostream>
@@ -118,10 +118,12 @@ public:
     friend StringBase operator +(const CharType* a, const StringBase& b) { StringBase t(a); t += b; return t; }
     friend StringBase operator +(const View& a, const StringBase& b) { StringBase t(a); t += b; return t; }
     
+    StringBase& operator *=(std::size_t count) { return *this = repeat(count); }
+    
+    friend StringBase operator *(const StringBase& a, std::size_t b) { return a.repeat(b); }
+    
     CharType& operator [](std::size_t index) noexcept { return getData()[index]; };
     const CharType& operator [](std::size_t index) const noexcept { return getData()[index]; };
-    
-    operator View() const noexcept { return getView(); }
     
     friend std::basic_ostream<CharType>& operator <<(std::basic_ostream<CharType>& stream, const StringBase<C>& str) {
         
@@ -129,6 +131,9 @@ public:
         return stream;
         
     }
+    
+    operator View() const noexcept { return getView(); }
+    
     
     CharType* getData() noexcept { return isSmall() ? storage.buffer.data : storage.data; }
     const CharType* getData() const noexcept { return const_cast<StringBase*>(this)->getData(); }
@@ -138,6 +143,15 @@ public:
     View getView() const noexcept { return View(getData(), getLength()); }
     
     bool isEmpty() const noexcept { return getLength() == 0; }
+    
+    StringBase repeat(std::size_t count) const { return getView().repeat(count); }
+    
+    View slice(std::ptrdiff_t beginPos) const noexcept { return getView().slice(beginPos); }
+    View slice(std::ptrdiff_t beginPos, std::ptrdiff_t endPos) const noexcept { return getView().slice(beginPos, endPos); }
+    
+    View substr(std::size_t beginPos) const noexcept { return getView().substr(beginPos); }
+    View substr(std::size_t beginPos, std::size_t count) const noexcept { return getView().substr(beginPos, count); }
+    
     
     void clear() noexcept {
         
@@ -195,10 +209,6 @@ public:
     
     void swap(StringBase& src) noexcept { std::swap(storage, src.storage); }
     
-    StringBase repeat(std::size_t count) const { return getView().repeat(count); }
-    
-    View substr(std::size_t pos) const noexcept { return getView().substr(pos); }
-    View substr(std::size_t pos, std::size_t count) const noexcept { return getView().substr(pos, count); }
     
     Iterator begin() noexcept { return getData(); }
     ConstIterator begin() const noexcept { return getData(); }
@@ -265,6 +275,8 @@ public:
     }
     bool operator !=(StringViewBase sv) const noexcept { return !(*this == sv); }
     
+    friend String operator *(const StringViewBase& a, std::size_t b) { return a.repeat(b); }
+    
     friend std::basic_ostream<CharType>& operator <<(std::basic_ostream<CharType>& stream, const StringViewBase& sv) {
         
         stream.write(sv.getData(), sv.getLength());
@@ -272,10 +284,21 @@ public:
         
     }
     
+    
     const CharType* getData() const noexcept { return data; }
     void setData(const CharType* data_) noexcept { data = data_; }
     std::size_t getLength() const noexcept { return length; }
     void setLength(std::size_t length_) noexcept { length = length_; }
+    
+    bool isEmpty() const noexcept { return length == 0; }
+    
+    std::ptrdiff_t find(CharType ch) const noexcept {
+        
+        auto end = data + length;
+        for(auto p = data; p < end; ++p) if(*p == ch) return p - data;
+        return -1;
+        
+    }
     
     String repeat(std::size_t count) const {
         
@@ -286,18 +309,40 @@ public:
         
     }
     
-    StringViewBase substr(std::size_t pos) const noexcept {
+    StringViewBase slice(std::ptrdiff_t beginPos) const noexcept {
         
-        if(pos <= length) return {data + pos, length - pos};
+        if(beginPos < 0) beginPos += length;
+        beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
+        if(beginPos < static_cast<std::ptrdiff_t>(length)) return {data + beginPos, length - beginPos};
         else return {};
         
     }
-    StringViewBase substr(std::size_t pos, std::size_t count) const noexcept {
+    StringViewBase slice(std::ptrdiff_t beginPos, std::ptrdiff_t endPos) const noexcept {
         
-        if(pos <= length) return {data + pos, std::min(count, length - pos)};
+        if(beginPos < 0) beginPos += length;
+        beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
+        if(endPos < 0) endPos += length;
+        endPos = std::min<std::ptrdiff_t>(std::max<std::ptrdiff_t>(endPos, 0), length);
+        if(beginPos < static_cast<std::ptrdiff_t>(length) && beginPos < endPos)
+            return {data + beginPos, static_cast<std::size_t>(endPos - beginPos)};
         else return {};
         
     }
+    
+    StringViewBase substr(std::ptrdiff_t beginPos) const noexcept {
+        
+        return slice(beginPos);
+        
+    }
+    StringViewBase substr(std::size_t beginPos, std::size_t count) const noexcept {
+        
+        if(beginPos < 0) beginPos += length;
+        beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
+        if(beginPos < length) return {data + beginPos, std::min(count, length - beginPos)};
+        else return {};
+        
+    }
+    
     
     Iterator begin() const noexcept { return getData(); }
     
