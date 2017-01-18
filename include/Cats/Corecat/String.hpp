@@ -144,6 +144,11 @@ public:
     
     bool isEmpty() const noexcept { return getLength() == 0; }
     
+    std::ptrdiff_t find(CharType ch, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(ch, beginPos); }
+    std::ptrdiff_t find(const CharType* data_, std::size_t length_, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(data_, length_, beginPos); }
+    std::ptrdiff_t find(const CharType* data_, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(data_, beginPos); }
+    std::ptrdiff_t find(const View& sv, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(sv, beginPos); }
+    
     StringBase repeat(std::size_t count) const { return getView().repeat(count); }
     
     View slice(std::ptrdiff_t beginPos) const noexcept { return getView().slice(beginPos); }
@@ -292,13 +297,32 @@ public:
     
     bool isEmpty() const noexcept { return length == 0; }
     
-    std::ptrdiff_t find(CharType ch) const noexcept {
+    std::ptrdiff_t find(CharType ch, std::ptrdiff_t beginPos = 0) const noexcept {
         
-        auto end = data + length;
-        for(auto p = data; p < end; ++p) if(*p == ch) return p - data;
+        if(beginPos >= static_cast<std::ptrdiff_t>(length)) return -1;
+        if(beginPos < 0) beginPos += length;
+        beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
+        for(auto p = data + beginPos, end = data + length; p < end; ++p) if(*p == ch) return p - data;
         return -1;
         
     }
+    std::ptrdiff_t find(const CharType* data_, std::size_t length_, std::ptrdiff_t beginPos = 0) const noexcept {
+        
+        if(length < length_ || beginPos + length_ > length) return -1;
+        if(beginPos < 0) beginPos += length;
+        beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
+        for(auto p = data + beginPos, end1 = data + length - length_ + 1; p < end1; ++p) {
+            
+            auto q = p, end2 = p + length_;
+            for(auto r = data_; q < end2 && *q == *r; ++q, ++r);
+            if(q == end2) return p - data;
+            
+        }
+        return -1;
+        
+    }
+    std::ptrdiff_t find(const CharType* data_, std::ptrdiff_t beginPos = 0) const noexcept { return find(data_, std::char_traits<CharType>::length(data_), beginPos); }
+    std::ptrdiff_t find(const StringViewBase& sv, std::ptrdiff_t beginPos = 0) const noexcept { return find(sv.getData(), sv.getLength(), beginPos); }
     
     String repeat(std::size_t count) const {
         
