@@ -30,6 +30,7 @@
 
 #include <cstdlib>
 
+#include <memoty>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -77,7 +78,7 @@ private:
         Holder() = delete;
         Holder(T&& t_) : t(std::move(t_)) {}
         
-        void* get() noexcept final { return &t; }
+        void* get() noexcept final { return std::addressof(t); }
         std::size_t getSize() const noexcept final { return sizeof(Holder); }
         const std::type_info& getType() const noexcept final { return typeid(T); }
         void copy(void* dst) const final { new(static_cast<Holder*>(dst)) Holder<T>(*this); }
