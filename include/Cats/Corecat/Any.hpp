@@ -57,8 +57,8 @@ private:
         const void* get() const noexcept { return const_cast<HolderBase*>(this)->get(); }
         virtual std::size_t getSize() const noexcept = 0;
         virtual const std::type_info& getType() const noexcept = 0;
-        virtual void copy(void* dst) const = 0;
-        virtual void move(void* dst) = 0;
+        virtual void copy(char* dst) const = 0;
+        virtual void move(char* dst) = 0;
         
     };
     
@@ -81,8 +81,8 @@ private:
         void* get() noexcept final { return std::addressof(t); }
         std::size_t getSize() const noexcept final { return sizeof(Holder); }
         const std::type_info& getType() const noexcept final { return typeid(T); }
-        void copy(void* dst) const final { new(static_cast<Holder*>(dst)) Holder<T>(*this); }
-        void move(void* dst) final { new(static_cast<Holder*>(dst)) Holder(std::move(t)); };
+        void copy(char* dst) const final { new(dst) Holder<T>(*this); }
+        void move(char* dst) final { new(dst) Holder(std::move(t)); };
         
     };
     
@@ -94,6 +94,14 @@ private:
     char buffer[BUFFER_SIZE];
     
 private:
+    
+    static HolderBase* asHolder(char* p) noexcept {
+        
+        union { char* a; HolderBase* b; } u;
+        u.a = p;
+        return u.b;
+        
+    }
     
     void allocate(std::size_t cap) {
         
@@ -185,7 +193,7 @@ public:
                 
                 if(data == buffer) {
                     
-                    if(src.data == src.buffer) reinterpret_cast<HolderBase*>(src.buffer)->move(buffer);
+                    if(src.data == src.buffer) asHolder(src.buffer)->move(buffer);
                     else {
                         
                         data = src.data; capacity = src.capacity;
@@ -197,7 +205,7 @@ public:
                     
                     if(src.data == src.buffer) {
                         
-                        reinterpret_cast<HolderBase*>(src.buffer)->move(buffer);
+                        asHolder(src.buffer)->move(buffer);
                         src.data = data; src.capacity = capacity;
                         data = buffer; capacity = BUFFER_SIZE;
                         
@@ -217,13 +225,13 @@ public:
                     if(src.data == src.buffer) {
                         
                         char tmp[BUFFER_SIZE];
-                        reinterpret_cast<HolderBase*>(buffer)->move(tmp);
-                        reinterpret_cast<HolderBase*>(src.buffer)->move(buffer);
-                        reinterpret_cast<HolderBase*>(tmp)->move(buffer);
+                        asHolder(buffer)->move(tmp);
+                        asHolder(src.buffer)->move(buffer);
+                        asHolder(tmp)->move(buffer);
                         
                     } else {
                         
-                        reinterpret_cast<HolderBase*>(buffer)->move(src.buffer);
+                        asHolder(buffer)->move(src.buffer);
                         data = src.data; capacity = src.capacity;
                         src.data = src.buffer; src.capacity = BUFFER_SIZE;
                         
@@ -233,7 +241,7 @@ public:
                     
                     if(src.data == src.buffer) {
                         
-                        reinterpret_cast<HolderBase*>(src.buffer)->move(buffer);
+                        asHolder(src.buffer)->move(buffer);
                         src.data = data; src.capacity = capacity;
                         data = buffer; capacity = BUFFER_SIZE;
                         
@@ -245,10 +253,10 @@ public:
                 
                 if(data == buffer) {
                     
-                    if(src.data == src.buffer) reinterpret_cast<HolderBase*>(buffer)->move(src.buffer);
+                    if(src.data == src.buffer) asHolder(buffer)->move(src.buffer);
                     else {
                         
-                        reinterpret_cast<HolderBase*>(buffer)->move(src.buffer);
+                        asHolder(buffer)->move(src.buffer);
                         data = src.data; capacity = src.capacity;
                         src.data = src.buffer; src.capacity = BUFFER_SIZE;
                         
