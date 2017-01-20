@@ -35,28 +35,50 @@
 namespace Cats {
 namespace Corecat {
 
+// Inspired by https://github.com/facebook/folly/blob/master/folly/ExceptionWrapper.h
 class ExceptionWrapper {
     
 private:
     
-    std::exception_ptr eptr;
+    template <typename T>
+    using is_exception_t = typename std::enable_if<std::is_base_of<std::exception, T>::value>::type;
+    
+private:
+    
+    std::shared_ptr<std::exception> exception;
+    const std::type_info* type = nullptr;
+    void (*throwFunction)(const std::exception&) = nullptr;
+    std::exception_ptr eptr = nullptr;
+    
+private:
+    
+    template <typename T>
+    static void throwFunctionImpl(const std::exception& e) { throw static_cast<const T&>(e); }
     
 public:
     
-    ExceptionWrapper(const ExceptionWrapper& src) : eptr(src.eptr) {}
+    ExceptionWrapper(const ExceptionWrapper& src) : exception(src.exception), type(src.type), throwFunction(src.throwFunction), eptr(src.eptr) {}
     ~ExceptionWrapper() = default;
     
-    ExceptionWrapper() noexcept : eptr() {}
+    ExceptionWrapper() noexcept = default;
+    template <typename T, typename U = typename std::decay<T>::type, typename = is_exception_t<U>>
+    ExceptionWrapper(T&& t) : exception(std::make_shared<T>(t)), type(&typeid(U)), throwFunction(throwFunctionImpl<U>) {}
     ExceptionWrapper(std::exception_ptr eptr_) noexcept : eptr(eptr_) {}
     
-    ExceptionWrapper& operator =(const ExceptionWrapper& src) { eptr = src.eptr; }
+    ExceptionWrapper& operator =(const ExceptionWrapper& src) noexcept { exception = src.exception; type = src.type; throwFunction = src.throwFunction; eptr = src.eptr; return *this; }
     
-    ExceptionWrapper& operator =(std::exception_ptr eptr_) { eptr = eptr_; return *this; }
+    ExceptionWrapper& operator =(std::exception_ptr eptr_) noexcept { return *this = ExceptionWrapper(eptr_); }
+    template <typename T, typename = is_exception_t<T>>
+    ExceptionWrapper& operator =(T&& t) { return *this = ExceptionWrapper(std::forward<T>(t)); }
+    
+    operator bool() const noexcept { return exception || eptr; }
     
     [[noreturn]] void rethrow() const {
         
-        if(eptr) { std::rethrow_exception(eptr); }
+        if(exception) throwFunction(*exception.get());
+        else if(eptr) std::rethrow_exception(eptr);
         else throw std::runtime_error("no exception");
+        std::terminate();
         
     }
     
