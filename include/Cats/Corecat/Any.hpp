@@ -163,12 +163,7 @@ public:
         
     }
     template <typename T>
-    const T& get() const {
-        
-        if(getType() != typeid(T)) throw std::bad_cast();
-        return static_cast<const T&>(*static_cast<const HolderBase*>(data)->get());
-        
-    }
+    const T& get() const { return const_cast<Any*>(this)->get<T>(); }
     const std::type_info& getType() const { return empty ? typeid(void) : reinterpret_cast<HolderBase*>(data)->getType(); }
     
     bool isEmpty() const noexcept { return empty; }
