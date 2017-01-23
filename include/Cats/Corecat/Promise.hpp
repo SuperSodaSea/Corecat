@@ -39,15 +39,6 @@
 namespace Cats {
 namespace Corecat {
 
-namespace Impl {
-
-template <typename...>
-struct IsVoid { static constexpr bool value = false; };
-template <>
-struct IsVoid<void> { static constexpr bool value = true; };
-
-}
-
 // Inspired by https://github.com/facebook/folly/blob/master/folly/futures/Future.h
 template <typename T>
 class Promise {
@@ -56,57 +47,41 @@ public:
     
     enum class State { Pending, Resolved, Rejected };
     
-private:
-    
-    template <typename... U>
-    using IsVoid = Impl::IsVoid<U...>;
+public:
     
     struct Void {};
     template <typename U>
-    using NonVoidType = typename std::conditional<IsVoid<U>::value, Void, U>::type;
+    using NonVoidType = typename std::conditional<std::is_void<U>::value, Void, U>::type;
+    
+    template <typename... U>
+    struct VoidTypeImpl { using Type = void; };
+    template <typename... U>
+    using VoidType = typename VoidTypeImpl<U...>::Type;
     
     template <typename U>
-    using EnableIfVoid = typename std::enable_if<IsVoid<U>::value>::type;
+    using EnableIfVoid = typename std::enable_if<std::is_void<U>::value>::type;
     template <typename U>
-    using EnableIfNotVoid = typename std::enable_if<!IsVoid<U>::value>::type;
+    using EnableIfNotVoid = typename std::enable_if<!std::is_void<U>::value>::type;
     
     template <typename F, typename... Arg>
-    using ResultType = decltype(std::declval<F>()(std::declval<Arg>()...));
-
-    template <typename F, typename... Arg>
-    class IsCallable {
-        
-    private:
-        
-        template <typename U, typename = ResultType<U, Arg...>>
-        static constexpr bool f(int) { return true; }
-        template <typename>
-        static constexpr bool f(...) { return false; }
-        
-    public:
-        
-        static constexpr bool value = f<F>(0);
-        
-    };
+    struct ResultTypeImpl { using Type = decltype(std::declval<F>()(std::declval<Arg>()...)); };
     template <typename F>
-    class IsCallable<F, void> {
-        
-    private:
-        
-        template <typename U, typename = ResultType<U>>
-        static constexpr bool f(int) { return true; }
-        template <typename>
-        static constexpr bool f(...) { return false; }
-        
-    public:
-        
-        static constexpr bool value = f<F>(0);
-        
-    };
+    struct ResultTypeImpl<F, void> { using Type = decltype(std::declval<F>()()); };
+    template <typename F, typename... Arg>
+    using ResultType = typename ResultTypeImpl<F, Arg...>::Type;
+    
+    template <typename F, typename Args, typename = void>
+    struct IsCallableImpl : public std::false_type {};
+    template <typename F, typename... Arg>
+    struct IsCallableImpl<F, std::tuple<Arg...>, VoidType<decltype(std::declval<F>()(std::declval<Arg>()...))>> : public std::true_type {};
+    template <typename F, typename... Arg>
+    struct IsCallable : public IsCallableImpl<F, std::tuple<Arg...>> {};
+    template <typename F>
+    struct IsCallable<F, void> : public IsCallableImpl<F, std::tuple<>> {};
     
     template <typename F, typename U, typename V = NonVoidType<U>>
     using ArgumentType =
-        typename std::conditional<IsVoid<U>::value, void,
+        typename std::conditional<std::is_void<U>::value, void,
         typename std::conditional<IsCallable<F, V>::value, V,
         typename std::conditional<IsCallable<F, const V&>::value, const V&,
         void>::type>::type>::type;
@@ -118,7 +93,7 @@ private:
     private:
         
         State state = State::Pending;
-        std::deque<std::function<typename std::conditional<IsVoid<T>::value, void(), void(const NonVoidType<T>&)>::type>> resolvedQueue;
+        std::deque<std::function<typename std::conditional<std::is_void<T>::value, void(), void(const NonVoidType<T>&)>::type>> resolvedQueue;
         std::deque<std::function<void(const ExceptionWrapper&)>> rejectedQueue;
         NonVoidType<T> result;
         ExceptionWrapper exception;
@@ -290,7 +265,7 @@ private:
             };
             switch(state) {
             case State::Pending: rejectedQueue.emplace_back(cb); break;
-            case State::Rejected: cb(exception); break;
+            case State::Rejected: cb(ExceptionWrapper()); break;
             default: break;
             }
             return promise;
@@ -314,7 +289,7 @@ private:
             };
             switch(state) {
             case State::Pending: rejectedQueue.emplace_back(cb); break;
-            case State::Rejected: cb(exception); break;
+            case State::Rejected: cb(ExceptionWrapper()); break;
             default: break;
             }
             return promise;
@@ -371,7 +346,7 @@ private:
         
     };
     
-private:
+public:
     
     std::shared_ptr<Impl> impl;
     
