@@ -145,7 +145,7 @@ public:
     bool isEmpty() const noexcept { return getLength() == 0; }
     
     std::ptrdiff_t find(CharType ch, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(ch, beginPos); }
-    std::ptrdiff_t find(const CharType* data_, std::size_t length_, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(data_, length_, beginPos); }
+    std::ptrdiff_t find(const CharType* data_, std::size_t length_, std::ptrdiff_t beginPos) const noexcept { return getView().find(data_, length_, beginPos); }
     std::ptrdiff_t find(const CharType* data_, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(data_, beginPos); }
     std::ptrdiff_t find(const View& sv, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(sv, beginPos); }
     
@@ -154,8 +154,8 @@ public:
     View slice(std::ptrdiff_t beginPos) const noexcept { return getView().slice(beginPos); }
     View slice(std::ptrdiff_t beginPos, std::ptrdiff_t endPos) const noexcept { return getView().slice(beginPos, endPos); }
     
-    View substr(std::size_t beginPos) const noexcept { return getView().substr(beginPos); }
-    View substr(std::size_t beginPos, std::size_t count) const noexcept { return getView().substr(beginPos, count); }
+    View substr(std::ptrdiff_t beginPos) const noexcept { return getView().substr(beginPos); }
+    View substr(std::ptrdiff_t beginPos, std::size_t count) const noexcept { return getView().substr(beginPos, count); }
     
     
     void clear() noexcept {
@@ -306,7 +306,7 @@ public:
         return -1;
         
     }
-    std::ptrdiff_t find(const CharType* data_, std::size_t length_, std::ptrdiff_t beginPos = 0) const noexcept {
+    std::ptrdiff_t find(const CharType* data_, std::size_t length_, std::ptrdiff_t beginPos) const noexcept {
         
         if(length < length_ || beginPos + length_ > length) return -1;
         if(beginPos < 0) beginPos += length;
@@ -358,11 +358,11 @@ public:
         return slice(beginPos);
         
     }
-    StringViewBase substr(std::size_t beginPos, std::size_t count) const noexcept {
+    StringViewBase substr(std::ptrdiff_t beginPos, std::size_t count) const noexcept {
         
         if(beginPos < 0) beginPos += length;
         beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
-        if(beginPos < length) return {data + beginPos, std::min(count, length - beginPos)};
+        if(beginPos < static_cast<std::ptrdiff_t>(length)) return {data + beginPos, std::min(count, length - beginPos)};
         else return {};
         
     }
