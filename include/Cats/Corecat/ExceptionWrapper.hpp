@@ -29,7 +29,9 @@
 
 
 #include <exception>
+#include <memory>
 #include <stdexcept>
+#include <type_traits>
 
 
 namespace Cats {
@@ -41,7 +43,16 @@ class ExceptionWrapper {
 private:
     
     template <typename T>
-    using is_exception_t = typename std::enable_if<std::is_base_of<std::exception, T>::value>::type;
+    using EnableIfException = typename std::enable_if<std::is_base_of<std::exception, T>::value>::type;
+    
+    template <typename F>
+    struct ArgumantTypeImpl;
+    template <typename Class, typename Arg, typename Ret>
+    struct ArgumantTypeImpl<Ret (Class::*)(Arg)> { using Type = Arg; };
+    template <typename Class, typename Arg, typename Ret>
+    struct ArgumantTypeImpl<Ret (Class::*)(Arg) const> { using Type = Arg; };
+    template <typename F, typename T = typename std::decay<F>::type>
+    using ArgumentType = typename ArgumantTypeImpl<decltype(&T::operator())>::Type;
     
 private:
     
@@ -61,14 +72,14 @@ public:
     ~ExceptionWrapper() = default;
     
     ExceptionWrapper() noexcept = default;
-    template <typename T, typename U = typename std::decay<T>::type, typename = is_exception_t<U>>
+    template <typename T, typename U = typename std::decay<T>::type, typename = EnableIfException<U>>
     ExceptionWrapper(T&& t) : exception(std::make_shared<T>(t)), type(&typeid(U)), throwFunction(throwFunctionImpl<U>) {}
     ExceptionWrapper(std::exception_ptr eptr_) noexcept : eptr(eptr_) {}
     
     ExceptionWrapper& operator =(const ExceptionWrapper& src) noexcept { exception = src.exception; type = src.type; throwFunction = src.throwFunction; eptr = src.eptr; return *this; }
     
     ExceptionWrapper& operator =(std::exception_ptr eptr_) noexcept { return *this = ExceptionWrapper(eptr_); }
-    template <typename T, typename = is_exception_t<T>>
+    template <typename T, typename = EnableIfException<T>>
     ExceptionWrapper& operator =(T&& t) { return *this = ExceptionWrapper(std::forward<T>(t)); }
     
     operator bool() const noexcept { return exception || eptr; }
@@ -82,9 +93,30 @@ public:
         
     }
     
-    void setCurrent() noexcept {
+    template <typename F, typename Arg = typename std::decay<ArgumentType<F>>::type>
+    bool with(F&& f) const {
         
-        eptr = std::current_exception();
+        if(exception && *type == typeid(Arg)) {
+            
+            f(static_cast<const Arg&>(*exception));
+            return true;
+            
+        } else if(eptr) {
+            
+            try { rethrow(); }
+            catch(const Arg& arg) { f(arg); }
+            catch(...) {}
+            
+        }
+        return false;
+        
+    }
+    
+public:
+    
+    static ExceptionWrapper current() noexcept {
+        
+        return std::current_exception();
         
     }
     

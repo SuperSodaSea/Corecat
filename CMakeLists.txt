@@ -12,6 +12,7 @@ endif()
 include_directories("include")
 
 set(EXAMPLE
+    ExceptionWrapper
     String)
 
 foreach(example ${EXAMPLE})
