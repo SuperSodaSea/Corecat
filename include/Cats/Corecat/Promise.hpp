@@ -93,10 +93,62 @@ private:
     private:
         
         State state = State::Pending;
-        std::deque<std::function<typename std::conditional<std::is_void<T>::value, void(), void(const NonVoidType<T>&)>::type>> resolvedQueue;
-        std::deque<std::function<void(const ExceptionWrapper&)>> rejectedQueue;
+        std::deque<std::function<void()>> resolvedQueue;
+        std::deque<std::function<void()>> rejectedQueue;
         NonVoidType<T> result;
         ExceptionWrapper exception;
+        
+    private:
+        
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
+        void thenImpl(F&& resolved, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+            
+            resolved(); promise.resolve();
+            
+        }
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
+        void thenImpl(F&& resolved, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+            
+            resolved(result); promise.resolve();
+            
+        }
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
+        void thenImpl(F&& resolved, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
+            
+            promise.resolve(resolved());
+            
+        }
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
+        void thenImpl(F&& resolved, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
+            
+            promise.resolve(resolved(result));
+            
+        }
+        
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
+        void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+            
+            rejected(); promise.resolve();
+            
+        }
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
+        void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+            
+            rejected(exception); promise.resolve();
+            
+        }
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
+        void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
+            
+            promise.resolve(rejected());
+            
+        }
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
+        void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
+            
+            promise.resolve(rejected(exception));
+            
+        }
         
     public:
         
@@ -129,7 +181,7 @@ private:
                 
                 state = State::Resolved;
                 result = std::forward<U>(u);
-                for(auto& x : resolvedQueue) x(result);
+                for(auto& x : resolvedQueue) x();
                 resolvedQueue.clear();
                 rejectedQueue.clear();
                 
@@ -142,7 +194,7 @@ private:
                 
                 state = State::Rejected;
                 exception = std::forward<ExceptionWrapper>(e);
-                for(auto& x : rejectedQueue) x(exception);
+                for(auto& x : rejectedQueue) x();
                 resolvedQueue.clear();
                 rejectedQueue.clear();
                 
@@ -151,96 +203,18 @@ private:
         }
         
         template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        Promise<Res> then(F&& resolved, EnableIfVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+        Promise<Res> then(F&& resolved) {
             
             Promise<Res> promise;
-            auto cb = [promise, resolved]() {
+            auto cb = [this, resolved, promise]() {
                 
-                try { resolved(); promise.resolve(); }
-                catch(...) {
-                    
-                    ExceptionWrapper ew;
-                    ew.setCurrent();
-                    promise.reject(std::move(ew));
-                    
-                }
+                try { thenImpl(resolved, promise); }
+                catch(...) { promise.reject(ExceptionWrapper::current()); }
                 
             };
             switch(state) {
             case State::Pending: resolvedQueue.emplace_back(cb); break;
             case State::Resolved: cb(); break;
-            default: break;
-            }
-            return promise;
-            
-        }
-        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        Promise<Res> then(F&& resolved, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
-            
-            Promise<Res> promise;
-            auto cb = [promise, resolved]() {
-                
-                try { promise.resolve(resolved()); }
-                catch(...) {
-                    
-                    ExceptionWrapper ew;
-                    ew.setCurrent();
-                    promise.reject(std::move(ew));
-                    
-                }
-                
-            };
-            switch(state) {
-            case State::Pending: resolvedQueue.emplace_back(cb); break;
-            case State::Resolved: cb(); break;
-            default: break;
-            }
-            return promise;
-            
-        }
-        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        Promise<Res> then(F&& resolved, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
-            
-            Promise<Res> promise;
-            auto cb = [promise, resolved](const T& t) {
-                
-                try { resolved(t); promise.resolve(); }
-                catch(...) {
-                    
-                    ExceptionWrapper ew;
-                    ew.setCurrent();
-                    promise.reject(std::move(ew));
-                    
-                }
-                
-            };
-            switch(state) {
-            case State::Pending: resolvedQueue.emplace_back(cb); break;
-            case State::Resolved: cb(result); break;
-            default: break;
-            }
-            return promise;
-            
-        }
-        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        Promise<Res> then(F&& resolved, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
-            
-            Promise<Res> promise;
-            auto cb = [promise, resolved](const T& t) {
-                
-                try { promise.resolve(resolved(t)); }
-                catch(...) {
-                    
-                    ExceptionWrapper ew;
-                    ew.setCurrent();
-                    promise.reject(std::move(ew));
-                    
-                }
-                
-            };
-            switch(state) {
-            case State::Pending: resolvedQueue.emplace_back(cb); break;
-            case State::Resolved: cb(result); break;
             default: break;
             }
             return promise;
@@ -248,96 +222,18 @@ private:
         }
         
         template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        Promise<Res> fail(F&& rejected, EnableIfVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+        Promise<Res> fail(F&& rejected) {
             
             Promise<Res> promise;
-            auto cb = [promise, rejected](const ExceptionWrapper& e) {
+            auto cb = [this, rejected, promise]() {
                 
-                try { rejected(); promise.resolve(); }
-                catch(...) {
-                    
-                    ExceptionWrapper ew;
-                    ew.setCurrent();
-                    promise.reject(std::move(ew));
-                    
-                }
+                try { failImpl(rejected, promise); }
+                catch(...) { promise.reject(ExceptionWrapper::current()); }
                 
             };
             switch(state) {
             case State::Pending: rejectedQueue.emplace_back(cb); break;
-            case State::Rejected: cb(ExceptionWrapper()); break;
-            default: break;
-            }
-            return promise;
-            
-        }
-        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        Promise<Res> fail(F&& rejected, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
-            
-            Promise<Res> promise;
-            auto cb = [promise, rejected](const ExceptionWrapper& e) {
-                
-                try { promise.resolve(rejected()); }
-                catch(...) {
-                    
-                    ExceptionWrapper ew;
-                    ew.setCurrent();
-                    promise.reject(std::move(ew));
-                    
-                }
-                
-            };
-            switch(state) {
-            case State::Pending: rejectedQueue.emplace_back(cb); break;
-            case State::Rejected: cb(ExceptionWrapper()); break;
-            default: break;
-            }
-            return promise;
-            
-        }
-        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        Promise<Res> fail(F&& rejected, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
-            
-            Promise<Res> promise;
-            auto cb = [promise, rejected](const ExceptionWrapper& e) {
-                
-                try { rejected(e); promise.resolve(); }
-                catch(...) {
-                    
-                    ExceptionWrapper ew;
-                    ew.setCurrent();
-                    promise.reject(std::move(ew));
-                    
-                }
-                
-            };
-            switch(state) {
-            case State::Pending: rejectedQueue.emplace_back(cb); break;
-            case State::Rejected: cb(exception); break;
-            default: break;
-            }
-            return promise;
-            
-        }
-        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        Promise<Res> fail(F&& rejected, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
-            
-            Promise<Res> promise;
-            auto cb = [promise, rejected](const ExceptionWrapper& e) {
-                
-                try { promise.resolve(rejected(e)); }
-                catch(...) {
-                    
-                    ExceptionWrapper ew;
-                    ew.setCurrent();
-                    promise.reject(std::move(ew));
-                    
-                }
-                
-            };
-            switch(state) {
-            case State::Pending: rejectedQueue.emplace_back(cb); break;
-            case State::Rejected: cb(exception); break;
+            case State::Rejected: cb(); break;
             default: break;
             }
             return promise;
