@@ -86,6 +86,11 @@ public:
         typename std::conditional<IsCallable<F, const V&>::value, const V&,
         void>::type>::type>::type;
     
+    template <typename U>
+    struct Inner { static constexpr bool value = false; using Type = U; };
+    template <typename U>
+    struct Inner<Promise<U>> { static constexpr bool value = true; using Type = U; };
+    
 private:
     
     class Impl {
@@ -100,51 +105,51 @@ private:
         
     private:
         
-        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        void thenImpl(F&& resolved, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        void thenImpl(F&& resolved, const Promise<typename In::Type>& promise, EnableIfVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
             
             resolved(); promise.resolve();
             
         }
-        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        void thenImpl(F&& resolved, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        void thenImpl(F&& resolved, const Promise<typename In::Type>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
             
             resolved(result); promise.resolve();
             
         }
-        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        void thenImpl(F&& resolved, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        void thenImpl(F&& resolved, const Promise<typename In::Type>& promise, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
             
             promise.resolve(resolved());
             
         }
-        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        void thenImpl(F&& resolved, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        void thenImpl(F&& resolved, const Promise<typename In::Type>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
             
             promise.resolve(resolved(result));
             
         }
         
-        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        void failImpl(F&& rejected, const Promise<typename In::Type>& promise, EnableIfVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
             
             rejected(); promise.resolve();
             
         }
-        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        void failImpl(F&& rejected, const Promise<typename In::Type>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Res>* = 0) {
             
             rejected(exception); promise.resolve();
             
         }
-        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        void failImpl(F&& rejected, const Promise<typename In::Type>& promise, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
             
             promise.resolve(rejected());
             
         }
-        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        void failImpl(F&& rejected, const Promise<typename In::Type>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Res>* = 0) {
             
             promise.resolve(rejected(exception));
             
@@ -202,10 +207,10 @@ private:
             
         }
         
-        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-        Promise<Res> then(F&& resolved) {
+        template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        Promise<typename In::Type> then(F&& resolved) {
             
-            Promise<Res> promise;
+            Promise<typename In::Type> promise;
             auto cb = [this, resolved, promise]() {
                 
                 try { thenImpl(resolved, promise); }
@@ -221,10 +226,10 @@ private:
             
         }
         
-        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-        Promise<Res> fail(F&& rejected) {
+        template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+        Promise<typename In::Type> fail(F&& rejected) {
             
-            Promise<Res> promise;
+            Promise<typename In::Type> promise;
             auto cb = [this, rejected, promise]() {
                 
                 try { failImpl(rejected, promise); }
@@ -259,10 +264,10 @@ public:
     void resolve(U&& t) const { impl->resolve(std::move(t)); }
     void reject(ExceptionWrapper&& t) const { impl->reject(std::move(t)); }
     
-    template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>>
-    Promise<Res> then(F&& resolved) const { return impl->then(std::forward<F>(resolved)); }
-    template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>>
-    Promise<Res> fail(F&& rejected) const { return impl->fail(std::forward<F>(rejected)); }
+    template <typename F, typename Arg = ArgumentType<F, T>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+    Promise<typename In::Type> then(F&& resolved) const { return impl->then(std::forward<F>(resolved)); }
+    template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Res = ResultType<F, Arg>, typename In = Inner<Res>>
+    Promise<typename In::Type> fail(F&& rejected) const { return impl->fail(std::forward<F>(rejected)); }
     
 public:
     
