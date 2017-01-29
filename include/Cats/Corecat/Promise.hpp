@@ -280,16 +280,17 @@ private:
         Promise<In> then(F&& resolved) {
             
             Promise<In> promise;
-            auto cb = [=]() {
+            auto cb1 = [=]() {
                 
                 try { thenImpl(resolved, promise); }
                 catch(...) { promise.reject(ExceptionWrapper::current()); }
                 
             };
+            auto cb2 = [=]() { promise.reject(exception); };
             switch(state) {
-            case State::Pending: resolvedQueue.emplace_back(cb); break;
-            case State::Resolved: cb(); break;
-            default: break;
+            case State::Pending: resolvedQueue.emplace_back(std::move(cb1)); rejectedQueue.emplace_back(std::move(cb2)); break;
+            case State::Resolved: cb1(); break;
+            case State::Rejected: cb2(); break;
             }
             return promise;
             
