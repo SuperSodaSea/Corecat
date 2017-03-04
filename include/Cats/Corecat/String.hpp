@@ -132,6 +132,13 @@ public:
         
     }
     
+    bool operator ==(const StringBase& str) const noexcept { return getView() == str.getView(); }
+    bool operator !=(const StringBase& str) const noexcept { return getView() != str.getView(); }
+    bool operator <(const StringBase& str) const noexcept { return getView() < str.getView(); }
+    bool operator >(const StringBase& str) const noexcept { return getView() > str.getView(); }
+    bool operator <=(const StringBase& str) const noexcept { return getView() <= str.getView(); }
+    bool operator >=(const StringBase& str) const noexcept { return getView() >= str.getView(); }
+    
     operator View() const noexcept { return getView(); }
     
     
@@ -279,6 +286,22 @@ public:
         
     }
     bool operator !=(StringViewBase sv) const noexcept { return !(*this == sv); }
+    bool operator <(StringViewBase sv) const noexcept {
+        
+        const CharType* p = data;
+        const CharType* q = sv.data;
+        for(const CharType* end = data + std::min(length, sv.length); p != end; ++p, ++q) {
+            
+            if(*p < *q) return true;
+            if(*q < *p) return false;
+            
+        }
+        return length < sv.length;
+        
+    }
+    bool operator >(StringViewBase sv) const noexcept { return sv < *this;}
+    bool operator <=(StringViewBase sv) const noexcept { return !(sv < *this);}
+    bool operator >=(StringViewBase sv) const noexcept { return !(*this < sv);}
     
     friend String operator *(const StringViewBase& a, std::size_t b) { return a.repeat(b); }
     
