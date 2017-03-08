@@ -30,7 +30,7 @@
 
 #include <cstdlib>
 
-#include <memoty>
+#include <memory>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -57,8 +57,8 @@ private:
         const void* get() const noexcept { return const_cast<HolderBase*>(this)->get(); }
         virtual std::size_t getSize() const noexcept = 0;
         virtual const std::type_info& getType() const noexcept = 0;
-        virtual void copy(char* dst) const = 0;
-        virtual void move(char* dst) = 0;
+        virtual void copy(unsigned char* dst) const = 0;
+        virtual void move(unsigned char* dst) = 0;
         
     };
     
@@ -81,25 +81,23 @@ private:
         void* get() noexcept final { return std::addressof(t); }
         std::size_t getSize() const noexcept final { return sizeof(Holder); }
         const std::type_info& getType() const noexcept final { return typeid(T); }
-        void copy(char* dst) const final { new(dst) Holder<T>(*this); }
-        void move(char* dst) final { new(dst) Holder(std::move(t)); };
+        void copy(unsigned char* dst) const final { new(dst) Holder<T>(*this); }
+        void move(unsigned char* dst) final { new(dst) Holder(std::move(t)); };
         
     };
     
 private:
     
-    char* data;
+    unsigned char* data;
     std::size_t capacity;
     bool empty;
-    char buffer[BUFFER_SIZE];
+    unsigned char buffer[BUFFER_SIZE];
     
 private:
     
-    static HolderBase* asHolder(char* p) noexcept {
+    static HolderBase* asHolder(unsigned char* p) noexcept {
         
-        union { char* a; HolderBase* b; } u;
-        u.a = p;
-        return u.b;
+        return reinterpret_cast<HolderBase*>(p);
         
     }
     
@@ -108,7 +106,7 @@ private:
         if(capacity < cap) {
             
             if(data != buffer) delete[] data;
-            data = new char[cap];
+            data = new unsigned char[cap];
             capacity = cap;
             
         }
@@ -219,7 +217,7 @@ public:
                     
                     if(src.data == src.buffer) {
                         
-                        char tmp[BUFFER_SIZE];
+                        unsigned char tmp[BUFFER_SIZE];
                         asHolder(buffer)->move(tmp);
                         asHolder(src.buffer)->move(buffer);
                         asHolder(tmp)->move(buffer);
