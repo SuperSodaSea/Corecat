@@ -34,7 +34,7 @@ using namespace Cats::Corecat;
 
 int main() {
     
-    String str1 = "0123456789";
+    String8 str1 = "0123456789";
     PRINT(str1); // "0123456789"
     
     PRINT(str1.getLength()); // 10
