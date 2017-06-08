@@ -88,22 +88,21 @@ private:
     bool isSmall() const noexcept { return static_cast<std::size_t>(storage.buffer.length) < BUFFER_SIZE; }
     
 public:
-
-    String(const String& src) : String() { append(src); }
-    String(String&& src) noexcept : String() { swap(src); }
-    ~String() noexcept { if(!isSmall()) delete[] storage.data; }
     
     String() noexcept { storage.buffer.data[0] = 0; storage.buffer.length = BUFFER_SIZE - 1; }
     String(CharType ch, std::size_t count = 1) : String() { append(ch, count); }
     String(const CharType* data_) : String() { append(data_); }
     String(const CharType* data_, std::size_t length_) : String() { append(data_, length_); }
     String(const View& sv) : String() { append(sv); }
+    String(const String& src) : String() { append(src); }
+    String(String&& src) noexcept : String() { swap(src); }
+    ~String() noexcept { if(!isSmall()) delete[] storage.data; }
     
-    String& operator =(const String& src) { clear(); append(src); return *this; }
-    String& operator =(String&& src) noexcept { swap(src); return *this; }
     
     String& operator =(const CharType* data_) { clear(); append(data_); return *this; }
     String& operator =(const View& sv) { clear(); append(sv); return *this; }
+    String& operator =(const String& src) { clear(); append(src); return *this; }
+    String& operator =(String&& src) noexcept { swap(src); return *this; }
     
     String& operator +=(CharType ch) { append(ch); return *this; }
     String& operator +=(const CharType* data_) { append(data_); return *this; }
@@ -116,7 +115,6 @@ public:
     friend String operator +(const String& a, const View& b) { String t(a); t += b; return t; }
     friend String operator +(CharType a, const String& b) { String t(a); t += b; return t; }
     friend String operator +(const CharType* a, const String& b) { String t(a); t += b; return t; }
-    friend String operator +(const View& a, const String& b) { String t(a); t += b; return t; }
     
     String& operator *=(std::size_t count) { return *this = repeat(count); }
     
@@ -265,14 +263,21 @@ private:
     
 public:
     
-    StringView(const StringView& src) = default;
-    ~StringView() = default;
-    
     StringView() : data(""), length() {}
     StringView(const CharType* data_) : data(data_), length(std::char_traits<CharType>::length(data_)) {}
     StringView(const CharType* data_, std::size_t length_) : data(data_), length(length_) {}
+    StringView(const StringView& src) = default;
+    ~StringView() = default;
+    
     
     StringView& operator =(const StringView& src) = default;
+    
+    friend String operator +(const StringView& a, CharType b) { String t(a); t += b; return t; }
+    friend String operator +(const StringView& a, const CharType* b) { String t(a); t += b; return t; }
+    friend String operator +(const StringView& a, const StringView& b) { String t(a); t += b; return t; }
+    friend String operator +(const StringView& a, const String& b) { String t(a); t += b; return t; }
+    friend String operator +(CharType a, const StringView& b) { String t(a); t += b; return t; }
+    friend String operator +(const CharType* a, const StringView& b) { String t(a); t += b; return t; }
     
     const CharType& operator [](std::size_t index) const noexcept { return data[index]; }
     
