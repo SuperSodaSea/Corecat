@@ -54,14 +54,14 @@ public:
     template <typename T>
     void operator <<(T&& t) {
         
-        list.emplace_back(t);
+        list.emplace_back(std::forward<T>(t));
         
     }
     
     template <typename... Arg>
     void operator ()(Arg&&... arg) {
         
-        for(auto&& x : list) x(std::forward<Arg>(arg)...);
+        for(auto&& x : list) x(arg...);
         
     }
     
