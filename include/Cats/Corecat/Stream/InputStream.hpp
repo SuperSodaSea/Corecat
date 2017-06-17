@@ -24,19 +24,35 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_HPP
-#define CATS_CORECAT_STREAM_HPP
+#ifndef CATS_CORECAT_STREAM_INPUTSTREAM_HPP
+#define CATS_CORECAT_STREAM_INPUTSTREAM_HPP
 
 
-#include "Stream/InputStream.hpp"
-#include "Stream/OutputStream.hpp"
+#include <cstddef>
 
-#include "Stream/Stream.hpp"
 
-#include "Stream/BufferedStream.hpp"
-#include "Stream/MemoryStream.hpp"
-#include "Stream/TransformStream.hpp"
-#include "Stream/WrapperStream.hpp"
+namespace Cats {
+namespace Corecat {
+namespace Stream {
+
+
+template <typename T>
+struct InputStream {
+    
+    using Type = T;
+    
+    virtual ~InputStream() {}
+    virtual T read() = 0;
+    virtual std::size_t read(T* buffer, std::size_t count) = 0;
+    virtual void skip() = 0;
+    virtual void skip(std::size_t count) = 0;
+    
+};
+
+
+}
+}
+}
 
 
 #endif
