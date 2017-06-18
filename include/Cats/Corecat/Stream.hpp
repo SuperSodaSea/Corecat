@@ -31,12 +31,14 @@
 #include "Stream/InputStream.hpp"
 #include "Stream/OutputStream.hpp"
 
+#include "Stream/WrapperInputStream.hpp"
+#include "Stream/WrapperOutputStream.hpp"
+
 #include "Stream/Stream.hpp"
 
 #include "Stream/BufferedStream.hpp"
 #include "Stream/MemoryStream.hpp"
 #include "Stream/TransformStream.hpp"
-#include "Stream/WrapperStream.hpp"
 
 
 #endif

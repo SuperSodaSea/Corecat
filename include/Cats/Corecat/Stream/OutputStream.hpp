@@ -35,7 +35,6 @@ namespace Cats {
 namespace Corecat {
 namespace Stream {
 
-
 template <typename T>
 struct OutputStream {
     
@@ -47,7 +46,6 @@ struct OutputStream {
     virtual void flush() = 0;
     
 };
-
 
 }
 }

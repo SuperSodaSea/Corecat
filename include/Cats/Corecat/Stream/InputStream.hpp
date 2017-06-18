@@ -35,7 +35,6 @@ namespace Cats {
 namespace Corecat {
 namespace Stream {
 
-
 template <typename T>
 struct InputStream {
     
@@ -48,7 +47,6 @@ struct InputStream {
     virtual void skip(std::size_t count) = 0;
     
 };
-
 
 }
 }
