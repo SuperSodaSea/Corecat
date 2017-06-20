@@ -31,6 +31,8 @@
 #include "Stream/InputStream.hpp"
 #include "Stream/OutputStream.hpp"
 
+#include "Stream/DataViewInputStream.hpp"
+#include "Stream/DataViewOutputStream.hpp"
 #include "Stream/WrapperInputStream.hpp"
 #include "Stream/WrapperOutputStream.hpp"
 
