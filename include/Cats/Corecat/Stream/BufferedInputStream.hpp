@@ -50,7 +50,7 @@ private:
     
 public:
     
-    BufferedInputStream(InputStream<T>& is_) : is(&is_), data(4096) {}
+    BufferedInputStream(InputStream<T>& is_) : is(&is_), data(2096) {}
     BufferedInputStream(const BufferedInputStream& src) = delete;
     BufferedInputStream(BufferedInputStream&& src) : is(src.is), data(std::move(src.data)) { src.is = nullptr; }
     ~BufferedInputStream() override = default;
@@ -61,41 +61,24 @@ public:
     T read() override { T t; if(read(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
     std::size_t read(T* buffer, std::size_t count) override {
         
-        if(count <= size) {
+        if(size) {
             
-            std::copy(data.data() + offset, data.data() + offset + count, buffer);
-            offset += count, size -= count;
-            return count;
+            std::size_t x = std::min(count, size);
+            std::copy(data.data() + offset, data.data() + offset + x, buffer);
+            offset += x, size -= x;
+            return x;
             
         } else {
             
-            if(size) std::copy(data.data() + offset, data.data() + offset + size, buffer);
             if(count < data.size() / 2) {
                 
-                std::size_t x = is->read(data.data(), count - size);
-                if(x <= count - size) {
-                    
-                    std::copy(data.data(), data.data() + x, buffer + size);
-                    x += size;
-                    size = 0;
-                    return x; 
-                    
-                } else {
-                    
-                    std::copy(data.data(), data.data() + count - size, buffer + size);
-                    offset = count - size;
-                    size = x - offset;
-                    return count;
-                    
-                }
+                size = is->read(data.data(), data.size());
+                offset = std::min(count, size);
+                std::copy(data.data(), data.data() + offset, buffer);
+                size -= offset;
+                return offset;
                 
-            } else {
-                
-                std::size_t x = size + is->read(buffer + size, count - size);
-                size = 0;
-                return x;
-                
-            }
+            } else return is->read(buffer, count);
             
         }
         
