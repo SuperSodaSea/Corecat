@@ -33,15 +33,12 @@
 
 #include "Stream/BufferedInputStream.hpp"
 #include "Stream/BufferedOutputStream.hpp"
+#include "Stream/CastInputStream.hpp"
+#include "Stream/CastOutputStream.hpp"
 #include "Stream/DataViewInputStream.hpp"
 #include "Stream/DataViewOutputStream.hpp"
 #include "Stream/WrapperInputStream.hpp"
 #include "Stream/WrapperOutputStream.hpp"
-
-#include "Stream/Stream.hpp"
-
-#include "Stream/MemoryStream.hpp"
-#include "Stream/TransformStream.hpp"
 
 
 #endif
