@@ -28,11 +28,6 @@
 #define CATS_CORECAT_CHARSET_CHARSET_HPP
 
 
-#include <cstdlib>
-
-#include "../Stream.hpp"
-
-
 namespace Cats {
 namespace Corecat {
 namespace Charset {
@@ -44,8 +39,8 @@ struct Charset {
     
     static const char* getName();
     
-    static char32_t decode(Stream::Stream<T>& stream);
-    static void encode(Stream::Stream<T>& stream, char32_t code);
+    static char32_t decode(const T*& p, const T* q);
+    static bool encode(T*& p, T* q, char32_t codepoint);
     
 };
 

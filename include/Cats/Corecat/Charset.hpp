@@ -30,9 +30,9 @@
 
 #include "Charset/Charset.hpp"
 
-#include "Charset/UTF8.hpp"
-#include "Charset/UTF16.hpp"
-#include "Charset/UTF32.hpp"
+#include "Charset/UTF8Charset.hpp"
+#include "Charset/UTF16Charset.hpp"
+#include "Charset/UTF32Charset.hpp"
 
 
 #endif

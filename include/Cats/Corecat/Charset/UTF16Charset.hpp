@@ -24,11 +24,11 @@
  *
  */
 
-#ifndef CATS_CORECAT_CHARSET_UTF16_HPP
-#define CATS_CORECAT_CHARSET_UTF16_HPP
+#ifndef CATS_CORECAT_CHARSET_UTF16CHARSET_HPP
+#define CATS_CORECAT_CHARSET_UTF16CHARSET_HPP
 
 
-#include <cstdlib>
+#include <cstddef>
 
 #include "Charset.hpp"
 
@@ -36,56 +36,46 @@
 namespace Cats {
 namespace Corecat {
 namespace Charset {
-    
+
 template <typename T = char16_t>
-struct UTF16 : public Charset<T> {
+struct UTF16Charset : public Charset<T> {
     
     static const char* getName() noexcept { return "UTF-16"; }
     
-    static char32_t decode(Stream::Stream<T>& stream) {
+    static char32_t decode(const T*& p, const T* q) {
         
-        T c = stream.read();
-        if((c & 0xDC00) == 0xD800) {
+        std::ptrdiff_t size = q - p;
+        if(!size) return 0xFFFFFFFF;
+        char32_t h = static_cast<char16_t>(*p++);
+        if(h - 0xD800 >= 0x0800) return h;
+        else if(h <= 0xDBFF) {
             
-            char32_t codepoint = static_cast<char32_t>(c & 0x03FF) << 10;
-            if(((c = stream.peek()) & 0xDC00) != 0xDC00) return 0xFFFD;
-            stream.read();
-            codepoint |= c & 0x03FF;
-            return codepoint;
+            if(size < 2) return 0xFFFFFFFF;
+            char32_t l = static_cast<char16_t>(*p++);
+            if(l - 0xDC00 < 0x0400) return 0x10000 | ((h & 0x3FF) << 10) | (l & 0x3FF);
+            else return 0xFFFD;
             
-        } else {
-            
-            return c;
-            
-        }
+        } else return 0xFFFD;
         
     }
-    static void encode(Stream::Stream<T>& stream, char32_t codepoint) {
+    static bool encode(T*& p, T* q, char32_t codepoint) {
         
+        std::ptrdiff_t size = q - p;
         if(codepoint <= 0xFFFF) {
             
-            T data;
-            if((codepoint & 0xD800) == 0xD800) data = 0xFFFD;
-            else data = codepoint;
-            stream.write(&data, 1);
+            if(!size) return false;
+            if(codepoint - 0xD800 >= 0x0800) *p++ = codepoint;
+            else *p++ = 0xFFFD;
+            return true;
             
         } else if(codepoint <= 0x10FFFF) {
             
-            T data[] = {
-                
-                static_cast<T>(0xD800 | (codepoint >> 10)),
-                static_cast<T>(0xDC00 | (codepoint & 0x3FF)),
-                
-            };
-            stream.write(data, 2);
+            if(size < 2) return false;
+            *p++ = static_cast<T>(0xD800 | ((codepoint - 0x10000) >> 10));
+            *p++ = static_cast<T>(0xDC00 | ((codepoint - 0x10000) & 0x3FF));
+            return true;
             
-        } else {
-            
-            T data = 0xFFFD;
-            stream.write(&data, 1);
-            
-        }
-            
+        } else { *p++ = 0xFFFD; return true; }
         
     }
     

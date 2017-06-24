@@ -238,9 +238,9 @@ public:
     
 };
 
-using String8 = String<Charset::UTF8<>>;
-using String16 = String<Charset::UTF16<>>;
-using String32 = String<Charset::UTF32<>>;
+using String8 = String<Charset::UTF8Charset<>>;
+using String16 = String<Charset::UTF16Charset<>>;
+using String32 = String<Charset::UTF32Charset<>>;
 
 
 template <typename C>
@@ -406,9 +406,9 @@ public:
     
 };
 
-using StringView8 = StringView<Charset::UTF8<>>;
-using StringView16 = StringView<Charset::UTF16<>>;
-using StringView32 = StringView<Charset::UTF32<>>;
+using StringView8 = StringView<Charset::UTF8Charset<>>;
+using StringView16 = StringView<Charset::UTF16Charset<>>;
+using StringView32 = StringView<Charset::UTF32Charset<>>;
 
 }
 }
