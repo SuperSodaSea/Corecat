@@ -88,6 +88,7 @@ public:
         
         if(count <= size) offset += count, size -= count;
         else is->skip(count - size), size = 0;
+        
     }
     
 };

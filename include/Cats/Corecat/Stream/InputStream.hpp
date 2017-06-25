@@ -46,6 +46,19 @@ struct InputStream {
     virtual void skip() = 0;
     virtual void skip(std::size_t count) = 0;
     
+    void readAll(T* buffer, std::size_t count) {
+        
+        std::size_t size = 0;
+        while(size < count) {
+            
+            std::size_t x = read(buffer + size, count - size);
+            if(!x) throw std::runtime_error("End of stream");
+            size += x;
+            
+        }
+        
+    }
+    
 };
 
 }
