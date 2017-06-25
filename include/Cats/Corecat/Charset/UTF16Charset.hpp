@@ -52,7 +52,7 @@ struct UTF16Charset : public Charset<T> {
             
             if(size < 2) return 0xFFFFFFFF;
             char32_t l = static_cast<char16_t>(*p++);
-            if(l - 0xDC00 < 0x0400) return 0x10000 | ((h & 0x3FF) << 10) | (l & 0x3FF);
+            if(l - 0xDC00 < 0x0400) return 0x10000 + (((h & 0x3FF) << 10) | (l & 0x3FF));
             else return 0xFFFD;
             
         } else return 0xFFFD;

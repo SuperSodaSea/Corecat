@@ -94,10 +94,28 @@ public:
     String(const CharType* data_) : String() { append(data_); }
     String(const CharType* data_, std::size_t length_) : String() { append(data_, length_); }
     String(const View& sv) : String() { append(sv); }
+    template <typename D>
+    String(const StringView<D>& sv) : String() {
+        
+        CharType buf[8];
+        const typename D::CharType* p = sv.getData();
+        const typename D::CharType* pEnd = p + sv.getLength();
+        while(true) {
+            
+            char32_t c = D::decode(p, pEnd);
+            if(c == 0xFFFFFFFF) break;
+            CharType* q = buf;
+            C::encode(q, buf + 8, c);
+            append(buf, q - buf);
+            
+        }
+        
+    }
+    template <typename D>
+    String(const String<D>& s) : String(s.getView()) {}
     String(const String& src) : String() { append(src); }
     String(String&& src) noexcept : String() { swap(src); }
     ~String() noexcept { if(!isSmall()) delete[] storage.data; }
-    
     
     String& operator =(const CharType* data_) { clear(); append(data_); return *this; }
     String& operator =(const View& sv) { clear(); append(sv); return *this; }
@@ -139,7 +157,6 @@ public:
     
     operator View() const noexcept { return getView(); }
     
-    
     CharType* getData() noexcept { return isSmall() ? storage.buffer.data : storage.data; }
     const CharType* getData() const noexcept { return const_cast<String*>(this)->getData(); }
     std::size_t getLength() const noexcept { return isSmall() ? BUFFER_SIZE - storage.buffer.length - 1 : storage.length; }
@@ -161,7 +178,6 @@ public:
     
     View substr(std::ptrdiff_t beginPos) const noexcept { return getView().substr(beginPos); }
     View substr(std::ptrdiff_t beginPos, std::size_t count) const noexcept { return getView().substr(beginPos, count); }
-    
     
     void clear() noexcept {
         
@@ -219,19 +235,15 @@ public:
     
     void swap(String& src) noexcept { std::swap(storage, src.storage); }
     
-    
     Iterator begin() noexcept { return getData(); }
     ConstIterator begin() const noexcept { return getData(); }
     ConstIterator cbegin() const noexcept { return getData(); }
-    
     Iterator end() noexcept { return getData() + getLength(); }
     ConstIterator end() const noexcept { return getData() + getLength(); }
     ConstIterator cend() const noexcept { return getData() + getLength(); }
-    
     ReverseIterator rbegin() noexcept { return ReverseIterator(end()); }
     ConstReverseIterator rbegin() const noexcept { return ConstReverseIterator(end()); }
     ConstReverseIterator crbegin() const noexcept { return ConstReverseIterator(cend()); }
-    
     ReverseIterator rend() noexcept { return ReverseIterator(begin()); }
     ConstReverseIterator rend() const noexcept { return ConstReverseIterator(begin()); }
     ConstReverseIterator crend() const noexcept { return ConstReverseIterator(cbegin()); }
@@ -268,7 +280,6 @@ public:
     StringView(const CharType* data_, std::size_t length_) : data(data_), length(length_) {}
     StringView(const StringView& src) = default;
     ~StringView() = default;
-    
     
     StringView& operator =(const StringView& src) = default;
     
@@ -316,7 +327,6 @@ public:
         return stream;
         
     }
-    
     
     const CharType* getData() const noexcept { return data; }
     void setData(const CharType* data_) noexcept { data = data_; }
@@ -395,13 +405,9 @@ public:
         
     }
     
-    
     Iterator begin() const noexcept { return getData(); }
-    
     Iterator end() const noexcept { return getData() + getLength(); }
-    
     ReverseIterator rbegin() const noexcept { return ReverseIterator(end()); }
-    
     ReverseIterator rend() const noexcept { return ReverseIterator(begin()); }
     
 };
