@@ -53,14 +53,16 @@ struct UTF8Charset : public Charset<T> {
             
             if(size < 2) return 0xFFFFFFFF;
             char32_t b = static_cast<unsigned char>(*p++); if((b & 0xC0) != 0x80) return 0xFFFD;
-            return ((a & 0x1F) << 6) | (b & 0x3F);
+            char32_t codepoint = ((a & 0x1F) << 6) | (b & 0x3F);
+            return (codepoint >= 0x0080) ? codepoint : 0xFFFD;
             
         } else if(a <= 0xEF) {
             
             if(size < 3) return 0xFFFFFFFF;
             char32_t b = static_cast<unsigned char>(*p++); if((b & 0xC0) != 0x80) return 0xFFFD;
             char32_t c = static_cast<unsigned char>(*p++); if((c & 0xC0) != 0x80) return 0xFFFD;
-            return ((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F);
+            char32_t codepoint = ((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F);
+            return (codepoint >= 0x0800 || (codepoint - 0xD800 >= 0x0800)) ? codepoint : 0xFFFD;
             
         } else if(a <= 0xF7) {
             
@@ -68,7 +70,8 @@ struct UTF8Charset : public Charset<T> {
             char32_t b = static_cast<unsigned char>(*p++); if((b & 0xC0) != 0x80) return 0xFFFD;
             char32_t c = static_cast<unsigned char>(*p++); if((c & 0xC0) != 0x80) return 0xFFFD;
             char32_t d = static_cast<unsigned char>(*p++); if((d & 0xC0) != 0x80) return 0xFFFD;
-            return ((a & 0x07) << 18) | ((b & 0x3F) << 12) | ((c & 0x3F) << 6) | (d & 0x3F);
+            char32_t codepoint = ((a & 0x07) << 18) | ((b & 0x3F) << 12) | ((c & 0x3F) << 6) | (d & 0x3F);
+            return (codepoint >= 0x10000 && codepoint <= 0x10FFFF) ? codepoint : 0xFFFD;
             
         } else return 0xFFFD;
         
