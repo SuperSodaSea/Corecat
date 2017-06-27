@@ -24,49 +24,19 @@
  *
  */
 
-#ifndef CATS_CORECAT_WIN32_HANDLE_HPP
-#define CATS_CORECAT_WIN32_HANDLE_HPP
+#ifndef CATS_CORECAT_WIN32_WINDOWS_HPP
+#define CATS_CORECAT_WIN32_WINDOWS_HPP
 
 
-#include <cassert>
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
 
-#include "Windows.hpp"
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
-
-namespace Cats {
-namespace Corecat {
-namespace Win32 {
-
-
-class Handle {
-    
-private:
-    
-    HANDLE handle = nullptr;
-    
-public:
-    
-    Handle() = default;
-    Handle(HANDLE handle_) : handle(handle_) {}
-    Handle(const Handle& src) = delete;
-    Handle(Handle&& src) : handle(src.handle) { src.handle = nullptr; }
-    ~Handle() { if(*this) close(); }
-    
-    Handle& operator =(HANDLE handle_) { if(*this) close(); handle = handle_; return *this; }
-    Handle& operator =(const Handle& src) = delete;
-    Handle& operator =(Handle&& src) { handle = src.handle; src.handle = nullptr; return *this; }
-    
-    operator HANDLE() const { return handle; }
-    explicit operator bool() const { return handle != nullptr && handle != INVALID_HANDLE_VALUE; }
-    
-    void close() { assert(*this); CloseHandle(handle); handle = nullptr; }
-    
-};
-
-
-}
-}
-}
+#include <windows.h>
 
 
 #endif

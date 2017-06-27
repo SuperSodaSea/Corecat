@@ -69,7 +69,7 @@ public:
     T read() override { T t; if(read(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
     std::size_t read(T* buffer, std::size_t count) override {
         
-        count = std::min<std::size_t>(count, dv->getSize() - offset);
+        count = std::min(count, static_cast<std::size_t>(dv->getSize() - offset));
         dv->read(buffer, count, offset);
         offset += count;
         return count;
@@ -78,7 +78,7 @@ public:
     void skip() override { skip(1); }
     void skip(std::size_t count) override {
         
-        offset += std::min<std::size_t>(count, dv->getSize() - offset);
+        offset += std::min(count, static_cast<std::size_t>(dv->getSize() - offset));
         
     }
     
