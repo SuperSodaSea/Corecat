@@ -224,7 +224,7 @@ public:
         auto data = getData();
         *std::copy(data_, data_ + length_, data + length) = 0;
         length += length_;
-        if(isSmall()) storage.buffer.length = BUFFER_SIZE - length - 1;
+        if(isSmall()) storage.buffer.length = static_cast<CharType>(BUFFER_SIZE - length - 1);
         else storage.length = length;
         return *this;
         
