@@ -65,11 +65,11 @@ public:
     DataViewOutputStream& operator =(const DataViewOutputStream& src) = delete;
     DataViewOutputStream& operator =(DataViewOutputStream&& src) { dv = src.dv, offset = src.offset, src.dv = nullptr; return *this; }
     
-    void write(T t) override { write(&t, 1); }
-    void write(const T* buffer, std::size_t count) override {
+    std::size_t writeSome(const T* buffer, std::size_t count) override {
         
         dv->write(buffer, count, offset);
         offset += count;
+        return count;
         
     }
     void flush() override { dv->flush(); }

@@ -41,23 +41,23 @@ struct InputStream {
     using Type = T;
     
     virtual ~InputStream() {}
-    virtual T read() = 0;
-    virtual std::size_t read(T* buffer, std::size_t count) = 0;
-    virtual void skip() = 0;
-    virtual void skip(std::size_t count) = 0;
-    
-    void readAll(T* buffer, std::size_t count) {
+    virtual std::size_t readSome(T* buffer, std::size_t count) = 0;
+    virtual T read() { T t; if(readSome(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
+    virtual void readAll(T* buffer, std::size_t count) {
         
         std::size_t size = 0;
         while(size < count) {
             
-            std::size_t x = read(buffer + size, count - size);
+            std::size_t x = readSome(buffer + size, count - size);
             if(!x) throw std::runtime_error("End of stream");
             size += x;
             
         }
         
     }
+    virtual void skip(std::size_t count) = 0;
+    virtual void skip() { skip(1); }
+    
     
 };
 

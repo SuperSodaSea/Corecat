@@ -58,8 +58,7 @@ public:
     CastInputStream& operator =(const CastInputStream& src) = delete;
     CastInputStream& operator =(CastInputStream&& src) { /* TODO */ return *this; }
     
-    T read() override { T t; if(read(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
-    std::size_t read(T* buffer, std::size_t count) override {
+    std::size_t readSome(T* buffer, std::size_t count) override {
         
         std::memcpy(buffer, data, size);
         std::size_t x = size;
@@ -75,7 +74,6 @@ public:
         return x / sizeof(T);
         
     }
-    void skip() override { skip(1); }
     void skip(std::size_t count) override { /* TODO */ }
     
 };

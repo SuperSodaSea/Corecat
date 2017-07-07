@@ -59,8 +59,7 @@ public:
     BufferedInputStream& operator =(const BufferedInputStream& src) = delete;
     BufferedInputStream& operator =(BufferedInputStream&& src) { /* TODO */ return *this; }
     
-    T read() override { T t; if(read(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
-    std::size_t read(T* buffer, std::size_t count) override {
+    std::size_t readSome(T* buffer, std::size_t count) override {
         
         if(size) {
             
@@ -73,18 +72,17 @@ public:
             
             if(count < data.size() / 2) {
                 
-                size = is->read(data.data(), data.size());
+                size = is->readSome(data.data(), data.size());
                 offset = std::min(count, size);
                 std::copy(data.data(), data.data() + offset, buffer);
                 size -= offset;
                 return offset;
                 
-            } else return is->read(buffer, count);
+            } else return is->readSome(buffer, count);
             
         }
         
     }
-    void skip() override { skip(1); }
     void skip(std::size_t count) override {
         
         if(count <= size) offset += count, size -= count;

@@ -66,8 +66,7 @@ public:
     DataViewInputStream& operator =(const DataViewInputStream& src) = delete;
     DataViewInputStream& operator =(DataViewInputStream&& src) { dv = src.dv, offset = src.offset, src.dv = nullptr; return *this; }
     
-    T read() override { T t; if(read(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
-    std::size_t read(T* buffer, std::size_t count) override {
+    std::size_t readSome(T* buffer, std::size_t count) override {
         
         count = std::min(count, static_cast<std::size_t>(dv->getSize() - offset));
         dv->read(buffer, count, offset);
@@ -75,7 +74,6 @@ public:
         return count;
         
     }
-    void skip() override { skip(1); }
     void skip(std::size_t count) override {
         
         offset += std::min(count, static_cast<std::size_t>(dv->getSize() - offset));

@@ -60,11 +60,11 @@ public:
     WrapperOutputStream& operator =(const WrapperOutputStream& src) = delete;
     WrapperOutputStream& operator =(WrapperOutputStream&& src) { file = src.file, src.file = nullptr; return *this; }
     
-    void write(char t) override { write(&t, 1); }
-    void write(const char* buffer, std::size_t count) override {
+    std::size_t writeSome(const char* buffer, std::size_t count) override {
         
         if(std::fwrite(buffer, 1, count, file) != count)
             throw std::runtime_error("std::fwrite failed");
+        return count;
         
     }
     void flush() override {
@@ -92,8 +92,12 @@ public:
     WrapperOutputStream& operator =(const WrapperOutputStream& src) = delete;
     WrapperOutputStream& operator =(WrapperOutputStream&& src) { os = src.os, src.os = nullptr; return *this; }
     
-    void write(char t) override { write(&t, 1); }
-    void write(const char* buffer, std::size_t count) override { os->write(buffer, count); }
+    std::size_t writeSome(const char* buffer, std::size_t count) override {
+        
+        os->write(buffer, count);
+        return count;
+        
+    }
     void flush() override { os->flush(); };
     
 };

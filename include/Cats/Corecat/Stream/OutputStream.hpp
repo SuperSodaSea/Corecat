@@ -41,8 +41,19 @@ struct OutputStream {
     using Type = T;
     
     virtual ~OutputStream() {}
-    virtual void write(T t) = 0;
-    virtual void write(const T* buffer, std::size_t count) = 0;
+    virtual std::size_t writeSome(const T* buffer, std::size_t count) = 0;
+    virtual void write(T t) { writeSome(&t, 1); }
+    virtual void writeAll(const T* buffer, std::size_t count) {
+        
+        std::size_t size = 0;
+        while(size < count) {
+            
+            std::size_t x = writeSome(buffer + size, count - size);
+            size += x;
+            
+        }
+        
+    }
     virtual void flush() = 0;
     
 };

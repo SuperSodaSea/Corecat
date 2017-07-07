@@ -60,14 +60,12 @@ public:
     WrapperInputStream& operator =(const WrapperInputStream& src) = delete;
     WrapperInputStream& operator =(WrapperInputStream&& src) { file = src.file, src.file = nullptr; return *this; }
     
-    char read() override { char t; if(read(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
-    std::size_t read(char* buffer, std::size_t count) override {
+    std::size_t readSome(char* buffer, std::size_t count) override {
         
         std::size_t ret = std::fread(buffer, 1, count, file);
         return ret;
         
     }
-    void skip() override { skip(1); }
     void skip(std::size_t count) override {
         
         if(std::fseek(file, count, SEEK_CUR))
@@ -93,9 +91,7 @@ public:
     WrapperInputStream& operator =(const WrapperInputStream& src) = delete;
     WrapperInputStream& operator =(WrapperInputStream&& src) { is = src.is, src.is = nullptr; return *this; }
     
-    char read() override { char t; if(read(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
-    std::size_t read(char* buffer, std::size_t count) override { is->read(buffer, count); return is->gcount(); }
-    void skip() override { skip(1); }
+    std::size_t readSome(char* buffer, std::size_t count) override { is->read(buffer, count); return is->gcount(); }
     void skip(std::size_t count) override { is->ignore(count); }
     
 };

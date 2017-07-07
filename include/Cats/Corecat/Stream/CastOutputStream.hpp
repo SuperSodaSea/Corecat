@@ -56,8 +56,7 @@ public:
     CastOutputStream& operator =(const CastOutputStream& src) = delete;
     CastOutputStream& operator =(CastOutputStream&& src) { /* TODO */ return *this; }
     
-    void write(T t) override { write(&t, 1); }
-    void write(const T* buffer, std::size_t count) override {
+    void writeSome(const T* buffer, std::size_t count) override {
         
         if(size + count * sizeof(T) < sizeof(U)) {
             
@@ -81,6 +80,7 @@ public:
             std::memcpy(data, reinterpret_cast<const std::uint8_t*>(buffer) + x - size, size);
             
         }
+        return count;
         
     }
     void flush() override { os->flush(); }

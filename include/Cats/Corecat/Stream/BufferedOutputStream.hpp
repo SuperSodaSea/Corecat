@@ -57,17 +57,17 @@ public:
     BufferedOutputStream& operator =(const BufferedOutputStream& src) = delete;
     BufferedOutputStream& operator =(BufferedOutputStream&& src) { /* TODO */ return *this; }
     
-    void write(T t) override { write(&t, 1); }
-    void write(const T* buffer, std::size_t count) override {
+    std::size_t writeSome(const T* buffer, std::size_t count) override {
         
         if(size + count <= data.size()) std::copy(buffer, buffer + count, data.data() + size), size += count;
         else {
             
-            if(size) os->write(data.data(), size);
+            if(size) os->writeAll(data.data(), size);
             if(data.size() <= count) std::copy(buffer, buffer + count, data.data()), size = count;
-            else os->write(buffer, count), size = 0;
+            else os->writeAll(buffer, count), size = 0;
             
         }
+        return count;
         
     }
     void flush() override {
