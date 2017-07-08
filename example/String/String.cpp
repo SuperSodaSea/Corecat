@@ -34,6 +34,8 @@ using namespace Cats::Corecat;
 
 int main() {
     
+    std::cout << std::boolalpha;
+    
     String8 str1 = "0123456789";
     PRINT(str1); // "0123456789"
     
@@ -53,6 +55,12 @@ int main() {
     PRINT(str1.substr(3)); // "3456789"
     PRINT(str1.substr(3, 5)); // "34567"
     PRINT(str1.substr(-7, 5)); // "34567"
+    
+    PRINT(str1 == str1); // true
+    PRINT(str1 == "0123456789"); // true
+    PRINT(str1 != "0123456788"); // true
+    PRINT(str1 < "0"); // false
+    PRINT(str1 > "1"); // false
     
     return 0;
     
