@@ -235,17 +235,18 @@ public:
     Promise<Res> then(F&& resolved) {
         
         Promise<Res> promise;
-        auto cb = [=]() {
+        auto cb1 = [=]() {
             
             try { thenImpl(resolved, promise); }
             catch(...) { promise.reject(ExceptionWrapper::current()); }
             
         };
+        auto cb2 = [=]() { promise.reject(exception); };
         std::unique_lock<Mutex> lock(mutex);
         switch(state) {
-        case State::Pending: resolvedQueue.emplace_back(std::move(cb)); break;
-        case State::Resolved: cb(); break;
-        case State::Rejected: break;
+        case State::Pending: resolvedQueue.emplace_back(std::move(cb1)); rejectedQueue.emplace_back(std::move(cb2)); break;
+        case State::Resolved: cb1(); break;
+        case State::Rejected: cb2(); break;
         }
         return promise;
         
