@@ -90,9 +90,9 @@ private:
 public:
     
     String() noexcept { storage.buffer.data[0] = 0; storage.buffer.length = BUFFER_SIZE - 1; }
-    String(CharType ch, std::size_t count = 1) : String() { append(ch, count); }
     String(const CharType* data_) : String() { append(data_); }
     String(const CharType* data_, std::size_t length_) : String() { append(data_, length_); }
+    explicit String(CharType ch, std::size_t count = 1) : String() { append(ch, count); }
     explicit String(const View& sv) : String() { append(sv); }
     template <typename D>
     explicit String(const StringView<D>& sv) : String() {
@@ -149,22 +149,34 @@ public:
     }
     
     bool operator ==(const String& b) const noexcept { return getView() == b.getView(); }
+    bool operator ==(const CharType* b) const noexcept { return getView() == View(b); }
     bool operator ==(const View& b) const noexcept { return getView() == b; }
+    friend bool operator ==(const CharType* a, const String& b) noexcept { return View(a) == b.getView(); }
     friend bool operator ==(const View& a, const String& b) noexcept { return a == b.getView(); }
     bool operator !=(const String& b) const noexcept { return getView() != b.getView(); }
+    bool operator !=(const CharType* b) const noexcept { return getView() != View(b); }
     bool operator !=(const View& b) const noexcept { return getView() != b; }
+    friend bool operator !=(const CharType* a, const String& b) noexcept { return View(a) != b.getView(); }
     friend bool operator !=(const View& a, const String& b) noexcept { return a != b.getView(); }
     bool operator <(const String& b) const noexcept { return getView() < b.getView(); }
+    bool operator <(const CharType* b) const noexcept { return getView() < View(b); }
     bool operator <(const View& b) const noexcept { return getView() < b; }
+    friend bool operator <(const CharType* a, const String& b) noexcept { return View(a) < b.getView(); }
     friend bool operator <(const View& a, const String& b) noexcept { return a < b.getView(); }
     bool operator >(const String& b) const noexcept { return getView() > b.getView(); }
+    bool operator >(const CharType* b) const noexcept { return getView() > View(b); }
     bool operator >(const View& b) const noexcept { return getView() > b; }
+    friend bool operator >(const CharType* a, const String& b) noexcept { return View(a) > b.getView(); }
     friend bool operator >(const View& a, const String& b) noexcept { return a > b.getView(); }
     bool operator <=(const String& b) const noexcept { return getView() <= b.getView(); }
+    bool operator <=(const CharType* b) const noexcept { return getView() <= View(b); }
     bool operator <=(const View& b) const noexcept { return getView() <= b; }
+    friend bool operator <=(const CharType* a, const String& b) noexcept { return View(a) <= b.getView(); }
     friend bool operator <=(const View& a, const String& b) noexcept { return a <= b.getView(); }
     bool operator >=(const String& b) const noexcept { return getView() >= b.getView(); }
+    bool operator >=(const CharType* b) const noexcept { return getView() >= View(b); }
     bool operator >=(const View& b) const noexcept { return getView() >= b; }
+    friend bool operator >=(const CharType* a, const String& b) noexcept { return View(a) >= b.getView(); }
     friend bool operator >=(const View& a, const String& b) noexcept { return a >= b.getView(); }
     
     operator View() const noexcept { return getView(); }
