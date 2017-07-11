@@ -32,6 +32,19 @@ namespace Cats {
 namespace Corecat {
 
 
+enum class Byte : unsigned char {};
+
+constexpr Byte operator ~(Byte a) noexcept { return Byte(~static_cast<unsigned char>(a)); }
+constexpr Byte operator &(Byte a, Byte b) noexcept { return Byte(static_cast<unsigned char>(a) & static_cast<unsigned char>(b)); }
+inline Byte& operator &=(Byte& a, Byte b) noexcept { return a = Byte(static_cast<unsigned char>(a) & static_cast<unsigned char>(b)); }
+constexpr Byte operator |(Byte a, Byte b) noexcept { return Byte(static_cast<unsigned char>(a) | static_cast<unsigned char>(b)); }
+inline Byte& operator |=(Byte& a, Byte b) noexcept { return a = Byte(static_cast<unsigned char>(a) | static_cast<unsigned char>(b)); }
+constexpr Byte operator ^(Byte a, Byte b) noexcept { return Byte(static_cast<unsigned char>(a) ^ static_cast<unsigned char>(b)); }
+inline Byte& operator ^=(Byte& a, Byte b) noexcept { return a = Byte(static_cast<unsigned char>(a) ^ static_cast<unsigned char>(b)); }
+template <typename T> constexpr Byte operator <<(Byte a, T b) noexcept { return Byte(static_cast<unsigned char>(a) << b); }
+template <typename T> inline Byte& operator <<=(Byte& a, T b) noexcept { return a = Byte(static_cast<unsigned char>(a) << b); }
+template <typename T> constexpr Byte operator >>(Byte a, T b) noexcept { return Byte(static_cast<unsigned char>(a) >> b); }
+template <typename T> inline Byte& operator >>=(Byte& a, T b) noexcept { return a = Byte(static_cast<unsigned char>(a) >> b); }
 
 
 }
