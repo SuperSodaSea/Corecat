@@ -63,7 +63,7 @@ public:
         else {
             
             if(size) os->writeAll(data.data(), size);
-            if(data.size() <= count) std::copy(buffer, buffer + count, data.data()), size = count;
+            if(count < data.size()) std::copy(buffer, buffer + count, data.data()), size = count;
             else os->writeAll(buffer, count), size = 0;
             
         }
@@ -72,7 +72,7 @@ public:
     }
     void flush() override {
         
-        if(size) os->write(data.data(), size), size = 0;
+        if(size) os->writeAll(data.data(), size), size = 0;
         os->flush();
         
     }
