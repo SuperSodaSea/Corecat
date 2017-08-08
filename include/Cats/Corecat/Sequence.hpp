@@ -42,38 +42,43 @@ struct Sequence {
     
 };
 
+
 template <typename S>
-struct Get;
+struct GetSequence;
 template <typename T, T... V>
-struct Get<Sequence<T, V...>> {
+struct GetSequence<Sequence<T, V...>> {
     
-    static constexpr T table[] = { V... };
-    static constexpr std::size_t get(std::size_t index) { return table[index]; }
+private:
+    static constexpr T TABLE[] = { V... };
+public:
+    static constexpr std::size_t get(std::size_t index) { return TABLE[index]; }
     
 };
+
 
 namespace Impl {
 
 template <typename S, std::size_t I1, std::size_t I2, typename = void>
-struct Contain;
+struct ContainSequence;
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct Contain<Sequence<T, V...>, I1, I2, typename std::enable_if<sizeof...(V) == 0>::type> {
+struct ContainSequence<Sequence<T, V...>, I1, I2, typename std::enable_if<sizeof...(V) == 0>::type> {
     
     static constexpr bool get(T /*t*/) { return false; }
     
 };
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct Contain<Sequence<T, V...>, I1, I2, typename std::enable_if<I1 == I2>::type> {
+struct ContainSequence<Sequence<T, V...>, I1, I2, typename std::enable_if<I1 == I2>::type> {
     
-    static constexpr bool get(T t) { return t == Get<Sequence<T, V...>>::get(I1); }
+    static constexpr bool get(T t) { return t == GetSequence<Sequence<T, V...>>::get(I1); }
     
 };
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct Contain<Sequence<T, V...>, I1, I2, typename std::enable_if<(I1 < I2)>::type> {
+struct ContainSequence<Sequence<T, V...>, I1, I2, typename std::enable_if<(I1 < I2)>::type> {
     
     static constexpr bool get(T t) {
         
-        return Contain<Sequence<T, V...>, I1, (I1 + I2) / 2>::get(t) || Contain<Sequence<T, V...>, (I1 + I2) / 2 + 1, I2>::get(t);
+        return ContainSequence<Sequence<T, V...>, I1, (I1 + I2) / 2>::get(t)
+            || ContainSequence<Sequence<T, V...>, (I1 + I2) / 2 + 1, I2>::get(t);
         
     }
     
@@ -81,47 +86,50 @@ struct Contain<Sequence<T, V...>, I1, I2, typename std::enable_if<(I1 < I2)>::ty
 
 }
 template <typename S>
-using Contain = typename Impl::Contain<S, 0, S::size() - 1>;
+using ContainSequence = typename Impl::ContainSequence<S, 0, S::size() - 1>;
+
 
 namespace Impl {
 
 template <typename S1, typename S2>
-struct Concat;
+struct ConcatSequence;
 template <typename T, T... V1, T... V2>
-struct Concat<Sequence<T, V1...>, Sequence<T, V2...>> { using Type = Sequence<T, V1..., V2...>; };
+struct ConcatSequence<Sequence<T, V1...>, Sequence<T, V2...>> { using Type = Sequence<T, V1..., V2...>; };
 
 }
 template <typename S1, typename S2>
-using Concat = typename Impl::Concat<S1, S2>::Type;
+using ConcatSequence = typename Impl::ConcatSequence<S1, S2>::Type;
+
 
 namespace Impl {
 
 template <typename T, T Begin, T End, typename = void>
-struct Index;
+struct IndexSequence;
 template <typename T, T Begin, T End>
-struct Index<T, Begin, End, typename std::enable_if<Begin == End>::type> {
+struct IndexSequence<T, Begin, End, typename std::enable_if<Begin == End>::type> {
     
     using Type = Sequence<T, Begin>;
     
 };
 template <typename T, T Begin, T End>
-struct Index<T, Begin, End, typename std::enable_if<(Begin < End)>::type> {
+struct IndexSequence<T, Begin, End, typename std::enable_if<(Begin < End)>::type> {
     
-    using Type = typename Concat<typename Index<T, Begin, (Begin + End) / 2>::Type,
-        typename Index<T, (Begin + End) / 2 + 1, End>::Type>::Type;
+    using Type = typename ConcatSequence<typename IndexSequence<T, Begin, (Begin + End) / 2>::Type,
+        typename IndexSequence<T, (Begin + End) / 2 + 1, End>::Type>::Type;
     
 };
 
 }
 template <typename T, T Begin, T End>
-using Index = typename Impl::Index<T, Begin, End>::Type;
+using IndexSequence = typename Impl::IndexSequence<T, Begin, End>::Type;
+
 
 namespace Impl {
-
+    
 template <typename F, typename S>
-struct Mapper;
+struct MapperSequence;
 template <typename F, typename T, T... V>
-struct Mapper<F, Sequence<T, V...>> {
+struct MapperSequence<F, Sequence<T, V...>> {
     
     using Type = Sequence<typename std::result_of<decltype(&F::get)(T)>::type, F::get(V)...>;
     
@@ -129,19 +137,24 @@ struct Mapper<F, Sequence<T, V...>> {
 
 }
 template <typename F, typename S>
-using Mapper = typename Impl::Mapper<F, S>::Type;
+using MapperSequence = typename Impl::MapperSequence<F, S>::Type;
+
+
+namespace {
 
 template <typename S>
-struct Table;
+struct SequenceTable;
 template <typename T, T... V>
-struct Table<Sequence<T, V...>> {
+struct SequenceTable<Sequence<T, V...>> {
     
-    static const T table[];
-    static T get(std::size_t t) { return table[t]; }
+    static const T TABLE[];
+    static T get(std::size_t t) { return TABLE[t]; }
     
 };
 template <typename T, T... V>
-const T Table<Sequence<T, V...>>::table[] = { V... };
+const T SequenceTable<Sequence<T, V...>>::TABLE[] = { V... };
+
+}
 
 }
 }

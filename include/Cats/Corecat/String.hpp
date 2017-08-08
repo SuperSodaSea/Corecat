@@ -339,6 +339,7 @@ public:
     }
     
     const CharType* getData() const noexcept { return data; }
+    void setData(const CharType* data_) noexcept { setData(data_, C::length(data_)); }
     void setData(const CharType* data_, std::size_t length_) noexcept { data = data_, length = length_; }
     std::size_t getLength() const noexcept { return length; }
     void setLength(std::size_t length_) noexcept { length = length_; }
