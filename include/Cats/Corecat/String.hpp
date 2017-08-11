@@ -228,28 +228,30 @@ public:
         
     }
     
+    void setLength(std::size_t length) {
+        
+        reserve(length);
+        getData()[length] = 0;
+        if(isSmall()) storage.buffer.length = BUFFER_SIZE - length - 1;
+        else storage.length = length;
+        
+    }
+    
     String& append(CharType ch, std::size_t count = 1) {
         
         auto length = getLength();
-        reserve(length + count);
+        setLength(length + count);
         auto data = getData();
         std::fill(data + length, data + length + count, ch);
-        length += count;
-        data[length] = 0;
-        if(isSmall()) storage.buffer.length = BUFFER_SIZE - length - 1;
-        else storage.length = length;
         return *this;
         
     }
     String& append(const CharType* data_, std::size_t length_) {
         
         auto length = getLength();
-        reserve(length + length_);
+        setLength(length + length_);
         auto data = getData();
-        *std::copy(data_, data_ + length_, data + length) = 0;
-        length += length_;
-        if(isSmall()) storage.buffer.length = static_cast<CharType>(BUFFER_SIZE - length - 1);
-        else storage.length = length;
+        std::copy(data_, data_ + length_, data + length);
         return *this;
         
     }
