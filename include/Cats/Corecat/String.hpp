@@ -513,7 +513,7 @@ inline T* i32ToString(std::int32_t x, T* p) {
 template <typename T>
 inline T* u64ToString(std::uint64_t x, T* p) {
     
-    if(x < 100000000) Impl::toStringBegin8(x, p);
+    if(x < 4294967296) return u32ToString(x, p);
     else if(x < 10000000000000000) {
         std::uint32_t a = x / 100000000, b = x % 100000000;
         Impl::toStringBegin8(a, p), Impl::toStringMiddle8(b, p);
