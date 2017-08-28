@@ -31,6 +31,7 @@
 #include <cstddef>
 
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -233,7 +234,7 @@ public:
         
         reserve(length);
         getData()[length] = 0;
-        if(isSmall()) storage.buffer.length = BUFFER_SIZE - length - 1;
+        if(isSmall()) storage.buffer.length = CharType(BUFFER_SIZE - length - 1);
         else storage.length = length;
         
     }
