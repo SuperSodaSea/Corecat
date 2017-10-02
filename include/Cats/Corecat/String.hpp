@@ -205,6 +205,9 @@ public:
     View substr(std::ptrdiff_t beginPos) const noexcept { return getView().substr(beginPos); }
     View substr(std::ptrdiff_t beginPos, std::size_t count) const noexcept { return getView().substr(beginPos, count); }
     
+    bool startsWith(const View& sv) const noexcept { return getView().startsWith(sv); }
+    bool endsWith(const View& sv) const noexcept { return getView().endsWith(sv); }
+    
     void clear() noexcept {
         
         if(isSmall()) { storage.buffer.data[0] = 0; storage.buffer.length = BUFFER_SIZE - 1; }
@@ -413,6 +416,21 @@ public:
         beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
         if(beginPos < static_cast<std::ptrdiff_t>(length)) return {data + beginPos, std::min(count, length - beginPos)};
         else return {};
+        
+    }
+    
+    bool startsWith(const StringView& sv) const noexcept {
+        
+        std::size_t len1 = getLength(), len2 = sv.getLength();
+        if(len1 < len2) return false;
+        return StringView(getData(), len2) == sv;
+        
+    }
+    bool endsWith(const StringView& sv) const noexcept {
+        
+        std::size_t len1 = getLength(), len2 = sv.getLength();
+        if(len1 < len2) return false;
+        return StringView(getData() + len2 - len1, len2) == sv;
         
     }
     
