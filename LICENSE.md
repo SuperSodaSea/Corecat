@@ -1,6 +1,4 @@
-# License
-
-MIT License
+# MIT License
 
 Copyright (c) 2016-2017 The Cats Project
 
