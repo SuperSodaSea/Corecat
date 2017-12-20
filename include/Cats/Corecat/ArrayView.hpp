@@ -56,15 +56,14 @@ private:
     
 public:
     
-    ArrayView(const ArrayView& src) noexcept : data(src.data), size(src.size) {}
-    
     ArrayView(std::nullptr_t = nullptr) noexcept : data(nullptr), size(0) {}
     ArrayView(Type& t) noexcept : data(std::addressof(t)), size(1) {}
     ArrayView(Type* data_, std::size_t size_) noexcept : data(data_), size(size_) {}
-    template <std::size_t SIZE>
-    ArrayView(Type (&array)[SIZE]) noexcept : data(array), size(SIZE) {}
+    template <std::size_t S>
+    ArrayView(Type (&array)[S]) noexcept : data(array), size(S) {}
+    ArrayView(const ArrayView& src) = default;
     
-    ArrayView& operator =(const ArrayView& src) noexcept { data = src.data, size = src.size; return *this; }
+    ArrayView& operator =(const ArrayView& src) = default;
     
     operator ArrayView<const Type>() noexcept { return {data, size}; }
     
@@ -72,6 +71,8 @@ public:
     
     Type* getData() const noexcept { return data; }
     std::size_t getSize() const noexcept { return size; }
+    
+    bool isEmpty() const noexcept { return !size; }
     
     Iterator begin() const noexcept { return data; }
     Iterator end() const noexcept { return data + size; }

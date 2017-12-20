@@ -12,6 +12,7 @@ endif()
 include_directories("include")
 
 set(EXAMPLE
+    CommandLine
     ExceptionWrapper
     String)
 
