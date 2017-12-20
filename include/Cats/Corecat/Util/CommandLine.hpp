@@ -30,6 +30,7 @@
 
 #include <cstddef>
 
+#include <deque>
 #include <exception>
 #include <functional>
 #include <memory>
@@ -50,13 +51,13 @@ class CommandLineParseException : public std::exception {
     
 private:
     
-    String8 data;
+    std::shared_ptr<const String8> data;
     
 public:
     
-    CommandLineParseException(const String8& data_) : data("CommandLineParseException: " + data_) {}
+    CommandLineParseException(const String8& data_) : data(std::make_shared<const String8>("CommandLineParseException: " + data_)) {}
     
-    const char* what() const noexcept override { return data.getData(); }
+    const char* what() const noexcept override { return data->getData(); }
     
 };
 
@@ -285,7 +286,7 @@ class CommandLineOptionList {
 private:
     
     String8 name;
-    std::vector<std::unique_ptr<CommandLineOption>> options;
+    std::deque<CommandLineOption> options;
     
 public:
     
@@ -301,11 +302,11 @@ public:
     
     const String8& getName() const { return name; }
     void setName(String8 name_) { name = std::move(name_); }
-    const std::vector<std::unique_ptr<CommandLineOption>>& getOptions() const { return options; }
+    const std::deque<CommandLineOption>& getOptions() const { return options; }
     CommandLineOption& addOption(std::function<void(StringView8)> callback) {
         
-        options.emplace_back(new CommandLineOption(std::move(callback)));
-        return *options.back();
+        options.emplace_back(std::move(callback));
+        return options.back();
         
     }
     
@@ -380,14 +381,14 @@ public:
             helpText += optionList->getName() + ":\n";
             for(auto&& option : optionList->getOptions()) {
                 
-                if(option->getHelp().isEmpty()) continue;
+                if(option.getHelp().isEmpty()) continue;
                 String8 optionText;
                 bool first = true;
-                for(auto&& z : option->getParsers()) {
+                for(auto&& z : option.getParsers()) {
                     
                     auto& parser = *z.first;
                     auto& name = z.second;
-                    auto text = parser.getName(*option, name);
+                    auto text = parser.getName(option, name);
                     if(!text.isEmpty()) {
                         
                         if(first) first = false;
@@ -403,7 +404,7 @@ public:
                     helpText += String8(' ', 28 - optionText.getLength());
                 else
                     helpText += '\n' + String8(' ', 32);
-                helpText += option->getHelp() + '\n';
+                helpText += option.getHelp() + '\n';
                 
             }
             
