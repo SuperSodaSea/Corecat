@@ -26,9 +26,9 @@
 
 #include <iostream>
 
-#include "Cats/Corecat/ExceptionWrapper.hpp"
+#include "Cats/Corecat/Util/ExceptionWrapper.hpp"
 
-using namespace Cats::Corecat;
+using namespace Cats::Corecat::Util;
 
 #define PRINT(x) do { std::cout << #x << " = " << (x) << std::endl; } while(0)
 

@@ -24,30 +24,35 @@
  *
  */
 
-#ifndef CATS_CORECAT_OPERATOR_HPP
-#define CATS_CORECAT_OPERATOR_HPP
+#ifndef CATS_CORECAT_UTIL_EXCEPTION_HPP
+#define CATS_CORECAT_UTIL_EXCEPTION_HPP
+
+
+#include <exception>
+#include <memory>
+
+#include "../String.hpp"
 
 
 namespace Cats {
 namespace Corecat {
+namespace Util {
 
-
-template <typename T>
-struct EqualityOperator {
+class Exception : public std::exception {
     
-    friend bool operator !=(const T& a, const T& b) noexcept(noexcept(a == b)) { return !(a == b); }
+private:
+    
+    std::shared_ptr<const String8> data;
+    
+public:
+    
+    Exception(const String8& data_) : data(std::make_shared<const String8>(data_)) {}
+    
+    const char* what() const noexcept override { return data->getData(); }
     
 };
-template <typename T>
-struct RelationalOperator {
-    
-    friend bool operator >(const T& a, const T& b) noexcept(noexcept(b < a)) { return b < a; }
-    friend bool operator <=(const T& a, const T& b) noexcept(noexcept(b < a)) { return !(b < a); }
-    friend bool operator >=(const T& a, const T& b) noexcept(noexcept(a < b)) { return !(a < b); }
-    
-};
 
-
+}
 }
 }
 

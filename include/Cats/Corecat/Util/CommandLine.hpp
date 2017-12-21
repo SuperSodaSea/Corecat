@@ -31,11 +31,11 @@
 #include <cstddef>
 
 #include <deque>
-#include <exception>
 #include <functional>
 #include <memory>
 #include <vector>
 
+#include "Exception.hpp"
 #include "../ArrayView.hpp"
 #include "../String.hpp"
 
@@ -44,20 +44,15 @@ namespace Cats {
 namespace Corecat {
 namespace Util {
 namespace CommandLine {
-    
+
+
 class CommandLineOptionParser;
 
-class CommandLineParseException : public std::exception {
-    
-private:
-    
-    std::shared_ptr<const String8> data;
+class CommandLineParseException : public Exception {
     
 public:
     
-    CommandLineParseException(const String8& data_) : data(std::make_shared<const String8>("CommandLineParseException: " + data_)) {}
-    
-    const char* what() const noexcept override { return data->getData(); }
+    CommandLineParseException(const String8& data_) : Exception("CommandLineParseException: " + data_) {}
     
 };
 
@@ -414,6 +409,7 @@ public:
     }
     
 };
+
 
 }
 }

@@ -34,7 +34,7 @@
 #include <mutex>
 #include <type_traits>
 
-#include "ExceptionWrapper.hpp"
+#include "Util/ExceptionWrapper.hpp"
 
 
 namespace Cats {
@@ -49,6 +49,8 @@ namespace Impl {
 
 template <typename T>
 class PromiseImpl : public std::enable_shared_from_this<PromiseImpl<T>> {
+    
+    using Util::ExceptionWrapper;
     
 private:
     

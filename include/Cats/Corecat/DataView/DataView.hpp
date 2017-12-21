@@ -36,7 +36,6 @@ namespace Cats {
 namespace Corecat {
 namespace DataView {
 
-
 template <typename T>
 struct DataView {
     
@@ -53,7 +52,6 @@ struct DataView {
     virtual void setSize(std::uint64_t size) = 0;
     
 };
-
 
 }
 }

@@ -24,48 +24,79 @@
  *
  */
 
-#ifndef CATS_CORECAT_EVENT_HPP
-#define CATS_CORECAT_EVENT_HPP
+#ifndef CATS_CORECAT_UTIL_ENDIAN_HPP
+#define CATS_CORECAT_UTIL_ENDIAN_HPP
 
 
-#include <functional>
-#include <list>
+#include <cstdlib>
+
+#include <type_traits>
+#include <utility>
 
 
 namespace Cats {
 namespace Corecat {
+namespace Util {
+namespace Endian {
 
-template <typename F>
-class Event {
+namespace Impl {
+
+template <typename T, typename = void>
+struct SwapBytes;
+template <typename T>
+struct SwapBytes<T, typename std::enable_if<sizeof(T) == 1>::type> {
     
-    std::list<std::function<F>> list;
+    static T swapBytes(T t) { return t; }
     
-public:
+};
+template <typename T>
+struct SwapBytes<T, typename std::enable_if<sizeof(T) == 2>::type> {
     
-    Event() {}
-    Event(const Event& src) = delete;
-    Event(Event&& src) = default;
-    ~Event() = default;
-    
-    Event& operator =(const Event& src) = delete;
-    Event& operator =(Event&& src) = default;
-    
-    template <typename T>
-    void operator <<(T&& t) {
+    static T swapBytes(T t) {
         
-        list.emplace_back(std::forward<T>(t));
+        auto p = reinterpret_cast<char*>(&t);
+        std::swap(p[0], p[1]);
+        return t;
         
     }
     
-    template <typename... Arg>
-    void operator ()(Arg&&... arg) {
+};
+template <typename T>
+struct SwapBytes<T, typename std::enable_if<sizeof(T) == 4>::type> {
+    
+    static T swapBytes(T t) {
         
-        for(auto&& x : list) x(arg...);
+        auto p = reinterpret_cast<char*>(&t);
+        std::swap(p[0], p[3]);
+        std::swap(p[1], p[2]);
+        return t;
+        
+    }
+    
+};
+template <typename T>
+struct SwapBytes<T, typename std::enable_if<sizeof(T) == 8>::type> {
+    
+    static T swapBytes(T t) {
+        
+        auto p = reinterpret_cast<char*>(&t);
+        std::swap(p[0], p[7]);
+        std::swap(p[1], p[6]);
+        std::swap(p[2], p[5]);
+        std::swap(p[3], p[4]);
+        return t;
         
     }
     
 };
 
+}
+
+template <typename T>
+inline T swapBytes(T t) { return Impl::SwapBytes<T>::swapBytes(t); }
+
+}
+}
 }
 }
 

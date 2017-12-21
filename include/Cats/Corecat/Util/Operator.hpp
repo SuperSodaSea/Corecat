@@ -24,75 +24,28 @@
  *
  */
 
-#ifndef CATS_CORECAT_ENDIAN_HPP
-#define CATS_CORECAT_ENDIAN_HPP
-
-
-#include <cstdlib>
-
-#include <type_traits>
-#include <utility>
+#ifndef CATS_CORECAT_UTIL_OPERATOR_HPP
+#define CATS_CORECAT_UTIL_OPERATOR_HPP
 
 
 namespace Cats {
 namespace Corecat {
-namespace Endian {
+namespace Util {
 
-namespace Impl {
-
-template <typename T, typename = void>
-struct SwapBytes;
 template <typename T>
-struct SwapBytes<T, typename std::enable_if<sizeof(T) == 1>::type> {
+struct EqualityOperator {
     
-    static T swapBytes(T t) { return t; }
+    friend bool operator !=(const T& a, const T& b) noexcept(noexcept(a == b)) { return !(a == b); }
     
 };
 template <typename T>
-struct SwapBytes<T, typename std::enable_if<sizeof(T) == 2>::type> {
+struct RelationalOperator {
     
-    static T swapBytes(T t) {
-        
-        auto p = reinterpret_cast<char*>(&t);
-        std::swap(p[0], p[1]);
-        return t;
-        
-    }
+    friend bool operator >(const T& a, const T& b) noexcept(noexcept(b < a)) { return b < a; }
+    friend bool operator <=(const T& a, const T& b) noexcept(noexcept(b < a)) { return !(b < a); }
+    friend bool operator >=(const T& a, const T& b) noexcept(noexcept(a < b)) { return !(a < b); }
     
 };
-template <typename T>
-struct SwapBytes<T, typename std::enable_if<sizeof(T) == 4>::type> {
-    
-    static T swapBytes(T t) {
-        
-        auto p = reinterpret_cast<char*>(&t);
-        std::swap(p[0], p[3]);
-        std::swap(p[1], p[2]);
-        return t;
-        
-    }
-    
-};
-template <typename T>
-struct SwapBytes<T, typename std::enable_if<sizeof(T) == 8>::type> {
-    
-    static T swapBytes(T t) {
-        
-        auto p = reinterpret_cast<char*>(&t);
-        std::swap(p[0], p[7]);
-        std::swap(p[1], p[6]);
-        std::swap(p[2], p[5]);
-        std::swap(p[3], p[4]);
-        return t;
-        
-    }
-    
-};
-
-}
-
-template <typename T>
-inline T swapBytes(T t) { return Impl::SwapBytes<T>::swapBytes(t); }
 
 }
 }

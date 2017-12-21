@@ -37,7 +37,6 @@ namespace Cats {
 namespace Corecat {
 namespace Win32 {
 
-
 class Handle {
     
 private:
@@ -62,7 +61,6 @@ public:
     void close() { assert(*this); CloseHandle(handle); handle = nullptr; }
     
 };
-
 
 }
 }

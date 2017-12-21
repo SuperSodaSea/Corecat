@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_EXCEPTIONWRAPPER_HPP
-#define CATS_CORECAT_EXCEPTIONWRAPPER_HPP
+#ifndef CATS_CORECAT_UTIL_EXCEPTIONWRAPPER_HPP
+#define CATS_CORECAT_UTIL_EXCEPTIONWRAPPER_HPP
 
 
 #include <exception>
@@ -36,6 +36,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Util {
 
 // Inspired by https://github.com/facebook/folly/blob/master/folly/ExceptionWrapper.h
 class ExceptionWrapper {
@@ -122,6 +123,7 @@ public:
     
 };
 
+}
 }
 }
 

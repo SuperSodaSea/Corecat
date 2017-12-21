@@ -37,7 +37,6 @@ namespace Cats {
 namespace Corecat {
 namespace DataView {
 
-
 template <typename T>
 class MemoryDataView : public DataView<T> {
     
@@ -78,7 +77,6 @@ public:
     void setSize(std::uint64_t size) override { throw std::runtime_error("Not resizable"); }
     
 };
-
 
 }
 }
