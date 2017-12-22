@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_ANY_HPP
-#define CATS_CORECAT_ANY_HPP
+#ifndef CATS_CORECAT_UTIL_ANY_HPP
+#define CATS_CORECAT_UTIL_ANY_HPP
 
 
 #include <cstdlib>
@@ -38,6 +38,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Util {
 
 class Any {
     
@@ -275,6 +276,7 @@ public:
     
 };
 
+}
 }
 }
 

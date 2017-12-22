@@ -24,12 +24,13 @@
  *
  */
 
-#ifndef CATS_CORECAT_BYTE_HPP
-#define CATS_CORECAT_BYTE_HPP
+#ifndef CATS_CORECAT_UTIL_BYTE_HPP
+#define CATS_CORECAT_UTIL_BYTE_HPP
 
 
 namespace Cats {
 namespace Corecat {
+namespace Util {
 
 enum class Byte : unsigned char {};
 
@@ -45,6 +46,7 @@ template <typename T> inline Byte& operator <<=(Byte& a, T b) noexcept { return 
 template <typename T> constexpr Byte operator >>(Byte a, T b) noexcept { return Byte(static_cast<unsigned char>(a) >> b); }
 template <typename T> inline Byte& operator >>=(Byte& a, T b) noexcept { return a = Byte(static_cast<unsigned char>(a) >> b); }
 
+}
 }
 }
 

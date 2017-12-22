@@ -35,16 +35,14 @@
 #include <memory>
 #include <vector>
 
+#include "ArrayView.hpp"
 #include "Exception.hpp"
-#include "../ArrayView.hpp"
 #include "../String.hpp"
 
 
 namespace Cats {
 namespace Corecat {
 namespace Util {
-namespace CommandLine {
-
 
 class CommandLineOptionParser;
 
@@ -410,8 +408,6 @@ public:
     
 };
 
-
-}
 }
 }
 }

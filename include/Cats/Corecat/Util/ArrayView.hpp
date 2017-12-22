@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_ARRAYVIEW_HPP
-#define CATS_CORECAT_ARRAYVIEW_HPP
+#ifndef CATS_CORECAT_UTIL_ARRAYVIEW_HPP
+#define CATS_CORECAT_UTIL_ARRAYVIEW_HPP
 
 
 #include <cstddef>
@@ -36,6 +36,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Util {
 
 template <typename T>
 class ArrayView {
@@ -88,6 +89,7 @@ public:
     
 };
 
+}
 }
 }
 

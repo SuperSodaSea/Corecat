@@ -29,11 +29,11 @@
 #include <vector>
 
 #include "Cats/Corecat/String.hpp"
-#include "Cats/Corecat/Util/CommandLine.hpp"
+#include "Cats/Corecat/Util.hpp"
 
 
 using namespace Cats::Corecat;
-using namespace Cats::Corecat::Util::CommandLine;
+using namespace Cats::Corecat::Util;
 
 
 template <typename T>
