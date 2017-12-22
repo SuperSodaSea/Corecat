@@ -24,44 +24,56 @@
  *
  */
 
-#include <iostream>
+#ifndef CATS_CORECAT_TEXT_CHARSET_CHARSET_HPP
+#define CATS_CORECAT_TEXT_CHARSET_CHARSET_HPP
 
-#include "Cats/Corecat/Text.hpp"
 
-using namespace Cats::Corecat::Text;
+#include <type_traits>
 
-#define PRINT(x) do { std::cout << #x << " = " << (x) << std::endl; } while(0)
 
-int main() {
+namespace Cats {
+namespace Corecat {
+namespace Text {
+namespace Charset {
+
+template <typename T>
+struct Charset {
     
-    std::cout << std::boolalpha;
+    using CharType = T;
     
-    String8 str1 = "0123456789";
-    PRINT(str1); // "0123456789"
+    static const char* getName();
     
-    PRINT(str1.getLength()); // 10
+    static char32_t decode(const T*& p, const T* q);
+    static bool encode(T*& p, T* q, char32_t codepoint);
     
-    PRINT(str1.find("234")); // 2
-    PRINT(str1.find("567")); // 5
-    PRINT(str1.find("567", 6)); // -1
+    static int compare(const T* begin1, const T* end1, const T* begin2, const T* end2) noexcept {
+        
+        using U = typename std::make_unsigned<T>::type;
+        for(auto p = begin1, q = begin2; ; ++p, ++q) {
+            
+            bool m1 = p == end1, m2 = q == end2;
+            if(m1 || m2) return m2 - m1;
+            T c1 = *p, c2 = *q;
+            if(c1 != c2) return U(c1) < U(c2) ? -1 : 1;
+            
+        }
+        
+    }
     
-    PRINT(str1.repeat(2)); // "01234567890123456789"
+    static std::size_t getLength(const T* str) noexcept {
+        
+        const T* end = str;
+        while(*end != T()) ++end;
+        return end - str;
+        
+    }
     
-    PRINT(str1.slice(3)); // "3456789"
-    PRINT(str1.slice(3, 8)); // "34567"
-    PRINT(str1.slice(3, -2)); // "34567"
-    PRINT(str1.slice(-7, -2)); // "34567"
-    
-    PRINT(str1.substr(3)); // "3456789"
-    PRINT(str1.substr(3, 5)); // "34567"
-    PRINT(str1.substr(-7, 5)); // "34567"
-    
-    PRINT(str1 == str1); // true
-    PRINT(str1 == "0123456789"); // true
-    PRINT(str1 != "0123456788"); // true
-    PRINT(str1 < "0"); // false
-    PRINT(str1 > "1"); // false
-    
-    return 0;
-    
+};
+
 }
+}
+}
+}
+
+
+#endif

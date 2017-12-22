@@ -28,11 +28,11 @@
 #include <iostream>
 #include <vector>
 
-#include "Cats/Corecat/String.hpp"
+#include "Cats/Corecat/Text.hpp"
 #include "Cats/Corecat/Util.hpp"
 
 
-using namespace Cats::Corecat;
+using namespace Cats::Corecat::Text;
 using namespace Cats::Corecat::Util;
 
 

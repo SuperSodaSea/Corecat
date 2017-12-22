@@ -26,7 +26,7 @@
 
 #include <iostream>
 
-#include "Cats/Corecat/Util/ExceptionWrapper.hpp"
+#include "Cats/Corecat/Util.hpp"
 
 using namespace Cats::Corecat::Util;
 

@@ -14,7 +14,8 @@ include_directories("include")
 set(EXAMPLE
     CommandLine
     ExceptionWrapper
-    String)
+    String
+    X86Feature)
 
 foreach(example ${EXAMPLE})
     add_executable(${example} example/${example}/${example}.cpp)

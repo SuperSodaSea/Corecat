@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_STRING_HPP
-#define CATS_CORECAT_STRING_HPP
+#ifndef CATS_CORECAT_TEXT_STRING_HPP
+#define CATS_CORECAT_TEXT_STRING_HPP
 
 
 #include <cstddef>
@@ -38,11 +38,12 @@
 #include <type_traits>
 
 #include "Charset.hpp"
-#include "Sequence.hpp"
+#include "../Sequence.hpp"
 
 
 namespace Cats {
 namespace Corecat {
+namespace Text {
 
 template <typename C>
 class StringView;
@@ -595,6 +596,7 @@ String16 toString16(T t) { return toString<Charset::UTF16Charset<>>(t); }
 template <typename T>
 String32 toString32(T t) { return toString<Charset::UTF32Charset<>>(t); }
 
+}
 }
 }
 

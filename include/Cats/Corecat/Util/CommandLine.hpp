@@ -37,7 +37,7 @@
 
 #include "ArrayView.hpp"
 #include "Exception.hpp"
-#include "../String.hpp"
+#include "../Text/String.hpp"
 
 
 namespace Cats {
@@ -48,6 +48,10 @@ class CommandLineOptionParser;
 
 class CommandLineParseException : public Exception {
     
+private:
+    
+    using String8 = Text::String8;
+    
 public:
     
     CommandLineParseException(const String8& data_) : Exception("CommandLineParseException: " + data_) {}
@@ -55,6 +59,11 @@ public:
 };
 
 class CommandLineOption {
+    
+private:
+    
+    using String8 = Text::String8;
+    using StringView8 = Text::StringView8;
     
 private:
     
@@ -92,6 +101,11 @@ public:
 
 class CommandLineOptionParser {
     
+private:
+    
+    using String8 = Text::String8;
+    using StringView8 = Text::StringView8;
+    
 public:
     
     virtual ~CommandLineOptionParser() = default;
@@ -103,6 +117,11 @@ public:
 
 
 class CommandLineLongOptionParser : public CommandLineOptionParser {
+    
+private:
+    
+    using String8 = Text::String8;
+    using StringView8 = Text::StringView8;
     
 private:
     
@@ -174,6 +193,11 @@ class CommandLineShortOptionParser : public CommandLineOptionParser {
     
 private:
     
+    using String8 = Text::String8;
+    using StringView8 = Text::StringView8;
+    
+private:
+    
     std::vector<std::pair<String8, CommandLineOption*>> options;
     
 public:
@@ -241,6 +265,11 @@ class CommandLineArgumentOptionParser : public CommandLineOptionParser {
     
 private:
     
+    using String8 = Text::String8;
+    using StringView8 = Text::StringView8;
+    
+private:
+    
     std::vector<CommandLineOption*> options;
     
 public:
@@ -278,6 +307,11 @@ class CommandLineOptionList {
     
 private:
     
+    using String8 = Text::String8;
+    using StringView8 = Text::StringView8;
+    
+private:
+    
     String8 name;
     std::deque<CommandLineOption> options;
     
@@ -305,29 +339,34 @@ public:
     
 };
 
-inline CommandLineOption& operator <<(CommandLineOptionList& optionList, std::function<void(StringView8)> callback) {
+inline CommandLineOption& operator <<(CommandLineOptionList& optionList, std::function<void(Text::StringView8)> callback) {
     
     return optionList.addOption(std::move(callback));
     
 }
 inline CommandLineOption& operator <<(CommandLineOptionList& optionList, bool& x) {
     
-    return optionList << [&x](StringView8 /*str*/) { x = true; };
+    return optionList << [&x](Text::StringView8 /*str*/) { x = true; };
     
 }
-inline CommandLineOption& operator <<(CommandLineOptionList& optionList, String8& x) {
+inline CommandLineOption& operator <<(CommandLineOptionList& optionList, Text::String8& x) {
     
-    return (optionList << [&x](StringView8 str) { x = str; }).setRequired();
+    return (optionList << [&x](Text::StringView8 str) { x = str; }).setRequired();
     
 }
-inline CommandLineOption& operator <<(CommandLineOptionList& optionList, std::vector<String8>& x) {
+inline CommandLineOption& operator <<(CommandLineOptionList& optionList, std::vector<Text::String8>& x) {
     
-    return (optionList << [&x](StringView8 str) { x.emplace_back(str); }).setRequired();
+    return (optionList << [&x](Text::StringView8 str) { x.emplace_back(str); }).setRequired();
     
 }
 
 
 class CommandLineParser {
+    
+private:
+    
+    using String8 = Text::String8;
+    using StringView8 = Text::StringView8;
     
 private:
     

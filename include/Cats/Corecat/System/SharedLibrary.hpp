@@ -30,7 +30,7 @@
 
 #include <stdexcept>
 
-#include "../String.hpp"
+#include "../Text/String.hpp"
 #include "../Win32/Windows.hpp"
 
 
@@ -39,6 +39,10 @@ namespace Corecat {
 namespace System {
 
 class SharedLibrary {
+    
+private:
+    
+    using String8 = Text::String8;
     
 private:
     

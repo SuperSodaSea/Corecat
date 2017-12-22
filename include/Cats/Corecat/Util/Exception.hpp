@@ -31,7 +31,7 @@
 #include <exception>
 #include <memory>
 
-#include "../String.hpp"
+#include "../Text/String.hpp"
 
 
 namespace Cats {
@@ -39,6 +39,10 @@ namespace Corecat {
 namespace Util {
 
 class Exception : public std::exception {
+    
+private:
+    
+    using String8 = Text::String8;
     
 private:
     

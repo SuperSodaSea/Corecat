@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_CHARSET_HPP
-#define CATS_CORECAT_CHARSET_HPP
+#ifndef CATS_CORECAT_TEXT_CHARSET_HPP
+#define CATS_CORECAT_TEXT_CHARSET_HPP
 
 
 #include "Charset/Charset.hpp"

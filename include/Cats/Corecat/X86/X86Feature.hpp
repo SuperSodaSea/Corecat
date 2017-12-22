@@ -32,8 +32,8 @@
 
 #include <array>
 
-#include "Cats/Corecat/Compiler.hpp"
-#include "Cats/Corecat/String.hpp"
+#include "../Compiler.hpp"
+#include "../Text/String.hpp"
 
 #if defined(CATS_CORECAT_COMPILER_CLANG) || defined(CATS_CORECAT_COMPILER_GCC)
 #   include <cpuid.h>
@@ -51,6 +51,12 @@ namespace X86 {
 namespace {
 
 struct X86Feature {
+    
+private:
+    
+    using String8 = Text::String8;
+    
+public:
     
     static std::array<std::uint32_t, 4> cpuid(std::uint32_t func, std::uint32_t sub) {
         
@@ -78,7 +84,7 @@ struct X86Feature {
 const std::uint32_t
     X86Feature::MAX_BASIC_CPUID = X86Feature::cpuid(0x00, 0)[0],
     X86Feature::MAX_EXTENDED_CPUID = X86Feature::cpuid(0x80000000, 0)[0];
-const String8
+const Text::String8
     X86Feature::VENDOR = [] {
         
         char str[12];

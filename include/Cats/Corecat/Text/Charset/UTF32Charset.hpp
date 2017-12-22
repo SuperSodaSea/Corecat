@@ -24,63 +24,43 @@
  *
  */
 
-#ifndef CATS_CORECAT_CHARSET_UTF16CHARSET_HPP
-#define CATS_CORECAT_CHARSET_UTF16CHARSET_HPP
+#ifndef CATS_CORECAT_TEXT_CHARSET_UTF32CHARSET_HPP
+#define CATS_CORECAT_TEXT_CHARSET_UTF32CHARSET_HPP
 
-
-#include <cstddef>
 
 #include "Charset.hpp"
 
 
 namespace Cats {
 namespace Corecat {
+namespace Text {
 namespace Charset {
 
-template <typename T = char16_t>
-struct UTF16Charset : public Charset<T> {
+template <typename T = char32_t>
+struct UTF32Charset : public Charset<T> {
     
-    static const char* getName() noexcept { return "UTF-16"; }
+    static const char* getName() noexcept { return "UTF-32"; }
     
     static char32_t decode(const T*& p, const T* q) {
         
-        std::ptrdiff_t size = q - p;
-        if(!size) return 0xFFFFFFFF;
-        char32_t h = static_cast<char16_t>(*p++);
-        if(h - 0xD800 >= 0x0800) return h;
-        else if(h <= 0xDBFF) {
-            
-            if(size < 2) return 0xFFFFFFFF;
-            char32_t l = static_cast<char16_t>(*p++);
-            if(l - 0xDC00 < 0x0400) return 0x10000 + (((h & 0x3FF) << 10) | (l & 0x3FF));
-            else return 0xFFFD;
-            
-        } else return 0xFFFD;
+        if(p == q) return 0xFFFFFFFF;
+        char32_t codepoint = *p++;
+        if(codepoint <= 0x10FFFF && codepoint - 0xD800 >= 0x0800) return codepoint;
+        else return 0xFFFD;
         
     }
     static bool encode(T*& p, T* q, char32_t codepoint) {
         
-        std::ptrdiff_t size = q - p;
-        if(codepoint <= 0xFFFF) {
-            
-            if(!size) return false;
-            if(codepoint - 0xD800 >= 0x0800) *p++ = codepoint;
-            else *p++ = 0xFFFD;
-            return true;
-            
-        } else if(codepoint <= 0x10FFFF) {
-            
-            if(size < 2) return false;
-            *p++ = static_cast<T>(0xD800 | ((codepoint - 0x10000) >> 10));
-            *p++ = static_cast<T>(0xDC00 | ((codepoint - 0x10000) & 0x3FF));
-            return true;
-            
-        } else { *p++ = 0xFFFD; return true; }
+        if(p == q) return false;
+        if(codepoint <= 0x10FFFF && codepoint - 0xD800 >= 0x0800) *p++ = codepoint;
+        else *p++ = 0xFFFD;
+        return true;
         
     }
     
 };
 
+}
 }
 }
 }

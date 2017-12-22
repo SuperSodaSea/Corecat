@@ -24,44 +24,12 @@
  *
  */
 
-#ifndef CATS_CORECAT_CHARSET_UTF32CHARSET_HPP
-#define CATS_CORECAT_CHARSET_UTF32CHARSET_HPP
+#ifndef CATS_CORECAT_TEXT_HPP
+#define CATS_CORECAT_TEXT_HPP
 
 
-#include "Charset.hpp"
-
-
-namespace Cats {
-namespace Corecat {
-namespace Charset {
-
-template <typename T = char32_t>
-struct UTF32Charset : public Charset<T> {
-    
-    static const char* getName() noexcept { return "UTF-32"; }
-    
-    static char32_t decode(const T*& p, const T* q) {
-        
-        if(p == q) return 0xFFFFFFFF;
-        char32_t codepoint = *p++;
-        if(codepoint <= 0x10FFFF && codepoint - 0xD800 >= 0x0800) return codepoint;
-        else return 0xFFFD;
-        
-    }
-    static bool encode(T*& p, T* q, char32_t codepoint) {
-        
-        if(p == q) return false;
-        if(codepoint <= 0x10FFFF && codepoint - 0xD800 >= 0x0800) *p++ = codepoint;
-        else *p++ = 0xFFFD;
-        return true;
-        
-    }
-    
-};
-
-}
-}
-}
+#include "Text/Charset.hpp"
+#include "Text/String.hpp"
 
 
 #endif

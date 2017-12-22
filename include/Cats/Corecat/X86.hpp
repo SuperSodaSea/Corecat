@@ -24,54 +24,11 @@
  *
  */
 
-#ifndef CATS_CORECAT_CHARSET_CHARSET_HPP
-#define CATS_CORECAT_CHARSET_CHARSET_HPP
+#ifndef CATS_CORECAT_X86_HPP
+#define CATS_CORECAT_X86_HPP
 
 
-#include <type_traits>
-
-
-namespace Cats {
-namespace Corecat {
-namespace Charset {
-
-template <typename T>
-struct Charset {
-    
-    using CharType = T;
-    
-    static const char* getName();
-    
-    static char32_t decode(const T*& p, const T* q);
-    static bool encode(T*& p, T* q, char32_t codepoint);
-    
-    static int compare(const T* begin1, const T* end1, const T* begin2, const T* end2) noexcept {
-        
-        using U = typename std::make_unsigned<T>::type;
-        for(auto p = begin1, q = begin2; ; ++p, ++q) {
-            
-            bool m1 = p == end1, m2 = q == end2;
-            if(m1 || m2) return m2 - m1;
-            T c1 = *p, c2 = *q;
-            if(c1 != c2) return U(c1) < U(c2) ? -1 : 1;
-            
-        }
-        
-    }
-    
-    static std::size_t getLength(const T* str) noexcept {
-        
-        const T* end = str;
-        while(*end != T()) ++end;
-        return end - str;
-        
-    }
-    
-};
-
-}
-}
-}
+#include "X86/X86Feature.hpp"
 
 
 #endif

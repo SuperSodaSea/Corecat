@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_CHARSET_UTF8CHARSET_HPP
-#define CATS_CORECAT_CHARSET_UTF8CHARSET_HPP
+#ifndef CATS_CORECAT_TEXT_CHARSET_UTF8CHARSET_HPP
+#define CATS_CORECAT_TEXT_CHARSET_UTF8CHARSET_HPP
 
 
 #include <cstddef>
@@ -35,6 +35,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Text {
 namespace Charset {
 
 template <typename T = char>
@@ -130,6 +131,7 @@ struct UTF8Charset : public Charset<T> {
     
 };
 
+}
 }
 }
 }
