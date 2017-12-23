@@ -72,18 +72,16 @@ private:
         
     public:
         
+        Holder(T&& t_) : t(std::move(t_)) {}
         Holder(const Holder& src) : t(src.t) {}
         Holder(Holder&& src) : t(std::move(src.t)) {}
         ~Holder() final = default;
         
-        Holder() = delete;
-        Holder(T&& t_) : t(std::move(t_)) {}
-        
         void* get() noexcept final { return std::addressof(t); }
         std::size_t getSize() const noexcept final { return sizeof(Holder); }
         const std::type_info& getType() const noexcept final { return typeid(T); }
-        void copy(unsigned char* dst) const final { new(dst) Holder<T>(*this); }
-        void move(unsigned char* dst) final { new(dst) Holder(std::move(t)); };
+        void copy(unsigned char* dst) const final { new(dst) Holder(*this); }
+        void move(unsigned char* dst) final { new(dst) Holder(*this); };
         
     };
     
@@ -116,6 +114,9 @@ private:
     
 public:
     
+    Any() noexcept : data(buffer), capacity(BUFFER_SIZE), empty(true) {}
+    template <typename T, typename std::enable_if<!std::is_same<typename std::decay<T>::type, Any>::value, int>::type = 0>
+    Any(T&& t) : Any() { emplace<T>(std::move(t)); }
     Any(const Any& src) : Any() {
         
         if(!src.empty) {
@@ -131,10 +132,8 @@ public:
     Any(Any&& src) : Any() { swap(src); }
     ~Any() {}
     
-    Any() noexcept : data(buffer), capacity(BUFFER_SIZE), empty(true) {}
     template <typename T, typename std::enable_if<!std::is_same<typename std::decay<T>::type, Any>::value, int>::type = 0>
-    Any(T&& t) : Any() { emplace<T>(std::move(t)); }
-    
+    Any& operator =(T&& t) { emplace<T>(std::move(t)); return *this; }
     Any& operator =(const Any& src) {
         
         clear();
@@ -150,9 +149,6 @@ public:
         
     }
     Any& operator =(Any&& src) { swap(src); return *this; }
-    
-    template <typename T, typename std::enable_if<!std::is_same<typename std::decay<T>::type, Any>::value, int>::type = 0>
-    Any& operator =(T&& t) { emplace<T>(std::move(t)); return *this; }
     
     template <typename T>
     T& get() {

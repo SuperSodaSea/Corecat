@@ -37,8 +37,10 @@
 #include <string>
 #include <type_traits>
 
-#include "Charset.hpp"
-#include "../Sequence.hpp"
+#include "Charset/UTF8Charset.hpp"
+#include "Charset/UTF16Charset.hpp"
+#include "Charset/UTF32Charset.hpp"
+#include "../Util/Sequence.hpp"
 
 
 namespace Cats {
@@ -449,7 +451,7 @@ using StringView32 = StringView<Charset::UTF32Charset<>>;
 
 namespace Impl {
 
-using namespace Sequence;
+using namespace Util::Sequence;
 
 template <typename T>
 struct DecimalDigit {

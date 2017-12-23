@@ -24,19 +24,33 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#include <iostream>
 
+#include "Cats/Corecat/Text.hpp"
+#include "Cats/Corecat/Util.hpp"
 
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Sequence.hpp"
+using namespace Cats::Corecat::Text;
+using namespace Cats::Corecat::Util;
 
-
-#endif
+int main() {
+    
+    Any a1 = 42;
+    std::cout << a1.get<int>() << std::endl; // 42
+    Any a2 = 2.33;
+    std::cout << a2.get<double>() << std::endl; // 2.33
+    Any a3 = String8("Any");
+    std::cout << a3.get<String8>() << std::endl; // Any
+    
+    a1 = a3;
+    std::cout << a1.get<String8>() << std::endl; // Any
+    
+    try {
+        
+        Any a4 = 234;
+        std::cout << a4.get<double>() << std::endl; // Throw exception
+        
+    } catch(std::exception& e) { std::cout << e.what() << std::endl; }
+    
+    return 0;
+    
+}

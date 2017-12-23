@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_SEQUENCE_HPP
-#define CATS_CORECAT_SEQUENCE_HPP
+#ifndef CATS_CORECAT_UTIL_SEQUENCE_HPP
+#define CATS_CORECAT_UTIL_SEQUENCE_HPP
 
 
 #include <cstdlib>
@@ -33,6 +33,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Util {
 namespace Sequence {
 
 template <typename T, T... V>
@@ -156,6 +157,7 @@ const T SequenceTable<Sequence<T, V...>>::TABLE[] = { V... };
 
 }
 
+}
 }
 }
 }
