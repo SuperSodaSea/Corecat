@@ -24,52 +24,20 @@
  *
  */
 
-#ifndef CATS_CORECAT_EVENT_HPP
-#define CATS_CORECAT_EVENT_HPP
+#ifndef CATS_CORECAT_SYSTEM_COMPILER_HPP
+#define CATS_CORECAT_SYSTEM_COMPILER_HPP
 
 
-#include <functional>
-#include <list>
-
-
-namespace Cats {
-namespace Corecat {
-
-template <typename F>
-class Event {
-    
-private:
-    
-    std::list<std::function<F>> list;
-    
-public:
-    
-    Event() {}
-    Event(const Event& src) = delete;
-    Event(Event&& src) = default;
-    ~Event() = default;
-    
-    Event& operator =(const Event& src) = delete;
-    Event& operator =(Event&& src) = default;
-    
-    template <typename T>
-    void operator <<(T&& t) {
-        
-        list.emplace_back(std::forward<T>(t));
-        
-    }
-    
-    template <typename... Arg>
-    void operator ()(Arg&&... arg) {
-        
-        for(auto&& x : list) x(arg...);
-        
-    }
-    
-};
-
-}
-}
+#if defined(__clang__)
+    #define CATS_CORECAT_SYSTEM_COMPILER_CLANG
+    #define CATS_CORECAT_SYSTEM_COMPILER "Clang"
+#elif defined(__GNUC__)
+    #define CATS_CORECAT_SYSTEM_COMPILER_GCC
+    #define CATS_CORECAT_SYSTEM_COMPILER "GCC"
+#elif defined(_MSC_VER)
+    #define CATS_CORECAT_SYSTEM_COMPILER_MSVC
+    #define CATS_CORECAT_SYSTEM_COMPILER "MSVC"
+#endif
 
 
 #endif

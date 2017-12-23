@@ -39,6 +39,7 @@ namespace Corecat {
 namespace Util {
 
 // Inspired by https://github.com/facebook/folly/blob/master/folly/ExceptionWrapper.h
+
 class ExceptionWrapper {
     
 private:

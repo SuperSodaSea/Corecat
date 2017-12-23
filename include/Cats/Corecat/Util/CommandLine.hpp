@@ -54,7 +54,7 @@ private:
     
 public:
     
-    CommandLineParseException(const String8& data_) : Exception("CommandLineParseException: " + data_) {}
+    CommandLineParseException(const String8& data) : Exception("CommandLineParseException: " + data) {}
     
 };
 

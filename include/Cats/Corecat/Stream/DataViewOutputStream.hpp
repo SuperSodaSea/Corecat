@@ -44,7 +44,7 @@ class DataViewOutputStream : public OutputStream<T> {
 private:
     
     template <typename U>
-    using DataView = Cats::Corecat::DataView::DataView<U>;
+    using DataView = DataView::DataView<U>;
     
 private:
     
@@ -77,9 +77,7 @@ public:
 };
 
 template <typename T>
-inline DataViewOutputStream<T> createDataViewOutputStream(Cats::Corecat::DataView::DataView<T>& dv) { return DataViewOutputStream<T>(dv); }
-template <typename T>
-inline DataViewOutputStream<T> createDataViewOutputStream(Cats::Corecat::DataView::DataView<T>& dv, std::uint64_t offset) { return DataViewOutputStream<T>(dv, offset); }
+inline DataViewOutputStream<T> createDataViewOutputStream(DataView::DataView<T>& dv, std::uint64_t offset = 0) { return DataViewOutputStream<T>(dv, offset); }
 
 }
 }

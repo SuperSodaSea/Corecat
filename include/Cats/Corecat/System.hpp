@@ -24,20 +24,12 @@
  *
  */
 
-#ifndef CATS_CORECAT_COMPILER_HPP
-#define CATS_CORECAT_COMPILER_HPP
+#ifndef CATS_CORECAT_SYSTEM_HPP
+#define CATS_CORECAT_SYSTEM_HPP
 
 
-#if defined(__clang__)
-    #define CATS_CORECAT_COMPILER_CLANG
-    #define CATS_CORECAT_COMPILER "Clang"
-#elif defined(__GNUC__)
-    #define CATS_CORECAT_COMPILER_GCC
-    #define CATS_CORECAT_COMPILER "GCC"
-#elif defined(_MSC_VER)
-    #define CATS_CORECAT_COMPILER_MSVC
-    #define CATS_CORECAT_COMPILER "MSVC"
-#endif
+#include "System/Compiler.hpp"
+#include "System/SharedLibrary.hpp"
 
 
 #endif

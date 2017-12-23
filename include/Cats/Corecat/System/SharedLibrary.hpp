@@ -43,6 +43,7 @@ class SharedLibrary {
 private:
     
     using String8 = Text::String8;
+    using String16 = Text::String16;
     
 private:
     
