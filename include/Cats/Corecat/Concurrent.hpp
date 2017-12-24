@@ -24,53 +24,12 @@
  *
  */
 
-#ifndef CATS_CORECAT_EVENT_HPP
-#define CATS_CORECAT_EVENT_HPP
+#ifndef CATS_CORECAT_CONCURRENT_HPP
+#define CATS_CORECAT_CONCURRENT_HPP
 
 
-#include <functional>
-#include <list>
-#include <utility>
-
-
-namespace Cats {
-namespace Corecat {
-
-template <typename F>
-class Event {
-    
-private:
-    
-    std::list<std::function<F>> list;
-    
-public:
-    
-    Event() {}
-    Event(const Event& src) = delete;
-    Event(Event&& src) = default;
-    ~Event() = default;
-    
-    Event& operator =(const Event& src) = delete;
-    Event& operator =(Event&& src) = default;
-    
-    template <typename T>
-    void operator <<(T&& t) {
-        
-        list.emplace_back(std::forward<T>(t));
-        
-    }
-    
-    template <typename... Arg>
-    void operator ()(Arg&&... arg) {
-        
-        for(auto&& x : list) x(arg...);
-        
-    }
-    
-};
-
-}
-}
+#include "Concurrent/Event.hpp"
+#include "Concurrent/Promise.hpp"
 
 
 #endif

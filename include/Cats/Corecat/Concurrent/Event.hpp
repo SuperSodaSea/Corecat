@@ -24,20 +24,47 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#ifndef CATS_CORECAT_CONCURRENT_EVENT_HPP
+#define CATS_CORECAT_CONCURRENT_EVENT_HPP
 
 
-#include "Util/Allocator.hpp"
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Sequence.hpp"
+#include <functional>
+#include <list>
+#include <utility>
+
+
+namespace Cats {
+namespace Corecat {
+namespace Concurrent {
+
+template <typename F>
+class Event {
+    
+private:
+    
+    std::list<std::function<F>> list;
+    
+public:
+    
+    Event() {}
+    Event(const Event& src) = delete;
+    Event(Event&& src) = default;
+    ~Event() = default;
+    
+    Event& operator =(const Event& src) = delete;
+    Event& operator =(Event&& src) = default;
+    
+    template <typename T>
+    void operator <<(T&& t) { list.emplace_back(std::forward<T>(t)); }
+    
+    template <typename... Arg>
+    void operator ()(Arg&&... arg) { for(auto&& x : list) x(arg...); }
+    
+};
+
+}
+}
+}
 
 
 #endif

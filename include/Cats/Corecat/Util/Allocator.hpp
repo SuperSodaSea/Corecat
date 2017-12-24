@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_MEMORYPOOL_HPP
-#define CATS_CORECAT_MEMORYPOOL_HPP
+#ifndef CATS_CORECAT_UTIL_ALLOCATOR_HPP
+#define CATS_CORECAT_UTIL_ALLOCATOR_HPP
 
 
 #include <cassert>
@@ -34,9 +34,10 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Util {
 
-template <std::size_t SIZE = 65536>
-class MemoryPoolFast {
+template <std::size_t S = 65536>
+class FastAllocator {
     
 private:
     
@@ -68,15 +69,15 @@ private:
     
 public:
     
-    MemoryPoolFast() = default;
-    MemoryPoolFast(const MemoryPoolFast& src) = delete;
-    ~MemoryPoolFast() { clear(); }
+    FastAllocator() = default;
+    FastAllocator(const FastAllocator& src) = delete;
+    ~FastAllocator() { clear(); }
     
     void* allocate(std::size_t size) {
         
         assert(size);
         if(!lastBlock || (lastBlock->size - lastBlock->free) < size)
-            allocateBlock(size > (SIZE - sizeof(Block)) ? size : (SIZE - sizeof(Block)));
+            allocateBlock(size > (S - sizeof(Block)) ? size : (S - sizeof(Block)));
         void* p = reinterpret_cast<char*>(lastBlock + 1) + lastBlock->free;
         lastBlock->free += size;
         return p;
@@ -94,6 +95,7 @@ public:
     
 };
 
+}
 }
 }
 

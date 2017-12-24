@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_PROMISE_HPP
-#define CATS_CORECAT_PROMISE_HPP
+#ifndef CATS_CORECAT_CONCURRENT_PROMISE_HPP
+#define CATS_CORECAT_CONCURRENT_PROMISE_HPP
 
 
 #include <deque>
@@ -34,11 +34,12 @@
 #include <mutex>
 #include <type_traits>
 
-#include "Util/ExceptionWrapper.hpp"
+#include "../Util/ExceptionWrapper.hpp"
 
 
 namespace Cats {
 namespace Corecat {
+namespace Concurrent {
 
 // Inspired by https://github.com/facebook/folly/blob/master/folly/futures/Future.h
 
@@ -319,6 +320,7 @@ public:
     
 };
 
+}
 }
 }
 
