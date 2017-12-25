@@ -91,7 +91,7 @@ const Text::String8
         auto data = X86Feature::cpuid(0x00, 0);
         int table[] = {1, 3, 2};
         for(int i = 0; i < 3; ++i) reinterpret_cast<std::uint32_t*>(str)[i] = data[table[i]];
-        return String8(str, 12);
+        return Text::String8(str, 12);
         
     }(),
     X86Feature::BRAND = [] {
@@ -103,7 +103,7 @@ const Text::String8
             for(int j = 0; j < 4; ++j) reinterpret_cast<std::uint32_t*>(str)[i * 4 + j] = data[j];
             
         }
-        return String8(str);
+        return Text::String8(str);
         
     }();
 const bool
