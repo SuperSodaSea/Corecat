@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_WRAPPEROUTPUTSTREAM_HPP
-#define CATS_CORECAT_STREAM_WRAPPEROUTPUTSTREAM_HPP
+#ifndef CATS_CORECAT_DATA_STREAM_WRAPPEROUTPUTSTREAM_HPP
+#define CATS_CORECAT_DATA_STREAM_WRAPPEROUTPUTSTREAM_HPP
 
 
 #include <cstdio>
@@ -39,6 +39,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Data {
 namespace Stream {
 
 template <typename T, typename = void>
@@ -105,6 +106,7 @@ public:
 template <typename T>
 inline WrapperOutputStream<T> createWrapperOutputStream(T& t) { return WrapperOutputStream<T>(t); }
 
+}
 }
 }
 }

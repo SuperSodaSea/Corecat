@@ -24,43 +24,37 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_INPUTSTREAM_HPP
-#define CATS_CORECAT_STREAM_INPUTSTREAM_HPP
+#ifndef CATS_CORECAT_DATA_DATAVIEW_DATAVIEW_HPP
+#define CATS_CORECAT_DATA_DATAVIEW_DATAVIEW_HPP
 
 
 #include <cstddef>
+#include <cstdint>
 
 
 namespace Cats {
 namespace Corecat {
-namespace Stream {
+namespace Data {
+namespace DataView {
 
 template <typename T>
-struct InputStream {
+struct DataView {
     
     using Type = T;
     
-    virtual ~InputStream() {}
-    virtual std::size_t readSome(T* buffer, std::size_t count) = 0;
-    virtual T read() { T t; if(readSome(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
-    virtual void readAll(T* buffer, std::size_t count) {
-        
-        std::size_t size = 0;
-        while(size < count) {
-            
-            std::size_t x = readSome(buffer + size, count - size);
-            if(!x) throw std::runtime_error("End of stream");
-            size += x;
-            
-        }
-        
-    }
-    virtual void skip(std::size_t count) = 0;
-    virtual void skip() { skip(1); }
-    
+    virtual ~DataView() = default;
+    virtual bool isReadable() = 0;
+    virtual bool isWritable() = 0;
+    virtual bool isResizable() = 0;
+    virtual void read(T* buffer, std::size_t count, std::uint64_t offset) = 0;
+    virtual void write(const T* buffer, std::size_t count, std::uint64_t offset) = 0;
+    virtual void flush() = 0;
+    virtual std::uint64_t getSize() = 0;
+    virtual void setSize(std::uint64_t size) = 0;
     
 };
 
+}
 }
 }
 }

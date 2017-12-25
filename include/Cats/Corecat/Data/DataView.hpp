@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_DATAVIEW_HPP
-#define CATS_CORECAT_DATAVIEW_HPP
+#ifndef CATS_CORECAT_DATA_DATAVIEW_HPP
+#define CATS_CORECAT_DATA_DATAVIEW_HPP
 
 
 #include "DataView/DataView.hpp"

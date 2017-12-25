@@ -24,23 +24,23 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_DATAVIEWINPUTSTREAM_HPP
-#define CATS_CORECAT_STREAM_DATAVIEWINPUTSTREAM_HPP
+#ifndef CATS_CORECAT_DATA_STREAM_DATAVIEWOUTPUTSTREAM_HPP
+#define CATS_CORECAT_DATA_STREAM_DATAVIEWOUTPUTSTREAM_HPP
 
 
-#include <algorithm>
 #include <stdexcept>
 
-#include "InputStream.hpp"
+#include "OutputStream.hpp"
 #include "../DataView/DataView.hpp"
 
 
 namespace Cats {
 namespace Corecat {
+namespace Data {
 namespace Stream {
 
 template <typename T>
-class DataViewInputStream : public InputStream<T> {
+class DataViewOutputStream : public OutputStream<T> {
     
 private:
     
@@ -54,37 +54,33 @@ private:
     
 public:
     
-    DataViewInputStream(DataView<T>& dv_, std::uint64_t offset_ = 0) : dv(&dv_), offset(offset_) {
+    DataViewOutputStream(DataView<T>& dv_, std::uint64_t offset_ = 0) : dv(&dv_), offset(offset_) {
         
-        if(!dv->isReadable()) throw std::invalid_argument("Not readable");
+        if(!dv->isWritable()) throw std::invalid_argument("Not writable");
         
     }
-    DataViewInputStream(const DataViewInputStream& src) = delete;
-    DataViewInputStream(DataViewInputStream&& src) : dv(src.dv), offset(src.offset) { src.dv = nullptr; }
-    ~DataViewInputStream() override = default;
+    DataViewOutputStream(const DataViewOutputStream& src) = delete;
+    DataViewOutputStream(DataViewOutputStream&& src) : dv(src.dv), offset(src.offset) { src.dv = nullptr; }
+    ~DataViewOutputStream() override = default;
     
-    DataViewInputStream& operator =(const DataViewInputStream& src) = delete;
-    DataViewInputStream& operator =(DataViewInputStream&& src) { dv = src.dv, offset = src.offset, src.dv = nullptr; return *this; }
+    DataViewOutputStream& operator =(const DataViewOutputStream& src) = delete;
+    DataViewOutputStream& operator =(DataViewOutputStream&& src) { dv = src.dv, offset = src.offset, src.dv = nullptr; return *this; }
     
-    std::size_t readSome(T* buffer, std::size_t count) override {
+    std::size_t writeSome(const T* buffer, std::size_t count) override {
         
-        count = std::min(count, static_cast<std::size_t>(dv->getSize() - offset));
-        dv->read(buffer, count, offset);
+        dv->write(buffer, count, offset);
         offset += count;
         return count;
         
     }
-    void skip(std::size_t count) override {
-        
-        offset += std::min(count, static_cast<std::size_t>(dv->getSize() - offset));
-        
-    }
+    void flush() override { dv->flush(); }
     
 };
 
 template <typename T>
-inline DataViewInputStream<T> createDataViewInputStream(DataView::DataView<T>& dv, std::uint64_t offset = 0) { return DataViewInputStream<T>(dv, offset); }
+inline DataViewOutputStream<T> createDataViewOutputStream(DataView::DataView<T>& dv, std::uint64_t offset = 0) { return DataViewOutputStream<T>(dv, offset); }
 
+}
 }
 }
 }

@@ -24,61 +24,66 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_DATAVIEWOUTPUTSTREAM_HPP
-#define CATS_CORECAT_STREAM_DATAVIEWOUTPUTSTREAM_HPP
+#ifndef CATS_CORECAT_DATA_STREAM_BUFFEREDOUTPUTSTREAM_HPP
+#define CATS_CORECAT_DATA_STREAM_BUFFEREDOUTPUTSTREAM_HPP
 
 
-#include <stdexcept>
+#include <algorithm>
+#include <vector>
 
 #include "OutputStream.hpp"
-#include "../DataView/DataView.hpp"
 
 
 namespace Cats {
 namespace Corecat {
+namespace Data {
 namespace Stream {
 
 template <typename T>
-class DataViewOutputStream : public OutputStream<T> {
+class BufferedOutputStream : public OutputStream<T> {
     
 private:
     
-    template <typename U>
-    using DataView = DataView::DataView<U>;
-    
-private:
-    
-    DataView<T>* dv;
-    std::uint64_t offset;
+    OutputStream<T>* os;
+    std::vector<T> data;
+    std::size_t size = 0;
     
 public:
     
-    DataViewOutputStream(DataView<T>& dv_, std::uint64_t offset_ = 0) : dv(&dv_), offset(offset_) {
-        
-        if(!dv->isWritable()) throw std::invalid_argument("Not writable");
-        
-    }
-    DataViewOutputStream(const DataViewOutputStream& src) = delete;
-    DataViewOutputStream(DataViewOutputStream&& src) : dv(src.dv), offset(src.offset) { src.dv = nullptr; }
-    ~DataViewOutputStream() override = default;
+    BufferedOutputStream(OutputStream<T>& os_) : os(&os_), data(4096) {}
+    BufferedOutputStream(const BufferedOutputStream& src) = delete;
+    BufferedOutputStream(BufferedOutputStream&& src) : os(src.os), data(std::move(src.data)) { src.os = nullptr; }
+    ~BufferedOutputStream() override { flush(); }
     
-    DataViewOutputStream& operator =(const DataViewOutputStream& src) = delete;
-    DataViewOutputStream& operator =(DataViewOutputStream&& src) { dv = src.dv, offset = src.offset, src.dv = nullptr; return *this; }
+    BufferedOutputStream& operator =(const BufferedOutputStream& src) = delete;
+    BufferedOutputStream& operator =(BufferedOutputStream&& src) { /* TODO */ return *this; }
     
     std::size_t writeSome(const T* buffer, std::size_t count) override {
         
-        dv->write(buffer, count, offset);
-        offset += count;
+        if(size + count <= data.size()) std::copy(buffer, buffer + count, data.data() + size), size += count;
+        else {
+            
+            if(size) os->writeAll(data.data(), size);
+            if(count < data.size()) std::copy(buffer, buffer + count, data.data()), size = count;
+            else os->writeAll(buffer, count), size = 0;
+            
+        }
         return count;
         
     }
-    void flush() override { dv->flush(); }
+    void flush() override {
+        
+        if(size) os->writeAll(data.data(), size), size = 0;
+        os->flush();
+        
+    }
     
 };
 
 template <typename T>
-inline DataViewOutputStream<T> createDataViewOutputStream(DataView::DataView<T>& dv, std::uint64_t offset = 0) { return DataViewOutputStream<T>(dv, offset); }
+inline BufferedOutputStream<T> createBufferedOutputStream(OutputStream<T>& os) { return BufferedOutputStream<T>(os); }
 
+}
 }
 }
 }

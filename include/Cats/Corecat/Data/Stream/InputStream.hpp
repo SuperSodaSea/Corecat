@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_OUTPUTSTREAM_HPP
-#define CATS_CORECAT_STREAM_OUTPUTSTREAM_HPP
+#ifndef CATS_CORECAT_DATA_STREAM_INPUTSTREAM_HPP
+#define CATS_CORECAT_DATA_STREAM_INPUTSTREAM_HPP
 
 
 #include <cstddef>
@@ -33,31 +33,36 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Data {
 namespace Stream {
 
 template <typename T>
-struct OutputStream {
+struct InputStream {
     
     using Type = T;
     
-    virtual ~OutputStream() {}
-    virtual std::size_t writeSome(const T* buffer, std::size_t count) = 0;
-    virtual void write(T t) { writeSome(&t, 1); }
-    virtual void writeAll(const T* buffer, std::size_t count) {
+    virtual ~InputStream() {}
+    virtual std::size_t readSome(T* buffer, std::size_t count) = 0;
+    virtual T read() { T t; if(readSome(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
+    virtual void readAll(T* buffer, std::size_t count) {
         
         std::size_t size = 0;
         while(size < count) {
             
-            std::size_t x = writeSome(buffer + size, count - size);
+            std::size_t x = readSome(buffer + size, count - size);
+            if(!x) throw std::runtime_error("End of stream");
             size += x;
             
         }
         
     }
-    virtual void flush() = 0;
+    virtual void skip(std::size_t count) = 0;
+    virtual void skip() { skip(1); }
+    
     
 };
 
+}
 }
 }
 }

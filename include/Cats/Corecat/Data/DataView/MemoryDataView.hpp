@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_DATAVIEW_MEMORYDATAVIEW_HPP
-#define CATS_CORECAT_DATAVIEW_MEMORYDATAVIEW_HPP
+#ifndef CATS_CORECAT_DATA_DATAVIEW_MEMORYDATAVIEW_HPP
+#define CATS_CORECAT_DATA_DATAVIEW_MEMORYDATAVIEW_HPP
 
 
 #include <stdexcept>
@@ -35,6 +35,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Data {
 namespace DataView {
 
 template <typename T>
@@ -78,6 +79,7 @@ public:
     
 };
 
+}
 }
 }
 }

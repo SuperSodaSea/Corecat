@@ -24,21 +24,45 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_HPP
-#define CATS_CORECAT_STREAM_HPP
+#ifndef CATS_CORECAT_DATA_STREAM_OUTPUTSTREAM_HPP
+#define CATS_CORECAT_DATA_STREAM_OUTPUTSTREAM_HPP
 
 
-#include "Stream/InputStream.hpp"
-#include "Stream/OutputStream.hpp"
+#include <cstddef>
 
-#include "Stream/BufferedInputStream.hpp"
-#include "Stream/BufferedOutputStream.hpp"
-#include "Stream/CastInputStream.hpp"
-#include "Stream/CastOutputStream.hpp"
-#include "Stream/DataViewInputStream.hpp"
-#include "Stream/DataViewOutputStream.hpp"
-#include "Stream/WrapperInputStream.hpp"
-#include "Stream/WrapperOutputStream.hpp"
+
+namespace Cats {
+namespace Corecat {
+namespace Data {
+namespace Stream {
+
+template <typename T>
+struct OutputStream {
+    
+    using Type = T;
+    
+    virtual ~OutputStream() {}
+    virtual std::size_t writeSome(const T* buffer, std::size_t count) = 0;
+    virtual void write(T t) { writeSome(&t, 1); }
+    virtual void writeAll(const T* buffer, std::size_t count) {
+        
+        std::size_t size = 0;
+        while(size < count) {
+            
+            std::size_t x = writeSome(buffer + size, count - size);
+            size += x;
+            
+        }
+        
+    }
+    virtual void flush() = 0;
+    
+};
+
+}
+}
+}
+}
 
 
 #endif

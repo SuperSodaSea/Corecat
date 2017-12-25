@@ -24,38 +24,12 @@
  *
  */
 
-#ifndef CATS_CORECAT_DATAVIEW_DATAVIEW_HPP
-#define CATS_CORECAT_DATAVIEW_DATAVIEW_HPP
+#ifndef CATS_CORECAT_DATA_HPP
+#define CATS_CORECAT_DATA_HPP
 
 
-#include <cstddef>
-#include <cstdint>
-
-
-namespace Cats {
-namespace Corecat {
-namespace DataView {
-
-template <typename T>
-struct DataView {
-    
-    using Type = T;
-    
-    virtual ~DataView() {}
-    virtual bool isReadable() = 0;
-    virtual bool isWritable() = 0;
-    virtual bool isResizable() = 0;
-    virtual void read(T* buffer, std::size_t count, std::uint64_t offset) = 0;
-    virtual void write(const T* buffer, std::size_t count, std::uint64_t offset) = 0;
-    virtual void flush() = 0;
-    virtual std::uint64_t getSize() = 0;
-    virtual void setSize(std::uint64_t size) = 0;
-    
-};
-
-}
-}
-}
+#include "Data/DataView.hpp"
+#include "Data/Stream.hpp"
 
 
 #endif

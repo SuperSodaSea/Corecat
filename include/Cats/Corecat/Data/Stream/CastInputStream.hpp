@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_CASTINPUTSTREAM_HPP
-#define CATS_CORECAT_STREAM_CASTINPUTSTREAM_HPP
+#ifndef CATS_CORECAT_DATA_STREAM_CASTINPUTSTREAM_HPP
+#define CATS_CORECAT_DATA_STREAM_CASTINPUTSTREAM_HPP
 
 
 #include <cstring>
@@ -37,6 +37,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Data {
 namespace Stream {
 
 template <typename T, typename U>
@@ -81,6 +82,7 @@ public:
 template <typename T, typename U>
 inline CastInputStream<T, U> createCastInputStream(InputStream<U>& is) { return CastInputStream<T, U>(is); }
 
+}
 }
 }
 }

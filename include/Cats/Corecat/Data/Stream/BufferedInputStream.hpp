@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_STREAM_BUFFEREDINPUTSTREAM_HPP
-#define CATS_CORECAT_STREAM_BUFFEREDINPUTSTREAM_HPP
+#ifndef CATS_CORECAT_DATA_STREAM_BUFFEREDINPUTSTREAM_HPP
+#define CATS_CORECAT_DATA_STREAM_BUFFEREDINPUTSTREAM_HPP
 
 
 #include <algorithm>
@@ -37,6 +37,7 @@
 
 namespace Cats {
 namespace Corecat {
+namespace Data {
 namespace Stream {
 
 template <typename T>
@@ -51,7 +52,7 @@ private:
     
 public:
     
-    BufferedInputStream(InputStream<T>& is_) : is(&is_), data(2096) {}
+    BufferedInputStream(InputStream<T>& is_) : is(&is_), data(4096) {}
     BufferedInputStream(const BufferedInputStream& src) = delete;
     BufferedInputStream(BufferedInputStream&& src) : is(src.is), data(std::move(src.data)) { src.is = nullptr; }
     ~BufferedInputStream() override = default;
@@ -95,6 +96,7 @@ public:
 template <typename T>
 inline BufferedInputStream<T> createBufferedInputStream(InputStream<T>& is) { return BufferedInputStream<T>(is); }
 
+}
 }
 }
 }
