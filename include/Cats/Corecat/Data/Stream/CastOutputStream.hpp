@@ -57,7 +57,7 @@ public:
     CastOutputStream& operator =(const CastOutputStream& src) = delete;
     CastOutputStream& operator =(CastOutputStream&& src) { /* TODO */ return *this; }
     
-    void writeSome(const T* buffer, std::size_t count) override {
+    std::size_t writeSome(const T* buffer, std::size_t count) override {
         
         if(size + count * sizeof(T) < sizeof(U)) {
             
