@@ -66,7 +66,7 @@ public:
     using ReverseIterator = std::reverse_iterator<Iterator>;
     using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
     
-    using View = StringView<C>;
+    using ViewType = StringView<C>;
     
 private:
     
@@ -98,7 +98,7 @@ public:
     String(const CharType* data_) : String() { append(data_); }
     String(const CharType* data_, std::size_t length_) : String() { append(data_, length_); }
     explicit String(CharType ch, std::size_t count = 1) : String() { append(ch, count); }
-    explicit String(const View& sv) : String() { append(sv); }
+    explicit String(const ViewType& sv) : String() { append(sv); }
     template <typename D>
     explicit String(const StringView<D>& sv) : String() {
         
@@ -123,19 +123,19 @@ public:
     ~String() { if(!isSmall()) delete[] storage.data; }
     
     String& operator =(const CharType* data_) { clear(); append(data_); return *this; }
-    String& operator =(const View& sv) { clear(); append(sv); return *this; }
+    String& operator =(const ViewType& sv) { clear(); append(sv); return *this; }
     String& operator =(const String& src) { clear(); append(src); return *this; }
     String& operator =(String&& src) noexcept { swap(src); return *this; }
     
     String& operator +=(CharType ch) { append(ch); return *this; }
     String& operator +=(const CharType* data_) { append(data_); return *this; }
     String& operator +=(const String& str) { append(str); return *this; }
-    String& operator +=(const View& sv) { append(sv); return *this; }
+    String& operator +=(const ViewType& sv) { append(sv); return *this; }
     
     friend String operator +(const String& a, CharType b) { String t(a); t += b; return t; }
     friend String operator +(const String& a, const CharType* b) { String t(a); t += b; return t; }
     friend String operator +(const String& a, const String& b) { String t(a); t += b; return t; }
-    friend String operator +(const String& a, const View& b) { String t(a); t += b; return t; }
+    friend String operator +(const String& a, const ViewType& b) { String t(a); t += b; return t; }
     friend String operator +(CharType a, const String& b) { String t(a); t += b; return t; }
     friend String operator +(const CharType* a, const String& b) { String t(a); t += b; return t; }
     
@@ -154,62 +154,62 @@ public:
     }
     
     bool operator ==(const String& b) const noexcept { return getView() == b.getView(); }
-    bool operator ==(const CharType* b) const noexcept { return getView() == View(b); }
-    bool operator ==(const View& b) const noexcept { return getView() == b; }
-    friend bool operator ==(const CharType* a, const String& b) noexcept { return View(a) == b.getView(); }
-    friend bool operator ==(const View& a, const String& b) noexcept { return a == b.getView(); }
+    bool operator ==(const CharType* b) const noexcept { return getView() == ViewType(b); }
+    bool operator ==(const ViewType& b) const noexcept { return getView() == b; }
+    friend bool operator ==(const CharType* a, const String& b) noexcept { return ViewType(a) == b.getView(); }
+    friend bool operator ==(const ViewType& a, const String& b) noexcept { return a == b.getView(); }
     bool operator !=(const String& b) const noexcept { return getView() != b.getView(); }
-    bool operator !=(const CharType* b) const noexcept { return getView() != View(b); }
-    bool operator !=(const View& b) const noexcept { return getView() != b; }
-    friend bool operator !=(const CharType* a, const String& b) noexcept { return View(a) != b.getView(); }
-    friend bool operator !=(const View& a, const String& b) noexcept { return a != b.getView(); }
+    bool operator !=(const CharType* b) const noexcept { return getView() != ViewType(b); }
+    bool operator !=(const ViewType& b) const noexcept { return getView() != b; }
+    friend bool operator !=(const CharType* a, const String& b) noexcept { return ViewType(a) != b.getView(); }
+    friend bool operator !=(const ViewType& a, const String& b) noexcept { return a != b.getView(); }
     bool operator <(const String& b) const noexcept { return getView() < b.getView(); }
-    bool operator <(const CharType* b) const noexcept { return getView() < View(b); }
-    bool operator <(const View& b) const noexcept { return getView() < b; }
-    friend bool operator <(const CharType* a, const String& b) noexcept { return View(a) < b.getView(); }
-    friend bool operator <(const View& a, const String& b) noexcept { return a < b.getView(); }
+    bool operator <(const CharType* b) const noexcept { return getView() < ViewType(b); }
+    bool operator <(const ViewType& b) const noexcept { return getView() < b; }
+    friend bool operator <(const CharType* a, const String& b) noexcept { return ViewType(a) < b.getView(); }
+    friend bool operator <(const ViewType& a, const String& b) noexcept { return a < b.getView(); }
     bool operator >(const String& b) const noexcept { return getView() > b.getView(); }
-    bool operator >(const CharType* b) const noexcept { return getView() > View(b); }
-    bool operator >(const View& b) const noexcept { return getView() > b; }
-    friend bool operator >(const CharType* a, const String& b) noexcept { return View(a) > b.getView(); }
-    friend bool operator >(const View& a, const String& b) noexcept { return a > b.getView(); }
+    bool operator >(const CharType* b) const noexcept { return getView() > ViewType(b); }
+    bool operator >(const ViewType& b) const noexcept { return getView() > b; }
+    friend bool operator >(const CharType* a, const String& b) noexcept { return ViewType(a) > b.getView(); }
+    friend bool operator >(const ViewType& a, const String& b) noexcept { return a > b.getView(); }
     bool operator <=(const String& b) const noexcept { return getView() <= b.getView(); }
-    bool operator <=(const CharType* b) const noexcept { return getView() <= View(b); }
-    bool operator <=(const View& b) const noexcept { return getView() <= b; }
-    friend bool operator <=(const CharType* a, const String& b) noexcept { return View(a) <= b.getView(); }
-    friend bool operator <=(const View& a, const String& b) noexcept { return a <= b.getView(); }
+    bool operator <=(const CharType* b) const noexcept { return getView() <= ViewType(b); }
+    bool operator <=(const ViewType& b) const noexcept { return getView() <= b; }
+    friend bool operator <=(const CharType* a, const String& b) noexcept { return ViewType(a) <= b.getView(); }
+    friend bool operator <=(const ViewType& a, const String& b) noexcept { return a <= b.getView(); }
     bool operator >=(const String& b) const noexcept { return getView() >= b.getView(); }
-    bool operator >=(const CharType* b) const noexcept { return getView() >= View(b); }
-    bool operator >=(const View& b) const noexcept { return getView() >= b; }
-    friend bool operator >=(const CharType* a, const String& b) noexcept { return View(a) >= b.getView(); }
-    friend bool operator >=(const View& a, const String& b) noexcept { return a >= b.getView(); }
+    bool operator >=(const CharType* b) const noexcept { return getView() >= ViewType(b); }
+    bool operator >=(const ViewType& b) const noexcept { return getView() >= b; }
+    friend bool operator >=(const CharType* a, const String& b) noexcept { return ViewType(a) >= b.getView(); }
+    friend bool operator >=(const ViewType& a, const String& b) noexcept { return a >= b.getView(); }
     
-    operator View() const noexcept { return getView(); }
+    operator ViewType() const noexcept { return getView(); }
     
     CharType* getData() noexcept { return isSmall() ? storage.buffer.data : storage.data; }
     const CharType* getData() const noexcept { return const_cast<String*>(this)->getData(); }
     std::size_t getLength() const noexcept { return isSmall() ? BUFFER_SIZE - storage.buffer.length - 1 : storage.length; }
     std::size_t getCapacity() const noexcept { return isSmall() ? BUFFER_SIZE - 1 : storage.capacity; }
     
-    View getView() const noexcept { return View(getData(), getLength()); }
+    ViewType getView() const noexcept { return ViewType(getData(), getLength()); }
     
     bool isEmpty() const noexcept { return !getLength(); }
     
     std::ptrdiff_t find(CharType ch, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(ch, beginPos); }
     std::ptrdiff_t find(const CharType* data_, std::size_t length_, std::ptrdiff_t beginPos) const noexcept { return getView().find(data_, length_, beginPos); }
     std::ptrdiff_t find(const CharType* data_, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(data_, beginPos); }
-    std::ptrdiff_t find(const View& sv, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(sv, beginPos); }
+    std::ptrdiff_t find(const ViewType& sv, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(sv, beginPos); }
     
     String repeat(std::size_t count) const { return getView().repeat(count); }
     
-    View slice(std::ptrdiff_t beginPos) const noexcept { return getView().slice(beginPos); }
-    View slice(std::ptrdiff_t beginPos, std::ptrdiff_t endPos) const noexcept { return getView().slice(beginPos, endPos); }
+    ViewType slice(std::ptrdiff_t beginPos) const noexcept { return getView().slice(beginPos); }
+    ViewType slice(std::ptrdiff_t beginPos, std::ptrdiff_t endPos) const noexcept { return getView().slice(beginPos, endPos); }
     
-    View substr(std::ptrdiff_t beginPos) const noexcept { return getView().substr(beginPos); }
-    View substr(std::ptrdiff_t beginPos, std::size_t count) const noexcept { return getView().substr(beginPos, count); }
+    ViewType substr(std::ptrdiff_t beginPos) const noexcept { return getView().substr(beginPos); }
+    ViewType substr(std::ptrdiff_t beginPos, std::size_t count) const noexcept { return getView().substr(beginPos, count); }
     
-    bool startsWith(const View& sv) const noexcept { return getView().startsWith(sv); }
-    bool endsWith(const View& sv) const noexcept { return getView().endsWith(sv); }
+    bool startsWith(const ViewType& sv) const noexcept { return getView().startsWith(sv); }
+    bool endsWith(const ViewType& sv) const noexcept { return getView().endsWith(sv); }
     
     void clear() noexcept {
         
@@ -265,7 +265,7 @@ public:
     }
     String& append(const CharType* data_) { return append(data_, C::getLength(data_)); }
     String& append(const String& str) { return append(str.getData(), str.getLength()); }
-    String& append(const View& sv) { return append(sv.getData(), sv.getLength()); }
+    String& append(const ViewType& sv) { return append(sv.getData(), sv.getLength()); }
     
     void swap(String& src) noexcept { std::swap(storage, src.storage); }
     
@@ -300,7 +300,7 @@ public:
     using Iterator = const CharType*;
     using ReverseIterator = std::reverse_iterator<Iterator>;
     
-    using String = String<C>;
+    using StringType = String<C>;
     
 private:
     
@@ -317,12 +317,12 @@ public:
     
     StringView& operator =(const StringView& src) = default;
     
-    friend String operator +(const StringView& a, CharType b) { String t(a); t += b; return t; }
-    friend String operator +(const StringView& a, const CharType* b) { String t(a); t += b; return t; }
-    friend String operator +(const StringView& a, const StringView& b) { String t(a); t += b; return t; }
-    friend String operator +(const StringView& a, const String& b) { String t(a); t += b; return t; }
-    friend String operator +(CharType a, const StringView& b) { String t(a); t += b; return t; }
-    friend String operator +(const CharType* a, const StringView& b) { String t(a); t += b; return t; }
+    friend StringType operator +(const StringView& a, CharType b) { StringType t(a); t += b; return t; }
+    friend StringType operator +(const StringView& a, const CharType* b) { StringType t(a); t += b; return t; }
+    friend StringType operator +(const StringView& a, const StringView& b) { StringType t(a); t += b; return t; }
+    friend StringType operator +(const StringView& a, const StringType& b) { StringType t(a); t += b; return t; }
+    friend StringType operator +(CharType a, const StringView& b) { StringType t(a); t += b; return t; }
+    friend StringType operator +(const CharType* a, const StringView& b) { StringType t(a); t += b; return t; }
     
     const CharType& operator [](std::size_t index) const noexcept { return data[index]; }
     
@@ -339,7 +339,7 @@ public:
     friend bool operator <=(const StringView& a, const StringView& b) noexcept { return C::compare(a.data, a.data + a.length, b.data, b.data + b.length) <= 0; }
     friend bool operator >=(const StringView& a, const StringView& b) noexcept { return C::compare(a.data, a.data + a.length, b.data, b.data + b.length) >= 0; }
     
-    friend String operator *(const StringView& a, std::size_t b) { return a.repeat(b); }
+    friend StringType operator *(const StringView& a, std::size_t b) { return a.repeat(b); }
     
     friend std::basic_ostream<CharType>& operator <<(std::basic_ostream<CharType>& stream, const StringView& sv) {
         
@@ -383,9 +383,9 @@ public:
     std::ptrdiff_t find(const CharType* data_, std::ptrdiff_t beginPos = 0) const noexcept { return find(data_, C::getLength(data_), beginPos); }
     std::ptrdiff_t find(const StringView& sv, std::ptrdiff_t beginPos = 0) const noexcept { return find(sv.getData(), sv.getLength(), beginPos); }
     
-    String repeat(std::size_t count) const {
+    StringType repeat(std::size_t count) const {
         
-        String t;
+        StringType t;
         t.reserve(getLength() * count);
         for(std::size_t i = 0; i < count; ++i) { t += *this; }
         return t;
