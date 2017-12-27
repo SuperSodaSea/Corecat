@@ -56,7 +56,7 @@ public:
     
     DataViewOutputStream(DataView<T>& dv_, std::uint64_t offset_ = 0) : dv(&dv_), offset(offset_) {
         
-        if(!dv->isWritable()) throw std::invalid_argument("Not writable");
+        if(!dv->isWritable()) throw std::invalid_argument("DataView is not writable");
         
     }
     DataViewOutputStream(const DataViewOutputStream& src) = delete;

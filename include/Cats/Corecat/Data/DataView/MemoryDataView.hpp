@@ -75,7 +75,7 @@ public:
     }
     void flush() override {}
     std::uint64_t getSize() override { return size; }
-    void setSize(std::uint64_t size) override { throw std::runtime_error("Not resizable"); }
+    void setSize(std::uint64_t size) override { throw std::runtime_error("DataView is not resizable"); }
     
 };
 

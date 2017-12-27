@@ -90,7 +90,7 @@ public:
         
         if(exception) throwFunction(*exception.get());
         else if(eptr) std::rethrow_exception(eptr);
-        else throw std::runtime_error("no exception");
+        else throw std::runtime_error("No exception in ExceptionWrapper");
         std::terminate();
         
     }
@@ -116,11 +116,7 @@ public:
     
 public:
     
-    static ExceptionWrapper current() noexcept {
-        
-        return std::current_exception();
-        
-    }
+    static ExceptionWrapper current() noexcept { return std::current_exception(); }
     
 };
 

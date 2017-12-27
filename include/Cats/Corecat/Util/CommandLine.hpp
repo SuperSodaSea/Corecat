@@ -163,7 +163,7 @@ public:
                 
                 if(argument.isEmpty()) {
                     
-                    if(arg.getSize() == 1) throw CommandLineParseException("missing argument after --" + name);
+                    if(arg.getSize() == 1) throw CommandLineParseException("Missing argument after --" + name);
                     callback(arg[1]);
                     return 2;
                     
@@ -176,14 +176,14 @@ public:
                 
             } else {
                 
-                if(!argument.isEmpty()) throw CommandLineParseException("unexcepted argument after --" + name);
+                if(!argument.isEmpty()) throw CommandLineParseException("Unexpected argument after --" + name);
                 callback({});
                 return 1;
                 
             }
             
         }
-        throw CommandLineParseException("unexcepted option " + arg[0]);
+        throw CommandLineParseException("Unexpected option " + arg[0]);
         
     }
     
@@ -235,7 +235,7 @@ public:
                 
                 if(argument.isEmpty()) {
                     
-                    if(arg.getSize() == 1) throw CommandLineParseException("missing argument after -" + name);
+                    if(arg.getSize() == 1) throw CommandLineParseException("Missing argument after -" + name);
                     callback(arg[1]);
                     return 2;
                     
@@ -248,14 +248,14 @@ public:
                 
             } else {
                 
-                if(!argument.isEmpty()) throw CommandLineParseException("unexcepted argument after -" + name);
+                if(!argument.isEmpty()) throw CommandLineParseException("Unexpected argument after -" + name);
                 callback({});
                 return 1;
                 
             }
             
         }
-        throw CommandLineParseException("unexcepted option " + arg[0]);
+        throw CommandLineParseException("Unexpected option " + arg[0]);
         
     }
     
@@ -398,7 +398,7 @@ public:
                 }
                 
             }
-            if(!matched) throw CommandLineParseException("unexcepted argument " + a[0]);
+            if(!matched) throw CommandLineParseException("Unexpected argument " + a[0]);
             
         }
         

@@ -30,6 +30,8 @@
 
 #include <cstddef>
 
+#include <stdexcept>
+
 
 namespace Cats {
 namespace Corecat {

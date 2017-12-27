@@ -57,7 +57,7 @@ public:
     
     DataViewInputStream(DataView<T>& dv_, std::uint64_t offset_ = 0) : dv(&dv_), offset(offset_) {
         
-        if(!dv->isReadable()) throw std::invalid_argument("Not readable");
+        if(!dv->isReadable()) throw std::invalid_argument("DataView is not readable");
         
     }
     DataViewInputStream(const DataViewInputStream& src) = delete;
