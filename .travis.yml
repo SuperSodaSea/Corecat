@@ -1,0 +1,14 @@
+language: cpp
+
+before_script:
+- cmake -H. -Bbuild
+
+script:
+- make -C build
+
+after_success:
+- ./build/Any
+- ./build/CommandLine
+- ./build/ExceptionWrapper
+- ./build/String
+- ./build/X86Feature
