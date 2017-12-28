@@ -50,12 +50,7 @@ private:
 public:
     
     CastOutputStream(OutputStream<U>& os_) : os(&os_) {}
-    CastOutputStream(const CastOutputStream& src) = delete;
-    CastOutputStream(CastOutputStream&& src) : os(src.os) { src.os = nullptr; }
     ~CastOutputStream() override = default;
-    
-    CastOutputStream& operator =(const CastOutputStream& src) = delete;
-    CastOutputStream& operator =(CastOutputStream&& src) { /* TODO */ return *this; }
     
     std::size_t writeSome(const T* buffer, std::size_t count) override {
         

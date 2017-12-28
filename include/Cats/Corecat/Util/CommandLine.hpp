@@ -48,10 +48,6 @@ class CommandLineOptionParser;
 
 class CommandLineParseException : public Exception {
     
-private:
-    
-    using String8 = Text::String8;
-    
 public:
     
     CommandLineParseException(const String8& data) : Exception("CommandLineParseException: " + data) {}

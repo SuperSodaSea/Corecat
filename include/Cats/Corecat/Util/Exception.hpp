@@ -40,7 +40,7 @@ namespace Util {
 
 class Exception : public std::exception {
     
-private:
+protected:
     
     using String8 = Text::String8;
     

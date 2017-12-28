@@ -53,12 +53,16 @@ private:
 public:
     
     BufferedInputStream(InputStream<T>& is_) : is(&is_), data(4096) {}
-    BufferedInputStream(const BufferedInputStream& src) = delete;
-    BufferedInputStream(BufferedInputStream&& src) : is(src.is), data(std::move(src.data)) { src.is = nullptr; }
+    BufferedInputStream(BufferedInputStream&& src) : is(src.is), data(std::move(src.data)), offset(src.offset), size(src.size) { src.is = nullptr; }
     ~BufferedInputStream() override = default;
     
-    BufferedInputStream& operator =(const BufferedInputStream& src) = delete;
-    BufferedInputStream& operator =(BufferedInputStream&& src) { /* TODO */ return *this; }
+    BufferedInputStream& operator =(BufferedInputStream&& src) {
+        
+        is = src.is, src.is = nullptr;
+        data = std::move(src.data), offset = src.offset, size = src.size;
+        return *this;
+        
+    }
     
     std::size_t readSome(T* buffer, std::size_t count) override {
         

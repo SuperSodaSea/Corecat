@@ -41,7 +41,12 @@ struct OutputStream {
     
     using Type = T;
     
-    virtual ~OutputStream() {}
+    OutputStream() = default;
+    OutputStream(const OutputStream& src) = delete;
+    virtual ~OutputStream() = default;
+    
+    OutputStream& operator =(const OutputStream& src) = delete;
+    
     virtual std::size_t writeSome(const T* buffer, std::size_t count) = 0;
     virtual void write(T t) { writeSome(&t, 1); }
     virtual void writeAll(const T* buffer, std::size_t count) {

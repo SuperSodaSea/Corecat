@@ -52,12 +52,7 @@ private:
 public:
     
     CastInputStream(InputStream<U>& is_) : is(&is_) {}
-    CastInputStream(const CastInputStream& src) = delete;
-    CastInputStream(CastInputStream&& src) : is(src.is) { src.is = nullptr; }
     ~CastInputStream() override = default;
-    
-    CastInputStream& operator =(const CastInputStream& src) = delete;
-    CastInputStream& operator =(CastInputStream&& src) { /* TODO */ return *this; }
     
     std::size_t readSome(T* buffer, std::size_t count) override {
         

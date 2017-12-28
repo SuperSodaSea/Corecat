@@ -51,12 +51,16 @@ private:
 public:
     
     BufferedOutputStream(OutputStream<T>& os_) : os(&os_), data(4096) {}
-    BufferedOutputStream(const BufferedOutputStream& src) = delete;
-    BufferedOutputStream(BufferedOutputStream&& src) : os(src.os), data(std::move(src.data)) { src.os = nullptr; }
+    BufferedOutputStream(BufferedOutputStream&& src) : os(src.os), data(std::move(src.data)), size(src.size) { src.os = nullptr; }
     ~BufferedOutputStream() override { flush(); }
     
-    BufferedOutputStream& operator =(const BufferedOutputStream& src) = delete;
-    BufferedOutputStream& operator =(BufferedOutputStream&& src) { /* TODO */ return *this; }
+    BufferedOutputStream& operator =(BufferedOutputStream&& src) {
+        
+        os = src.is, src.os = nullptr;
+        data = std::move(src.data), size = src.size;
+        return *this;
+        
+    }
     
     std::size_t writeSome(const T* buffer, std::size_t count) override {
         

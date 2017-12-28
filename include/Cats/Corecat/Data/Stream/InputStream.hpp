@@ -43,7 +43,12 @@ struct InputStream {
     
     using Type = T;
     
-    virtual ~InputStream() {}
+    InputStream() = default;
+    InputStream(const InputStream& src) = delete;
+    virtual ~InputStream() = default;
+    
+    InputStream& operator =(const InputStream& src) = delete;
+    
     virtual std::size_t readSome(T* buffer, std::size_t count) = 0;
     virtual T read() { T t; if(readSome(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
     virtual void readAll(T* buffer, std::size_t count) {

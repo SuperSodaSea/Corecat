@@ -54,11 +54,9 @@ private:
 public:
     
     WrapperOutputStream(std::FILE* file_) : file(file_) {}
-    WrapperOutputStream(const WrapperOutputStream& src) = delete;
     WrapperOutputStream(WrapperOutputStream&& src) : file(src.file) { src.file = nullptr; }
     ~WrapperOutputStream() override = default;
     
-    WrapperOutputStream& operator =(const WrapperOutputStream& src) = delete;
     WrapperOutputStream& operator =(WrapperOutputStream&& src) { file = src.file, src.file = nullptr; return *this; }
     
     std::size_t writeSome(const char* buffer, std::size_t count) override {
@@ -86,19 +84,12 @@ private:
 public:
     
     WrapperOutputStream(std::ostream& os_) : os(&os_) {}
-    WrapperOutputStream(const WrapperOutputStream& src) = delete;
     WrapperOutputStream(WrapperOutputStream&& src) : os(src.os) { src.os = nullptr; }
     ~WrapperOutputStream() override = default;
     
-    WrapperOutputStream& operator =(const WrapperOutputStream& src) = delete;
     WrapperOutputStream& operator =(WrapperOutputStream&& src) { os = src.os, src.os = nullptr; return *this; }
     
-    std::size_t writeSome(const char* buffer, std::size_t count) override {
-        
-        os->write(buffer, count);
-        return count;
-        
-    }
+    std::size_t writeSome(const char* buffer, std::size_t count) override { os->write(buffer, count); return count; }
     void flush() override { os->flush(); };
     
 };

@@ -60,12 +60,10 @@ public:
         if(!dv->isReadable()) throw std::invalid_argument("DataView is not readable");
         
     }
-    DataViewInputStream(const DataViewInputStream& src) = delete;
     DataViewInputStream(DataViewInputStream&& src) : dv(src.dv), offset(src.offset) { src.dv = nullptr; }
     ~DataViewInputStream() override = default;
     
-    DataViewInputStream& operator =(const DataViewInputStream& src) = delete;
-    DataViewInputStream& operator =(DataViewInputStream&& src) { dv = src.dv, offset = src.offset, src.dv = nullptr; return *this; }
+    DataViewInputStream& operator =(DataViewInputStream&& src) { dv = src.dv, src.dv = nullptr, offset = src.offset; return *this; }
     
     std::size_t readSome(T* buffer, std::size_t count) override {
         

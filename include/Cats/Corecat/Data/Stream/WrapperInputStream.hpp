@@ -54,11 +54,9 @@ private:
 public:
     
     WrapperInputStream(std::FILE* file_) : file(file_) {}
-    WrapperInputStream(const WrapperInputStream& src) = delete;
     WrapperInputStream(WrapperInputStream&& src) : file(src.file) { src.file = nullptr; }
     ~WrapperInputStream() override = default;
     
-    WrapperInputStream& operator =(const WrapperInputStream& src) = delete;
     WrapperInputStream& operator =(WrapperInputStream&& src) { file = src.file, src.file = nullptr; return *this; }
     
     std::size_t readSome(char* buffer, std::size_t count) override {
@@ -85,11 +83,9 @@ private:
 public:
     
     WrapperInputStream(std::istream& is_) : is(&is_) {}
-    WrapperInputStream(const WrapperInputStream& src) = delete;
     WrapperInputStream(WrapperInputStream&& src) : is(src.is) { src.is = nullptr; }
     ~WrapperInputStream() override = default;
     
-    WrapperInputStream& operator =(const WrapperInputStream& src) = delete;
     WrapperInputStream& operator =(WrapperInputStream&& src) { is = src.is, src.is = nullptr; return *this; }
     
     std::size_t readSome(char* buffer, std::size_t count) override { is->read(buffer, count); return is->gcount(); }

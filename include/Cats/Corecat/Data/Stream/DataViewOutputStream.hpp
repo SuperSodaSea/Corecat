@@ -59,12 +59,10 @@ public:
         if(!dv->isWritable()) throw std::invalid_argument("DataView is not writable");
         
     }
-    DataViewOutputStream(const DataViewOutputStream& src) = delete;
     DataViewOutputStream(DataViewOutputStream&& src) : dv(src.dv), offset(src.offset) { src.dv = nullptr; }
     ~DataViewOutputStream() override = default;
     
-    DataViewOutputStream& operator =(const DataViewOutputStream& src) = delete;
-    DataViewOutputStream& operator =(DataViewOutputStream&& src) { dv = src.dv, offset = src.offset, src.dv = nullptr; return *this; }
+    DataViewOutputStream& operator =(DataViewOutputStream&& src) { dv = src.dv, src.dv = nullptr, offset = src.offset; return *this; }
     
     std::size_t writeSome(const T* buffer, std::size_t count) override {
         
