@@ -30,8 +30,16 @@
 
 #include <stdexcept>
 
+#include "OS.hpp"
 #include "../Text/String.hpp"
-#include "../Win32/Windows.hpp"
+
+#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+#   include "../Win32/Windows.hpp"
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+#   include <dlfcn.h>
+#else
+#   error Unknown OS
+#endif
 
 
 namespace Cats {
@@ -47,27 +55,46 @@ private:
     
 private:
     
+#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
     HMODULE handle = nullptr;
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+    void* handle = nullptr;
+#endif
     
 public:
     
     SharedLibrary(const String8& path) {
         
-        String16 s(path);
-        handle = LoadLibraryW(reinterpret_cast<const WCHAR*>(s.getData()));
-        if(!handle) throw std::runtime_error("Failed to load library");
+#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+        handle = LoadLibraryW(reinterpret_cast<const WCHAR*>(String16(path).getData()));
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+        handle = dlopen(path.getData(), RTLD_NOW);
+#endif
+        if(!handle) throw std::runtime_error("Failed to load shared library");
         
     }
     SharedLibrary(const SharedLibrary& src) = delete;
     SharedLibrary(SharedLibrary&& src) noexcept : handle(src.handle) { src.handle = nullptr; }
-    ~SharedLibrary() { if(handle) FreeLibrary(handle); }
+    ~SharedLibrary() {
+        
+#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+        if(handle) FreeLibrary(handle);
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+        if(handle) dlclose(handle);
+#endif
+        
+    }
     
     SharedLibrary& operator =(const SharedLibrary& src) = delete;
     SharedLibrary& operator =(SharedLibrary&& src) noexcept { handle = src.handle; src.handle = nullptr; return *this; }
     
     void* get(const String8& name) {
         
+#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
         return reinterpret_cast<void*>(GetProcAddress(handle, name.getData()));
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+        return dlsym(handle, name.getData());
+#endif
         
     }
     

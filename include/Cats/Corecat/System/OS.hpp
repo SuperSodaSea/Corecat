@@ -29,14 +29,14 @@
 
 
 #if defined(_WIN32)
-    #define CATS_CORECAT_SYSTEM_OS_WINDOWS
-    #define CATS_CORECAT_SYSTEM_OS "Windows"
+#   define CATS_CORECAT_SYSTEM_OS_WINDOWS
+#   define CATS_CORECAT_SYSTEM_OS "Windows"
 #elif defined(__linux)
-    #define CATS_CORECAT_SYSTEM_OS_LINUX
-    #define CATS_CORECAT_SYSTEM_OS "Linux"
+#   define CATS_CORECAT_SYSTEM_OS_LINUX
+#   define CATS_CORECAT_SYSTEM_OS "Linux"
 #elif defined(__APPLE__)
-    #define CATS_CORECAT_SYSTEM_OS_MACOS
-    #define CATS_CORECAT_SYSTEM_OS "MacOS"
+#   define CATS_CORECAT_SYSTEM_OS_MACOS
+#   define CATS_CORECAT_SYSTEM_OS "MacOS"
 #endif
 
 
