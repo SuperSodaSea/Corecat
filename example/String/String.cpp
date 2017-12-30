@@ -36,7 +36,7 @@ int main() {
     
     std::cout << std::boolalpha;
     
-    String8 str1 = "0123456789";
+    auto str1 = "0123456789"_s;
     PRINT(str1); // "0123456789"
     
     PRINT(str1.getLength()); // 10
