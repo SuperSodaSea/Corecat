@@ -24,13 +24,20 @@
  *
  */
 
-#ifndef CATS_CORECAT_TEXT_HPP
-#define CATS_CORECAT_TEXT_HPP
+#ifndef CATS_CORECAT_SYSTEM_OS_HPP
+#define CATS_CORECAT_SYSTEM_OS_HPP
 
 
-#include "Text/Charset.hpp"
-#include "Text/Format.hpp"
-#include "Text/String.hpp"
+#if defined(_WIN32)
+    #define CATS_CORECAT_SYSTEM_OS_WINDOWS
+    #define CATS_CORECAT_SYSTEM_OS "Windows"
+#elif defined(__linux)
+    #define CATS_CORECAT_SYSTEM_OS_LINUX
+    #define CATS_CORECAT_SYSTEM_OS "Linux"
+#elif defined(__APPLE__)
+    #define CATS_CORECAT_SYSTEM_OS_MACOS
+    #define CATS_CORECAT_SYSTEM_OS "MacOS"
+#endif
 
 
 #endif

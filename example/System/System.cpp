@@ -24,13 +24,15 @@
  *
  */
 
-#ifndef CATS_CORECAT_TEXT_HPP
-#define CATS_CORECAT_TEXT_HPP
+#include <iostream>
 
+#include "Cats/Corecat/System.hpp"
 
-#include "Text/Charset.hpp"
-#include "Text/Format.hpp"
-#include "Text/String.hpp"
-
-
-#endif
+int main() {
+    
+    std::cout << "Compiler: " << CATS_CORECAT_SYSTEM_COMPILER << std::endl;
+    std::cout << "OS: " << CATS_CORECAT_SYSTEM_OS << std::endl;
+    
+    return 0;
+    
+}

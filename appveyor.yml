@@ -29,4 +29,5 @@ test_script:
 - build\%CONFIGURATION%\CommandLine.exe
 - build\%CONFIGURATION%\ExceptionWrapper.exe
 - build\%CONFIGURATION%\String.exe
+- build\%CONFIGURATION%\System.exe
 - build\%CONFIGURATION%\X86Feature.exe

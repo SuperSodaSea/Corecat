@@ -29,6 +29,7 @@
 
 
 #include "System/Compiler.hpp"
+#include "System/OS.hpp"
 #include "System/SharedLibrary.hpp"
 
 

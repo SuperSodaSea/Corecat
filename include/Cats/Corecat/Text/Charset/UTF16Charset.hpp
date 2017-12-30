@@ -47,12 +47,12 @@ struct UTF16Charset : public Charset<T> {
         
         std::ptrdiff_t size = q - p;
         if(!size) return 0xFFFFFFFF;
-        char32_t h = static_cast<char16_t>(*p++);
+        char32_t h = char16_t(*p++);
         if(h - 0xD800 >= 0x0800) return h;
         else if(h <= 0xDBFF) {
             
             if(size < 2) return 0xFFFFFFFF;
-            char32_t l = static_cast<char16_t>(*p++);
+            char32_t l = char16_t(*p++);
             if(l - 0xDC00 < 0x0400) return 0x10000 + (((h & 0x3FF) << 10) | (l & 0x3FF));
             else return 0xFFFD;
             
@@ -65,15 +65,15 @@ struct UTF16Charset : public Charset<T> {
         if(codepoint <= 0xFFFF) {
             
             if(!size) return false;
-            if(codepoint - 0xD800 >= 0x0800) *p++ = codepoint;
+            if(codepoint - 0xD800 >= 0x0800) *p++ = char16_t(codepoint);
             else *p++ = 0xFFFD;
             return true;
             
         } else if(codepoint <= 0x10FFFF) {
             
             if(size < 2) return false;
-            *p++ = static_cast<T>(0xD800 | ((codepoint - 0x10000) >> 10));
-            *p++ = static_cast<T>(0xDC00 | ((codepoint - 0x10000) & 0x3FF));
+            *p++ = T(0xD800 | ((codepoint - 0x10000) >> 10));
+            *p++ = T(0xDC00 | ((codepoint - 0x10000) & 0x3FF));
             return true;
             
         } else { *p++ = 0xFFFD; return true; }

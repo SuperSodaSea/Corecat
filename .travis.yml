@@ -35,4 +35,5 @@ after_success:
 - ./build/CommandLine
 - ./build/ExceptionWrapper
 - ./build/String
+- ./build/System
 - ./build/X86Feature

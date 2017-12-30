@@ -16,6 +16,7 @@ set(EXAMPLE
     CommandLine
     ExceptionWrapper
     String
+    System
     X86Feature)
 
 foreach(example ${EXAMPLE})
