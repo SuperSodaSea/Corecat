@@ -1,6 +1,6 @@
-# Corecat: Core of *The Cats Project*
+# Corecat: Core library
 
-Coreat is the core of *The Cats Project*. It supports other part of *The Cats Project*.
+Corecat is the core of *The Cats Project* for supporting other part of *The Cats Project*.
 
 CI | Status
 :---: | :---:
@@ -8,7 +8,7 @@ AppVeyor | [![AppYeyor](https://ci.appveyor.com/api/projects/status/github/Super
 Travis CI | [![Travis CI](https://travis-ci.org/SuperSodaSea/Corecat.svg?branch=master)](https://travis-ci.org/SuperSodaSea/Corecat)
 
 
-## Licence
+## License
 
 [MIT License](/LICENSE.md)
 
