@@ -377,7 +377,7 @@ public:
         
         std::size_t len1 = getLength(), len2 = sv.getLength();
         if(len1 < len2) return false;
-        return StringView(getData() + len2 - len1, len2) == sv;
+        return StringView(getData() + len1 - len2, len2) == sv;
         
     }
     
