@@ -39,8 +39,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Data {
-namespace Stream {
+inline namespace Data {
 
 template <typename T, typename = void>
 class WrapperInputStream;
@@ -96,7 +95,6 @@ public:
 template <typename T>
 inline WrapperInputStream<T> createWrapperInputStream(T& t) { return WrapperInputStream<T>(t); }
 
-}
 }
 }
 }

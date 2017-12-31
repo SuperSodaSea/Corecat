@@ -36,7 +36,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Util {
+inline namespace Util {
 
 // Inspired by https://github.com/facebook/folly/blob/master/folly/ExceptionWrapper.h
 

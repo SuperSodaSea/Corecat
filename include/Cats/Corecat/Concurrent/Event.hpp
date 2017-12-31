@@ -35,7 +35,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Concurrent {
+inline namespace Concurrent {
 
 template <typename F>
 class Event {

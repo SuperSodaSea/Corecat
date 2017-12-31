@@ -35,7 +35,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Win32 {
+inline namespace Win32 {
 
 class Handle {
     

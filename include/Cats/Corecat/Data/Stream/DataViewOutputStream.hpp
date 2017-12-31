@@ -36,16 +36,10 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Data {
-namespace Stream {
+inline namespace Data {
 
 template <typename T>
 class DataViewOutputStream : public OutputStream<T> {
-    
-private:
-    
-    template <typename U>
-    using DataView = DataView::DataView<U>;
     
 private:
     
@@ -76,9 +70,8 @@ public:
 };
 
 template <typename T>
-inline DataViewOutputStream<T> createDataViewOutputStream(DataView::DataView<T>& dv, std::uint64_t offset = 0) { return DataViewOutputStream<T>(dv, offset); }
+inline DataViewOutputStream<T> createDataViewOutputStream(DataView<T>& dv, std::uint64_t offset = 0) { return DataViewOutputStream<T>(dv, offset); }
 
-}
 }
 }
 }

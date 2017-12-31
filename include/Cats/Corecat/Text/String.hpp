@@ -42,7 +42,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Text {
+inline namespace Text {
 
 template <typename C>
 class StringView;
@@ -286,9 +286,9 @@ public:
     
 };
 
-using String8 = String<Charset::UTF8Charset<>>;
-using String16 = String<Charset::UTF16Charset<>>;
-using String32 = String<Charset::UTF32Charset<>>;
+using String8 = String<UTF8Charset<>>;
+using String16 = String<UTF16Charset<>>;
+using String32 = String<UTF32Charset<>>;
 
 inline namespace StringLiteral {
 
@@ -459,9 +459,9 @@ public:
     
 };
 
-using StringView8 = StringView<Charset::UTF8Charset<>>;
-using StringView16 = StringView<Charset::UTF16Charset<>>;
-using StringView32 = StringView<Charset::UTF32Charset<>>;
+using StringView8 = StringView<UTF8Charset<>>;
+using StringView16 = StringView<UTF16Charset<>>;
+using StringView32 = StringView<UTF32Charset<>>;
 
 inline namespace StringViewLiteral {
 

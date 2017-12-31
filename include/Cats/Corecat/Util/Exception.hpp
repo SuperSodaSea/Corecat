@@ -36,7 +36,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Util {
+inline namespace Util {
 
 class Exception : public std::exception {
     

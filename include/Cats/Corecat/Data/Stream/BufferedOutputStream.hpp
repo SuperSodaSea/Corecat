@@ -36,8 +36,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Data {
-namespace Stream {
+inline namespace Data {
 
 template <typename T>
 class BufferedOutputStream : public OutputStream<T> {
@@ -87,7 +86,6 @@ public:
 template <typename T>
 inline BufferedOutputStream<T> createBufferedOutputStream(OutputStream<T>& os) { return BufferedOutputStream<T>(os); }
 
-}
 }
 }
 }

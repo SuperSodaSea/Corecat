@@ -42,7 +42,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Util {
+inline namespace Util {
 
 class CommandLineOptionParser;
 

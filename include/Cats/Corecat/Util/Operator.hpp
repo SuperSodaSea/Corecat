@@ -30,7 +30,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Util {
+inline namespace Util {
 
 template <typename T>
 struct EqualityOperator {

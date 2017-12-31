@@ -30,7 +30,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Util {
+inline namespace Util {
 
 enum class Byte : unsigned char {};
 

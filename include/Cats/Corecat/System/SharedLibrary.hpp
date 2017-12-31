@@ -44,7 +44,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace System {
+inline namespace System {
 
 class SharedLibrary {
     

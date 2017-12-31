@@ -35,8 +35,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Data {
-namespace DataView {
+inline namespace Data {
 
 template <typename T>
 class MemoryDataView : public DataView<T> {
@@ -79,7 +78,6 @@ public:
     
 };
 
-}
 }
 }
 }

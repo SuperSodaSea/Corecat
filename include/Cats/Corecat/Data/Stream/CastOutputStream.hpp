@@ -35,8 +35,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Data {
-namespace Stream {
+inline namespace Data {
 
 template <typename T, typename U>
 class CastOutputStream : public OutputStream<T> {
@@ -86,7 +85,6 @@ public:
 template <typename T, typename U>
 inline CastOutputStream<T, U> createCastOutputStream(OutputStream<U>& os) { return CastOutputStream<T, U>(os); }
 
-}
 }
 }
 }

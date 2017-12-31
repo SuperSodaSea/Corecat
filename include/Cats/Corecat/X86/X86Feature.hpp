@@ -46,15 +46,11 @@
 
 namespace Cats {
 namespace Corecat {
-namespace X86 {
+inline namespace X86 {
 
 namespace {
 
 struct X86Feature {
-    
-private:
-    
-    using String8 = Text::String8;
     
 public:
     

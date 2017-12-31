@@ -39,7 +39,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Concurrent {
+inline namespace Concurrent {
 
 // Inspired by https://github.com/facebook/folly/blob/master/folly/futures/Future.h
 

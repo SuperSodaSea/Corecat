@@ -35,8 +35,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Text {
-namespace Charset {
+inline namespace Text {
 
 template <typename T = char>
 struct UTF8Charset : public Charset<T> {
@@ -131,7 +130,6 @@ struct UTF8Charset : public Charset<T> {
     
 };
 
-}
 }
 }
 }

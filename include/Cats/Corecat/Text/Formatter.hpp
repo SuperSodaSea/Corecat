@@ -41,11 +41,9 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Text {
+inline namespace Text {
 
 namespace Impl {
-
-using namespace Util::Sequence;
 
 template <typename T>
 struct DecimalDigit {
@@ -189,11 +187,11 @@ template <typename C>
 String<C> toString(String<C> s) { return s; }
 
 template <typename T>
-inline String8 toString8(T t) { return toString<Charset::UTF8Charset<>>(t); }
+inline String8 toString8(T t) { return toString<UTF8Charset<>>(t); }
 template <typename T>
-inline String16 toString16(T t) { return toString<Charset::UTF16Charset<>>(t); }
+inline String16 toString16(T t) { return toString<UTF16Charset<>>(t); }
 template <typename T>
-inline String32 toString32(T t) { return toString<Charset::UTF32Charset<>>(t); }
+inline String32 toString32(T t) { return toString<UTF32Charset<>>(t); }
 
 
 template <typename C>
@@ -333,9 +331,9 @@ public:
     
 };
 
-using Formatter8 = Formatter<Charset::UTF8Charset<>>;
-using Formatter16 = Formatter<Charset::UTF16Charset<>>;
-using Formatter32 = Formatter<Charset::UTF32Charset<>>;
+using Formatter8 = Formatter<UTF8Charset<>>;
+using Formatter16 = Formatter<UTF16Charset<>>;
+using Formatter32 = Formatter<UTF32Charset<>>;
 
 }
 }

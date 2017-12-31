@@ -34,8 +34,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Data {
-namespace DataView {
+inline namespace Data {
 
 template <typename T>
 struct DataView {
@@ -54,7 +53,6 @@ struct DataView {
     
 };
 
-}
 }
 }
 }

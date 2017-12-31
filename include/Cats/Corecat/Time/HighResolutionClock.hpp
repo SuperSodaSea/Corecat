@@ -35,7 +35,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Time {
+inline namespace Time {
 
 struct HighResolutionClock {
     

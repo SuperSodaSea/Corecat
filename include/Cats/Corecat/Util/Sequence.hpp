@@ -33,8 +33,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Util {
-namespace Sequence {
+inline namespace Util {
 
 template <typename T, T... V>
 struct Sequence {
@@ -157,7 +156,6 @@ const T SequenceTable<Sequence<T, V...>>::TABLE[] = { V... };
 
 }
 
-}
 }
 }
 }

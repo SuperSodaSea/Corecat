@@ -31,8 +31,8 @@
 #include "Cats/Corecat/Util.hpp"
 
 
-using namespace Cats::Corecat::Text;
-using namespace Cats::Corecat::Util;
+using namespace Cats::Corecat;
+using namespace Cats::Corecat;
 
 
 template <typename T>

@@ -34,7 +34,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Util {
+inline namespace Util {
 
 template <std::size_t S = 65536>
 class FastAllocator {

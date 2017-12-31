@@ -36,8 +36,7 @@
 
 namespace Cats {
 namespace Corecat {
-namespace Util {
-namespace Endian {
+inline namespace Util {
 
 namespace Impl {
 
@@ -95,7 +94,6 @@ struct SwapBytes<T, typename std::enable_if<sizeof(T) == 8>::type> {
 template <typename T>
 inline T swapBytes(T t) { return Impl::SwapBytes<T>::swapBytes(t); }
 
-}
 }
 }
 }
