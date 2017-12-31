@@ -311,7 +311,7 @@ public:
     template<typename... Arg>
     StringType format(Arg&&... arg) {
         
-        std::array<std::unique_ptr<HolderBase>, sizeof...(arg)> arr = {std::unique_ptr<HolderBase>(new Holder<Arg>(arg))...};
+        std::array<std::unique_ptr<HolderBase>, sizeof...(arg)> arr = {std::unique_ptr<HolderBase>(new Holder<typename std::decay<Arg>::type>(arg))...};
         StringType str;
         for(auto&& segment : segments) {
             
