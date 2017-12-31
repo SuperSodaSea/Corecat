@@ -29,7 +29,7 @@
 
 
 #include "Text/Charset.hpp"
-#include "Text/Format.hpp"
+#include "Text/Formatter.hpp"
 #include "Text/String.hpp"
 
 

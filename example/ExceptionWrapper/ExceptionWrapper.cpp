@@ -30,7 +30,7 @@
 
 using namespace Cats::Corecat::Util;
 
-#define PRINT(x) do { std::cout << #x << " = " << (x) << std::endl; } while(0)
+#define PRINT(x) do { std::cout << #x << " -> " << (x) << std::endl; } while(0)
 
 ExceptionWrapper func1() {
     
@@ -39,7 +39,7 @@ ExceptionWrapper func1() {
 }
 ExceptionWrapper func2() {
     
-    return std::runtime_error("Runtime error!");
+    return std::runtime_error("Runtime error");
     
 }
 

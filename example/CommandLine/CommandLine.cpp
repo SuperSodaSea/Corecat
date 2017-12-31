@@ -28,7 +28,6 @@
 #include <iostream>
 #include <vector>
 
-#include "Cats/Corecat/Text.hpp"
 #include "Cats/Corecat/Util.hpp"
 
 

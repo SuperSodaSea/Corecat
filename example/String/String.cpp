@@ -30,7 +30,7 @@
 
 using namespace Cats::Corecat::Text;
 
-#define PRINT(x) do { std::cout << #x << " = " << (x) << std::endl; } while(0)
+#define PRINT(x) do { std::cout << #x << " -> " << (x) << std::endl; } while(0)
 
 int main() {
     
@@ -38,29 +38,37 @@ int main() {
     
     auto str1 = "0123456789"_s;
     PRINT(str1); // "0123456789"
-    
     PRINT(str1.getLength()); // 10
-    
-    PRINT(str1.find("234")); // 2
-    PRINT(str1.find("567")); // 5
-    PRINT(str1.find("567", 6)); // -1
-    
-    PRINT(str1.repeat(2)); // "01234567890123456789"
-    
-    PRINT(str1.slice(3)); // "3456789"
-    PRINT(str1.slice(3, 8)); // "34567"
-    PRINT(str1.slice(3, -2)); // "34567"
-    PRINT(str1.slice(-7, -2)); // "34567"
-    
-    PRINT(str1.substr(3)); // "3456789"
-    PRINT(str1.substr(3, 5)); // "34567"
-    PRINT(str1.substr(-7, 5)); // "34567"
+    std::cout << std::endl;
     
     PRINT(str1 == str1); // true
     PRINT(str1 == "0123456789"); // true
     PRINT(str1 != "0123456788"); // true
     PRINT(str1 < "0"); // false
-    PRINT(str1 > "1"); // false
+    PRINT(str1 > "0"); // true
+    std::cout << std::endl;
+    
+    PRINT(str1.find("567")); // 5
+    PRINT(str1.find("567", 6)); // -1
+    std::cout << std::endl;
+    
+    PRINT(str1 * 2); // "01234567890123456789"
+    std::cout << std::endl;
+    
+    PRINT(str1.slice(3)); // "3456789"
+    PRINT(str1.slice(3, 8)); // "34567"
+    PRINT(str1.slice(3, -2)); // "34567"
+    PRINT(str1.slice(-7, -2)); // "34567"
+    std::cout << std::endl;
+    
+    PRINT(str1.substr(3)); // "3456789"
+    PRINT(str1.substr(3, 5)); // "34567"
+    PRINT(str1.substr(-7, 5)); // "34567"
+    std::cout << std::endl;
+    
+    PRINT("{}, {}!"_sv.format("Hello", "world")); // Hello, world!
+    PRINT("{2}, {1}, {0}"_sv.format(1, 2, 3)); // 3, 2, 1
+    std::cout << std::endl;
     
     return 0;
     

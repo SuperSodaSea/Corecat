@@ -32,24 +32,29 @@
 using namespace Cats::Corecat::Text;
 using namespace Cats::Corecat::Util;
 
+#define PRINT(x) do { std::cout << #x << " -> " << (x) << std::endl; } while(0)
+
 int main() {
     
     Any a1 = 42;
-    std::cout << a1.get<int>() << std::endl; // 42
     Any a2 = 2.33;
-    std::cout << a2.get<double>() << std::endl; // 2.33
-    Any a3 = String8("Any");
-    std::cout << a3.get<String8>() << std::endl; // Any
+    Any a3 = String8("Hello");
+    PRINT(a1.get<int>()); // 42
+    PRINT(a2.get<double>()); // 2.33
+    PRINT(a3.get<String8>()); // Hello
+    std::cout << std::endl;
     
     a1 = a3;
-    std::cout << a1.get<String8>() << std::endl; // Any
+    PRINT(a1.get<String8>()); // Hello
+    std::cout << std::endl;
     
     try {
         
         Any a4 = 234;
-        std::cout << a4.get<double>() << std::endl; // Throw exception
+        a4.get<double>(); // Throw exception
         
-    } catch(std::exception& e) { std::cout << e.what() << std::endl; }
+    } catch(std::exception& e) { PRINT(e.what()); }
+    std::cout << std::endl;
     
     return 0;
     

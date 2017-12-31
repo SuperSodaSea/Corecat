@@ -28,10 +28,13 @@
 
 #include "Cats/Corecat/System.hpp"
 
+#define PRINT(x) do { std::cout << #x << " -> " << (x) << std::endl; } while(0)
+
 int main() {
     
-    std::cout << "Compiler: " << CATS_CORECAT_SYSTEM_COMPILER << std::endl;
-    std::cout << "OS: " << CATS_CORECAT_SYSTEM_OS << std::endl;
+    PRINT(CATS_CORECAT_SYSTEM_COMPILER);
+    PRINT(CATS_CORECAT_SYSTEM_OS);
+    std::cout << std::endl;
     
     return 0;
     
