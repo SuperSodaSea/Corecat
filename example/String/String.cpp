@@ -48,10 +48,16 @@ int main() {
     PRINT(str1 > "0"); // true
     std::cout << std::endl;
     
+    PRINT(str1.isEmpty()); // false
+    PRINT(str1.startsWith("0123")); // true
+    PRINT(str1.endsWith("6789")); // true
+    std::cout << std::endl;
+    
     PRINT(str1.find("567")); // 5
     PRINT(str1.find("567", 6)); // -1
     std::cout << std::endl;
     
+    PRINT(str1.repeat(2)); // "01234567890123456789"
     PRINT(str1 * 2); // "01234567890123456789"
     std::cout << std::endl;
     
@@ -68,7 +74,6 @@ int main() {
     
     PRINT("{}, {}!"_sv.format("Hello", "world")); // Hello, world!
     PRINT("{2}, {1}, {0}"_sv.format(1, 2, 3)); // 3, 2, 1
-    std::cout << std::endl;
     
     return 0;
     

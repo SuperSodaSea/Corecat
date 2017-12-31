@@ -34,7 +34,6 @@ int main() {
     
     PRINT(CATS_CORECAT_SYSTEM_COMPILER);
     PRINT(CATS_CORECAT_SYSTEM_OS);
-    std::cout << std::endl;
     
     return 0;
     

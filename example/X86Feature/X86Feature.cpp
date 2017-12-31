@@ -55,7 +55,6 @@ int main() {
     PRINT(X86Feature::SSE4_2);
     PRINT(X86Feature::AVX);
     PRINT(X86Feature::AVX2);
-    std::cout << std::endl;
     
     return 0;
     

@@ -54,7 +54,6 @@ int main() {
         a4.get<double>(); // Throw exception
         
     } catch(std::exception& e) { PRINT(e.what()); }
-    std::cout << std::endl;
     
     return 0;
     
