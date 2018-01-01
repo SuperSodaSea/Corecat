@@ -29,8 +29,9 @@
 #include "Cats/Corecat/Text.hpp"
 #include "Cats/Corecat/Util.hpp"
 
+
 using namespace Cats::Corecat;
-using namespace Cats::Corecat;
+
 
 #define PRINT(x) do { std::cout << #x << " -> " << (x) << std::endl; } while(0)
 

@@ -32,7 +32,6 @@
 
 
 using namespace Cats::Corecat;
-using namespace Cats::Corecat;
 
 
 template <typename T>
