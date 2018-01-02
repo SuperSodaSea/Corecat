@@ -74,8 +74,8 @@ int main() {
     PRINT(str1.substr(-7, 5)); // "34567"
     std::cout << std::endl;
     
-    PRINT("{}, {}!"_sv.format("Hello", "world")); // Hello, world!
-    PRINT("{2}, {1}, {0}"_sv.format(1, 2, 3)); // 3, 2, 1
+    PRINT("{}, {}!"_format("Hello", "world")); // Hello, world!
+    PRINT("{2}, {1}, {0}"_format(1, 2, 3)); // 3, 2, 1
     
     return 0;
     

@@ -307,7 +307,10 @@ public:
     }
     
     template<typename... Arg>
-    StringType format(Arg&&... arg) {
+    StringType operator ()(Arg&&... arg) const { return format(std::forward<Arg>(arg)...); }
+    
+    template<typename... Arg>
+    StringType format(Arg&&... arg) const {
         
         std::array<std::unique_ptr<HolderBase>, sizeof...(arg)> arr = {{std::unique_ptr<HolderBase>(new Holder<typename std::decay<Arg>::type>(arg))...}};
         StringType str;
@@ -334,6 +337,14 @@ public:
 using Formatter8 = Formatter<UTF8Charset<>>;
 using Formatter16 = Formatter<UTF16Charset<>>;
 using Formatter32 = Formatter<UTF32Charset<>>;
+
+inline namespace FormatterLiteral {
+
+inline Formatter8 operator "" _format(const char* str, std::size_t len) { return {{str, len}}; }
+inline Formatter16 operator "" _format(const char16_t* str, std::size_t len) { return {{str, len}}; }
+inline Formatter32 operator "" _format(const char32_t* str, std::size_t len) { return {{str, len}}; }
+
+}
 
 }
 }
