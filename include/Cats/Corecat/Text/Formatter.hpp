@@ -195,6 +195,52 @@ inline String32 toString32(T t) { return toString<UTF32Charset<>>(t); }
 
 
 template <typename C>
+void formatString(String<C>& writer, StringView<C> str, StringView<C> arg) {
+    
+    using CharType = typename C::CharType;
+    
+    if(arg.isEmpty()) { writer += str; return; }
+    
+    auto p = arg.begin(), q = arg.end();
+    
+    CharType fillChar = ' ', alignStyle = '<';
+    if(*p == CharType('<') || *p == CharType('>') || *p == CharType('^'))
+        alignStyle = *p, ++p;
+    else if(q - p >= 2 && (p[1] == CharType('<') || p[1] == CharType('>') || p[1] == CharType('^')))
+        fillChar = p[0], alignStyle = p[1], p += 2;
+    
+    std::size_t length = str.getLength(), width = 0;
+    for(; p != q; ++p) {
+        
+        if(*p < '0' || *p >= '9') throw std::invalid_argument("Invalid format");
+        width = width * 10 + (*p - '0');
+        
+    }
+    
+    if(width <= length) { writer += str; return; }
+    std::size_t fill = width - length;
+    switch(alignStyle) {
+    case '<': writer += str, writer.append(fillChar, fill); break;
+    case '>': writer.append(fillChar, fill), writer += str; break;
+    case '^': {
+        
+        std::size_t left = fill / 2, right = fill - left;
+        writer.append(fillChar, left), writer += str, writer.append(fillChar, right);
+        break;
+        
+    }
+    }
+    
+}
+template <typename C>
+void formatString(String<C>& writer, const typename C::CharType* str, StringView<C> arg) { formatString(writer, StringView<C>(str), arg); }
+template <typename C>
+void formatString(String<C>& writer, const String<C>& str, StringView<C> arg) { formatString(writer, StringView<C>(str), arg); }
+template <typename C, typename T>
+typename std::enable_if<std::is_integral<T>::value>::type formatString(String<C>& writer, T t, StringView<C> /*arg*/) { writer += toString<C>(t); }
+
+
+template <typename C>
 class Formatter {
     
 public:
@@ -229,7 +275,7 @@ private:
         Holder(T t_) : t(std::move(t_)) {}
         ~Holder() final = default;
         
-        void format(StringType& writer, StringViewType /*arg*/) const final { writer += toString<C>(t); }
+        void format(StringType& writer, StringViewType arg) const final { formatString(writer, t, arg); }
         
     };
     
