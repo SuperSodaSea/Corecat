@@ -32,7 +32,9 @@
 
 #include <array>
 #include <memory>
+#include <tuple>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "String.hpp"
@@ -194,6 +196,57 @@ template <typename T>
 inline String32 toString32(T t) { return toString<UTF32Charset<>>(t); }
 
 
+namespace Impl {
+
+template <typename T>
+inline std::pair<T, T> parseFormatAlignType(const T*& p, const T* q) {
+    
+    T fillChar = ' ', alignType = '<';
+    if(q - p >= 1){
+     
+        if(*p == T('<') || *p == T('>') || *p == T('^'))
+            alignType = *p, ++p;
+        else if(q - p >= 2 && (p[1] == T('<') || p[1] == T('>') || p[1] == T('^')))
+            fillChar = p[0], alignType = p[1], p += 2;
+        
+    }
+    return {fillChar, alignType};
+    
+}
+
+template <typename T>
+inline T parseFormatSignType(const T*& p, const T* q) {
+    
+    T signType = '-';
+    if(*p == T('+') || *p == T('-') || *p == T(' '))
+        signType = *p, ++p;
+    return signType;
+    
+}
+
+template <typename T>
+inline bool parseFormatAlter(const T*& p, const T* q) {
+    
+    bool alter = false;
+    if(*p == T('#'))
+        alter = true, ++p;
+    return alter;
+    
+}
+
+template <typename T>
+inline std::size_t parseFormatWidth(const T*& p, const T* q) {
+    
+    std::size_t width = 0;
+    for(; p != q && *p >= '0' && *p <= '9'; ++p)
+        width = width * 10 + (*p - '0');
+    return width;
+    
+}
+
+}
+
+
 template <typename C>
 void formatString(String<C>& writer, StringView<C> str, StringView<C> arg) {
     
@@ -203,23 +256,16 @@ void formatString(String<C>& writer, StringView<C> str, StringView<C> arg) {
     
     auto p = arg.begin(), q = arg.end();
     
-    CharType fillChar = ' ', alignStyle = '<';
-    if(*p == CharType('<') || *p == CharType('>') || *p == CharType('^'))
-        alignStyle = *p, ++p;
-    else if(q - p >= 2 && (p[1] == CharType('<') || p[1] == CharType('>') || p[1] == CharType('^')))
-        fillChar = p[0], alignStyle = p[1], p += 2;
+    std::size_t length = str.getLength();
     
-    std::size_t length = str.getLength(), width = 0;
-    for(; p != q; ++p) {
-        
-        if(*p < '0' || *p >= '9') throw std::invalid_argument("Invalid format");
-        width = width * 10 + (*p - '0');
-        
-    }
+    CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType(p, q);
+    std::size_t width = Impl::parseFormatWidth(p, q);
+    
+    if(p != q) throw std::invalid_argument("Invalid format specifier");
     
     if(width <= length) { writer += str; return; }
     std::size_t fill = width - length;
-    switch(alignStyle) {
+    switch(alignType) {
     case '<': writer += str, writer.append(fillChar, fill); break;
     case '>': writer.append(fillChar, fill), writer += str; break;
     case '^': {
@@ -236,8 +282,27 @@ template <typename C>
 void formatString(String<C>& writer, const typename C::CharType* str, StringView<C> arg) { formatString(writer, StringView<C>(str), arg); }
 template <typename C>
 void formatString(String<C>& writer, const String<C>& str, StringView<C> arg) { formatString(writer, StringView<C>(str), arg); }
+
 template <typename C, typename T>
-typename std::enable_if<std::is_integral<T>::value>::type formatString(String<C>& writer, T t, StringView<C> /*arg*/) { writer += toString<C>(t); }
+typename std::enable_if<std::is_integral<T>::value>::type formatString(String<C>& writer, T t, StringView<C> arg) {
+    
+    using CharType = typename C::CharType;
+    
+    if(arg.isEmpty()) { writer += toString<C>(t); return; }
+    
+    auto p = arg.begin(), q = arg.end();
+    
+    CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType(p, q);
+    CharType signType = Impl::parseFormatSignType(p, q);
+    bool alter = Impl::parseFormatAlter(p, q);
+    std::size_t width = Impl::parseFormatWidth(p, q);
+    
+    if(p != q) throw std::invalid_argument("Invalid format specifier");
+    
+    // TODO
+    writer += toString<C>(t);
+    
+}
 
 
 template <typename C>
