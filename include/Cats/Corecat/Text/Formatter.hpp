@@ -218,7 +218,7 @@ template <typename T>
 inline T parseFormatSignType(const T*& p, const T* q) {
     
     T signType = '-';
-    if(*p == T('+') || *p == T('-') || *p == T(' '))
+    if(p != q && (*p == T('+') || *p == T('-') || *p == T(' ')))
         signType = *p, ++p;
     return signType;
     
@@ -228,7 +228,7 @@ template <typename T>
 inline bool parseFormatAlter(const T*& p, const T* q) {
     
     bool alter = false;
-    if(*p == T('#'))
+    if(p != q && *p == T('#'))
         alter = true, ++p;
     return alter;
     
@@ -244,6 +244,14 @@ inline std::size_t parseFormatWidth(const T*& p, const T* q) {
     
 }
 
+template <typename T>
+inline T parseFormatType(const T*& p, const T* q, T t) {
+    
+    if(p != q) return *p++;
+    else return t;
+    
+}
+
 }
 
 
@@ -256,13 +264,12 @@ void formatString(String<C>& writer, StringView<C> str, StringView<C> arg) {
     
     auto p = arg.begin(), q = arg.end();
     
-    std::size_t length = str.getLength();
-    
     CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType(p, q);
     std::size_t width = Impl::parseFormatWidth(p, q);
     
     if(p != q) throw std::invalid_argument("Invalid format specifier");
     
+    std::size_t length = str.getLength();
     if(width <= length) { writer += str; return; }
     std::size_t fill = width - length;
     switch(alignType) {
@@ -287,20 +294,48 @@ template <typename C, typename T>
 typename std::enable_if<std::is_integral<T>::value>::type formatString(String<C>& writer, T t, StringView<C> arg) {
     
     using CharType = typename C::CharType;
+    using UnsignedType = typename std::make_unsigned<T>::type;
     
     if(arg.isEmpty()) { writer += toString<C>(t); return; }
     
     auto p = arg.begin(), q = arg.end();
-    
     CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType(p, q);
     CharType signType = Impl::parseFormatSignType(p, q);
     bool alter = Impl::parseFormatAlter(p, q);
     std::size_t width = Impl::parseFormatWidth(p, q);
-    
+    CharType type = Impl::parseFormatType(p, q, CharType('d'));
+    if(type != CharType('b') && type != CharType('c') && type != CharType('d') && type != CharType('o') && type != CharType('x') && type != CharType('X'))
+        throw std::invalid_argument("Invalid format type");
     if(p != q) throw std::invalid_argument("Invalid format specifier");
     
-    // TODO
-    writer += toString<C>(t);
+    if(type == CharType('c')) { writer += CharType(t); return; }
+    
+    UnsignedType x; CharType sign;
+    if(t >= 0) x = t, sign = signType == '+' ? '+' : signType == '-' ? 0 : ' ';
+    else x = UnsignedType(0) - UnsignedType(t), sign = '-';
+    String<C> str;
+    switch(type) {
+    case 'b': str = alter ? String<C>("0b"_sv) + toString<C>(x) : toString<C>(x); break;
+    case 'o': str = alter ? String<C>("0o"_sv) + toString<C>(x) : toString<C>(x); break;
+    case 'd': str = toString<C>(x); break;
+    case 'x':
+    case 'X': str = alter ? String<C>("0x"_sv) + toString<C>(x) : toString<C>(x); break;
+    }
+    
+    std::size_t length = str.getLength() + !!sign;
+    if(width <= length) { writer += str; return; }
+    std::size_t fill = width - length;
+    switch(alignType) {
+    case '<': if(sign) writer += sign; writer += str, writer.append(fillChar, fill); break;
+    case '>': writer.append(fillChar, fill); if(sign) writer += sign; writer += str; break;
+    case '^': {
+        
+        std::size_t left = fill / 2, right = fill - left;
+        writer.append(fillChar, left); if(sign) writer += sign; writer += str, writer.append(fillChar, right);
+        break;
+        
+    }
+    }
     
 }
 

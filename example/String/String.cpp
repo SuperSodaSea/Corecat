@@ -76,7 +76,8 @@ int main() {
     
     PRINT("{}, {}!"_format("Hello", "world")); // Hello, world!
     PRINT("{2}, {1}, {0}"_format(1, 2, 3)); // 3, 2, 1
-    PRINT("{:_<3} {:_^3} {:_>3}"_format("A", "B", "C")); // A__ _B_ __C
+    PRINT("{:_<3} | {:_^3} | {:_>3}"_format("A", "B", "C")); // A__ | _B_ | __C
+    PRINT("{:_>+6} | {:_>-6} | {:_> 6}"_format(111, 222, 333)); // __+111 | ___222 |  __ 333
     
     return 0;
     
