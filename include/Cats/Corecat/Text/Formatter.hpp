@@ -198,6 +198,42 @@ inline String32 toString32(T t) { return toString<UTF32Charset<>>(t); }
 
 namespace Impl {
 
+template <typename T, bool CAP>
+struct Digit {
+    
+    static constexpr T get(int x) { return x < 10 ? '0' + x : CAP ? ('A' + (x - 10)) : ('a' + (x - 10)); }
+    
+};
+template <typename T, bool CAP>
+using DigitTable = SequenceTable<MapperSequence<Digit<T, CAP>, IndexSequence<int, 0, 35>>>;
+
+}
+
+template <typename C, typename T>
+inline typename std::enable_if<std::is_unsigned<T>::value, String<C>>::type toStringBase(T t, std::size_t base, bool capital = false) {
+    
+    using CharType = typename C::CharType;
+    
+    if(base < 2 || base > 36) throw std::invalid_argument("Base must be in [2, 36]");
+    
+    auto table = capital ? Impl::DigitTable<CharType, true>::TABLE : Impl::DigitTable<CharType, false>::TABLE;
+    
+    CharType buffer[sizeof(T) * 8];
+    auto p = std::end(buffer), q = p;
+    do {
+        
+        *--p = table[t % base];
+        t /= base;
+        
+    } while(t);
+    
+    return {p, std::size_t(q - p)};
+    
+}
+
+
+namespace Impl {
+
 template <typename T>
 inline std::pair<T, T> parseFormatAlignType(const T*& p, const T* q) {
     
@@ -315,11 +351,11 @@ typename std::enable_if<std::is_integral<T>::value>::type formatString(String<C>
     else x = UnsignedType(0) - UnsignedType(t), sign = '-';
     String<C> str;
     switch(type) {
-    case 'b': str = alter ? String<C>("0b"_sv) + toString<C>(x) : toString<C>(x); break;
-    case 'o': str = alter ? String<C>("0o"_sv) + toString<C>(x) : toString<C>(x); break;
+    case 'b': str = alter ? String<C>("0b"_sv) + toStringBase<C>(x, 2) : toStringBase<C>(x, 2); break;
+    case 'o': str = alter ? String<C>("0o"_sv) + toStringBase<C>(x, 8) : toStringBase<C>(x, 8); break;
     case 'd': str = toString<C>(x); break;
-    case 'x':
-    case 'X': str = alter ? String<C>("0x"_sv) + toString<C>(x) : toString<C>(x); break;
+    case 'x': str = alter ? String<C>("0x"_sv) + toStringBase<C>(x, 16) : toStringBase<C>(x, 16); break;
+    case 'X': str = alter ? String<C>("0x"_sv) + toStringBase<C>(x, 16, true) : toStringBase<C>(x, 16, true); break;
     }
     
     std::size_t length = str.getLength() + !!sign;
