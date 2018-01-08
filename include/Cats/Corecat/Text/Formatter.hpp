@@ -223,7 +223,7 @@ inline typename std::enable_if<std::is_unsigned<T>::value, String<C>>::type toSt
     do {
         
         *--p = table[t % base];
-        t /= base;
+        t /= T(base);
         
     } while(t);
     

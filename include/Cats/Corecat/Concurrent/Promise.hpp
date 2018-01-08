@@ -53,10 +53,6 @@ class PromiseImpl : public std::enable_shared_from_this<PromiseImpl<T>> {
     
 private:
     
-    using Util::ExceptionWrapper;
-    
-private:
-    
     enum class State {Pending, Resolved, Rejected};
     
 private:
