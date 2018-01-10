@@ -28,10 +28,9 @@
 #define CATS_CORECAT_SYSTEM_SHAREDLIBRARY_HPP
 
 
-#include <stdexcept>
-
 #include "OS.hpp"
 #include "../Text/String.hpp"
+#include "../Util/Exception.hpp"
 
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
 #   include "../Win32/Windows.hpp"
@@ -70,7 +69,7 @@ public:
 #elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
         handle = dlopen(path.getData(), RTLD_NOW);
 #endif
-        if(!handle) throw std::runtime_error("Failed to load shared library");
+        if(!handle) throw SystemException("Failed to load shared library");
         
     }
     SharedLibrary(const SharedLibrary& src) = delete;

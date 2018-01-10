@@ -30,7 +30,7 @@
 
 #include <cstddef>
 
-#include <stdexcept>
+#include "../../Util/Exception.hpp"
 
 
 namespace Cats {
@@ -49,14 +49,14 @@ struct InputStream {
     InputStream& operator =(const InputStream& src) = delete;
     
     virtual std::size_t readSome(T* buffer, std::size_t count) = 0;
-    virtual T read() { T t; if(readSome(&t, 1)) return t; else throw std::runtime_error("End of stream"); }
+    virtual T read() { T t; if(readSome(&t, 1)) return t; else throw IOException("End of stream"); }
     virtual void readAll(T* buffer, std::size_t count) {
         
         std::size_t size = 0;
         while(size < count) {
             
             std::size_t x = readSome(buffer + size, count - size);
-            if(!x) throw std::runtime_error("End of stream");
+            if(!x) throw IOException("End of stream");
             size += x;
             
         }

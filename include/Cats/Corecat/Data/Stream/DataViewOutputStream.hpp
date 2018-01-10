@@ -28,10 +28,9 @@
 #define CATS_CORECAT_DATA_STREAM_DATAVIEWOUTPUTSTREAM_HPP
 
 
-#include <stdexcept>
-
 #include "OutputStream.hpp"
 #include "../DataView/DataView.hpp"
+#include "../../Util/Exception.hpp"
 
 
 namespace Cats {
@@ -50,7 +49,7 @@ public:
     
     DataViewOutputStream(DataView<T>& dv_, std::uint64_t offset_ = 0) : dv(&dv_), offset(offset_) {
         
-        if(!dv->isWritable()) throw std::invalid_argument("DataView is not writable");
+        if(!dv->isWritable()) throw InvalidArgumentException("DataView is not writable");
         
     }
     DataViewOutputStream(DataViewOutputStream&& src) : dv(src.dv), offset(src.offset) { src.dv = nullptr; }

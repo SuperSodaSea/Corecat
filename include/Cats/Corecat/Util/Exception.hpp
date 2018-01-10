@@ -56,6 +56,30 @@ public:
     
 };
 
+class InvalidArgumentException : public Exception {
+    
+public:
+    
+    InvalidArgumentException(const String8& data) : Exception("InvalidArgumentException: " + data) {}
+    
+};
+
+class SystemException : public Exception {
+    
+public:
+    
+    SystemException(const String8& data) : Exception("SystemException: " + data) {}
+    
+};
+
+class IOException : public Exception {
+    
+public:
+    
+    IOException(const String8& data) : Exception("IOException: " + data) {}
+    
+};
+
 }
 }
 }

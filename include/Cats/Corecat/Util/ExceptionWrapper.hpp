@@ -30,8 +30,9 @@
 
 #include <exception>
 #include <memory>
-#include <stdexcept>
 #include <type_traits>
+
+#include "Exception.hpp"
 
 
 namespace Cats {
@@ -90,7 +91,7 @@ public:
         
         if(exception) throwFunction(*exception.get());
         else if(eptr) std::rethrow_exception(eptr);
-        else throw std::runtime_error("No exception in ExceptionWrapper");
+        else throw InvalidArgumentException("No exception in ExceptionWrapper");
         std::terminate();
         
     }

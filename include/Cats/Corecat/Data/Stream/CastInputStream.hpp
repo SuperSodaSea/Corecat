@@ -30,8 +30,6 @@
 
 #include <cstring>
 
-#include <stdexcept>
-
 #include "InputStream.hpp"
 
 

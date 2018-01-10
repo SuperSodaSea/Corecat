@@ -38,6 +38,7 @@
 #include <vector>
 
 #include "String.hpp"
+#include "../Util/Exception.hpp"
 #include "../Util/Sequence.hpp"
 
 
@@ -54,7 +55,7 @@ struct DecimalDigit {
     
 };
 template <typename T>
-using DecimalDigitTable = SequenceTable<MapperSequence<DecimalDigit<T>, IndexSequence<int, 0, 199>>>;
+using DecimalDigitTable = Util::SequenceTable<MapperSequence<DecimalDigit<T>, IndexSequence<int, 0, 199>>>;
 
 template <typename T>
 inline void toStringMiddle2(std::uint8_t x, T*& p) {
@@ -205,7 +206,7 @@ struct Digit {
     
 };
 template <typename T, bool CAP>
-using DigitTable = SequenceTable<MapperSequence<Digit<T, CAP>, IndexSequence<int, 0, 35>>>;
+using DigitTable = Util::SequenceTable<MapperSequence<Digit<T, CAP>, IndexSequence<int, 0, 35>>>;
 
 }
 
@@ -214,7 +215,7 @@ inline typename std::enable_if<std::is_unsigned<T>::value, String<C>>::type toSt
     
     using CharType = typename C::CharType;
     
-    if(base < 2 || base > 36) throw std::invalid_argument("Base must be in [2, 36]");
+    if(base < 2 || base > 36) throw InvalidArgumentException("Base must be in [2, 36]");
     
     auto table = capital ? Impl::DigitTable<CharType, true>::TABLE : Impl::DigitTable<CharType, false>::TABLE;
     
@@ -303,7 +304,7 @@ void formatString(String<C>& writer, StringView<C> str, StringView<C> arg) {
     CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType(p, q);
     std::size_t width = Impl::parseFormatWidth(p, q);
     
-    if(p != q) throw std::invalid_argument("Invalid format specifier");
+    if(p != q) throw InvalidArgumentException("Invalid format specifier");
     
     std::size_t length = str.getLength();
     if(width <= length) { writer += str; return; }
@@ -341,8 +342,8 @@ typename std::enable_if<std::is_integral<T>::value>::type formatString(String<C>
     std::size_t width = Impl::parseFormatWidth(p, q);
     CharType type = Impl::parseFormatType(p, q, CharType('d'));
     if(type != CharType('b') && type != CharType('c') && type != CharType('d') && type != CharType('o') && type != CharType('x') && type != CharType('X'))
-        throw std::invalid_argument("Invalid format type");
-    if(p != q) throw std::invalid_argument("Invalid format specifier");
+        throw InvalidArgumentException("Invalid format type");
+    if(p != q) throw InvalidArgumentException("Invalid format specifier");
     
     if(type == CharType('c')) { writer += CharType(t); return; }
     
@@ -447,7 +448,7 @@ public:
                     
                 } else if(*p == '}') {
                     
-                    if(p + 1 == q || *(p + 1) != '}') throw std::invalid_argument("Unexpected end of format string");
+                    if(p + 1 == q || *(p + 1) != '}') throw InvalidArgumentException("Unexpected end of format string");
                     ++p, isEscape = true;
                     
                 }
@@ -469,16 +470,16 @@ public:
                     for(++begin; begin != p; ++begin) index = index * 10 + (*begin - '0');
                     
                 }
-                if(p == q) throw std::invalid_argument("Unexpected end of format string");
+                if(p == q) throw InvalidArgumentException("Unexpected end of format string");
                 else if(*p == '}') segments.emplace_back(index, StringViewType(begin, p - begin));
                 else if(*p == ':') {
                     
                     begin = ++p;
                     while(p != q && *p != CharType('}')) ++p;
-                    if(p == q) throw std::invalid_argument("Unexpected end of format string");
+                    if(p == q) throw InvalidArgumentException("Unexpected end of format string");
                     segments.emplace_back(index, StringViewType(begin, p - begin));
                     
-                } else throw std::invalid_argument("Unexpected character");
+                } else throw InvalidArgumentException("Unexpected character");
                 ++p;
                 ++index;
                 
@@ -503,7 +504,7 @@ public:
             if(index == std::size_t(-1)) str += arg;
             else {
                 
-                if(index >= arr.size()) throw std::invalid_argument("Too few argument for formatter");
+                if(index >= arr.size()) throw InvalidArgumentException("Too few argument for formatter");
                 arr[index]->format(str, arg);
                 ++index;
                 

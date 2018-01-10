@@ -31,10 +31,10 @@
 #include <cstdio>
 
 #include <iostream>
-#include <stdexcept>
 #include <type_traits>
 
 #include "InputStream.hpp"
+#include "../../Util/Exception.hpp"
 
 
 namespace Cats {
@@ -67,7 +67,7 @@ public:
     void skip(std::size_t count) override {
         
         if(std::fseek(file, count, SEEK_CUR))
-            throw std::runtime_error("std::fseek failed");
+            throw IOException("std::fseek failed");
         
     }
     

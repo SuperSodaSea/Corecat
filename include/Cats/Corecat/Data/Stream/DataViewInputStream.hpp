@@ -29,10 +29,10 @@
 
 
 #include <algorithm>
-#include <stdexcept>
 
 #include "InputStream.hpp"
 #include "../DataView/DataView.hpp"
+#include "../../Util/Exception.hpp"
 
 
 namespace Cats {
@@ -51,7 +51,7 @@ public:
     
     DataViewInputStream(DataView<T>& dv_, std::uint64_t offset_ = 0) : dv(&dv_), offset(offset_) {
         
-        if(!dv->isReadable()) throw std::invalid_argument("DataView is not readable");
+        if(!dv->isReadable()) throw InvalidArgumentException("DataView is not readable");
         
     }
     DataViewInputStream(DataViewInputStream&& src) : dv(src.dv), offset(src.offset) { src.dv = nullptr; }

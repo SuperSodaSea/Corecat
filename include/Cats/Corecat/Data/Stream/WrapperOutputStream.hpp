@@ -31,10 +31,10 @@
 #include <cstdio>
 
 #include <iostream>
-#include <stdexcept>
 #include <type_traits>
 
 #include "InputStream.hpp"
+#include "../../Util/Exception.hpp"
 
 
 namespace Cats {
@@ -61,14 +61,14 @@ public:
     std::size_t writeSome(const char* buffer, std::size_t count) override {
         
         if(std::fwrite(buffer, 1, count, file) != count)
-            throw std::runtime_error("std::fwrite failed");
+            throw IOException("std::fwrite failed");
         return count;
         
     }
     void flush() override {
         
         if(std::fflush(file))
-            throw std::runtime_error("std::fflush failed");
+            throw IOException("std::fflush failed");
         
     };
     

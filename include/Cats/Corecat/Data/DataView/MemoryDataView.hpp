@@ -28,9 +28,8 @@
 #define CATS_CORECAT_DATA_DATAVIEW_MEMORYDATAVIEW_HPP
 
 
-#include <stdexcept>
-
 #include "DataView.hpp"
+#include "../../Util/Exception.hpp"
 
 
 namespace Cats {
@@ -61,20 +60,20 @@ public:
     void read(T* buffer, std::size_t count, std::uint64_t offset) override {
         
         if(offset + count > getSize())
-            throw std::invalid_argument("End of data");
+            throw InvalidArgumentException("End of data");
         std::copy(data + offset, data + offset + count, buffer);
         
     }
     void write(const T* buffer, std::size_t count, std::uint64_t offset) override {
         
         if(offset + count > getSize())
-            throw std::invalid_argument("End of data");
+            throw InvalidArgumentException("End of data");
         std::copy(buffer, buffer + count, data + offset);
         
     }
     void flush() override {}
     std::uint64_t getSize() override { return size; }
-    void setSize(std::uint64_t size) override { throw std::runtime_error("DataView is not resizable"); }
+    void setSize(std::uint64_t size) override { throw InvalidArgumentException("DataView is not resizable"); }
     
 };
 
