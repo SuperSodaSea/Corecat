@@ -35,9 +35,7 @@
 #include <iterator>
 #include <string>
 
-#include "Charset/UTF8Charset.hpp"
-#include "Charset/UTF16Charset.hpp"
-#include "Charset/UTF32Charset.hpp"
+#include "Charset/DefaultCharset.hpp"
 
 
 namespace Cats {
@@ -115,6 +113,8 @@ public:
         }
         
     }
+    template <typename T>
+    explicit String(const T* data_) : String(StringView<DefaultCharset<T>>(data_)) {}
     template <typename D>
     explicit String(const String<D>& s) : String(s.getView()) {}
     String(const String& src) : String() { append(src); }

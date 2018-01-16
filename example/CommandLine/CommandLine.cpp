@@ -87,12 +87,12 @@ int main(int argc, char** argv) {
         
         if(options.help) {
             
-            std::cout << "Usage: CommandLine [options] [file]..." << std::endl;
-            std::cout << parser.getHelp() << std::endl;
+            std::cerr << "Usage: CommandLine [options] [file]..." << std::endl;
+            std::cerr << parser.getHelp() << std::endl;
             
         } else if(options.version) {
             
-            std::cout << "CommandLine 1.0.0" << std::endl;
+            std::cerr << "CommandLine 1.0.0" << std::endl;
             
         } else {
             
