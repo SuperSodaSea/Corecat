@@ -32,7 +32,7 @@
 using namespace Cats::Corecat;
 
 
-#define PRINT(x) do { std::cout << #x << " -> " << (x) << std::endl; } while(0)
+#define PRINT(x) do { std::cout << #x << "\n    -> " << (x) << std::endl; } while(0)
 
 int main() {
     
