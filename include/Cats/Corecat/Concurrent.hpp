@@ -30,6 +30,7 @@
 
 #include "Concurrent/Event.hpp"
 #include "Concurrent/Promise.hpp"
+#include "Concurrent/ThreadPoolExecutor.hpp"
 
 
 #endif
