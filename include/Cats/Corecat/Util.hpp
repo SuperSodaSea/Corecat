@@ -37,6 +37,7 @@
 #include "Util/Endian.hpp"
 #include "Util/Exception.hpp"
 #include "Util/ExceptionWrapper.hpp"
+#include "Util/Function.hpp"
 #include "Util/Operator.hpp"
 #include "Util/Sequence.hpp"
 #include "Util/VoidType.hpp"
