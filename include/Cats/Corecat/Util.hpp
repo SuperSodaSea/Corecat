@@ -38,6 +38,7 @@
 #include "Util/Exception.hpp"
 #include "Util/ExceptionWrapper.hpp"
 #include "Util/Function.hpp"
+#include "Util/Iterator.hpp"
 #include "Util/Operator.hpp"
 #include "Util/Sequence.hpp"
 #include "Util/VoidType.hpp"

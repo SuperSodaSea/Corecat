@@ -104,18 +104,28 @@ using ConcatSequence = typename Impl::ConcatSequenceImpl<S1, S2>::Type;
 namespace Impl {
 
 template <typename T, T Begin, T End, typename = void>
-struct IndexSequenceImpl;
+struct IndexSequenceImpl {
+    
+    static_assert(Begin <= End, "Begin must be greater than End in IndexSequence");
+    
+};
 template <typename T, T Begin, T End>
 struct IndexSequenceImpl<T, Begin, End, typename std::enable_if<Begin == End>::type> {
+    
+    using Type = Sequence<T>;
+    
+};
+template <typename T, T Begin, T End>
+struct IndexSequenceImpl<T, Begin, End, typename std::enable_if<(Begin + 1 == End)>::type> {
     
     using Type = Sequence<T, Begin>;
     
 };
 template <typename T, T Begin, T End>
-struct IndexSequenceImpl<T, Begin, End, typename std::enable_if<(Begin < End)>::type> {
+struct IndexSequenceImpl<T, Begin, End, typename std::enable_if<(Begin + 1 < End)>::type> {
     
     using Type = ConcatSequence<typename IndexSequenceImpl<T, Begin, (Begin + End) / 2>::Type,
-        typename IndexSequenceImpl<T, (Begin + End) / 2 + 1, End>::Type>;
+        typename IndexSequenceImpl<T, (Begin + End) / 2, End>::Type>;
     
 };
 

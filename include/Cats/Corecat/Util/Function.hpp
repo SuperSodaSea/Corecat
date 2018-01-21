@@ -113,7 +113,7 @@ auto applyImpl(F&& f, T&& t, Sequence<std::size_t, I...>) noexcept(noexcept(APPL
 
 #define APPLY_EXPR \
     Impl::applyImpl(std::forward<F>(f), std::forward<T>(t), \
-        IndexSequence<std::size_t, 0, std::tuple_size<typename std::remove_reference<T>::type>::value - 1>())
+        IndexSequence<std::size_t, 0, std::tuple_size<typename std::remove_reference<T>::type>::value>())
 template <typename F, typename T>
 auto apply(F&& f, T&& t) noexcept(noexcept(APPLY_EXPR)) -> decltype(APPLY_EXPR) { return APPLY_EXPR; }
 #undef APPLY_EXPR

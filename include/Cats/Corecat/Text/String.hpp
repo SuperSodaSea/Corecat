@@ -32,10 +32,10 @@
 
 #include <algorithm>
 #include <iostream>
-#include <iterator>
 #include <string>
 
 #include "Charset/DefaultCharset.hpp"
+#include "../Util/Iterator.hpp"
 
 
 namespace Cats {
@@ -60,8 +60,8 @@ public:
     
     using Iterator = CharType*;
     using ConstIterator = const CharType*;
-    using ReverseIterator = std::reverse_iterator<Iterator>;
-    using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
+    using ReverseIterator = ReverseIterator<Iterator>;
+    using ConstReverseIterator = Corecat::ReverseIterator<ConstIterator>;
     
     using StringViewType = StringView<C>;
     
@@ -308,7 +308,7 @@ public:
     using CharType = typename C::CharType;
     
     using Iterator = const CharType*;
-    using ReverseIterator = std::reverse_iterator<Iterator>;
+    using ReverseIterator = ReverseIterator<Iterator>;
     
     using StringType = String<C>;
     

@@ -55,7 +55,7 @@ struct DecimalDigit {
     
 };
 template <typename T>
-using DecimalDigitTable = Util::SequenceTable<MapperSequence<DecimalDigit<T>, IndexSequence<int, 0, 199>>>;
+using DecimalDigitTable = Util::SequenceTable<MapperSequence<DecimalDigit<T>, IndexSequence<int, 0, 200>>>;
 
 template <typename T>
 inline void toStringMiddle2(std::uint8_t x, T*& p) {
@@ -206,7 +206,7 @@ struct Digit {
     
 };
 template <typename T, bool CAP>
-using DigitTable = Util::SequenceTable<MapperSequence<Digit<T, CAP>, IndexSequence<int, 0, 35>>>;
+using DigitTable = Util::SequenceTable<MapperSequence<Digit<T, CAP>, IndexSequence<int, 0, 36>>>;
 
 }
 
