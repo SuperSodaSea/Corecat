@@ -60,7 +60,7 @@ public:
     
     using Iterator = CharType*;
     using ConstIterator = const CharType*;
-    using ReverseIterator = ReverseIterator<Iterator>;
+    using ReverseIterator = Corecat::ReverseIterator<Iterator>;
     using ConstReverseIterator = Corecat::ReverseIterator<ConstIterator>;
     
     using StringViewType = StringView<C>;
@@ -308,7 +308,9 @@ public:
     using CharType = typename C::CharType;
     
     using Iterator = const CharType*;
-    using ReverseIterator = ReverseIterator<Iterator>;
+    using ConstIterator = Iterator;
+    using ReverseIterator = Corecat::ReverseIterator<Iterator>;
+    using ConstReverseIterator = ReverseIterator;
     
     using StringType = String<C>;
     
