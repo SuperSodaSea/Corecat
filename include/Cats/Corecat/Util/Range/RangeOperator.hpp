@@ -51,14 +51,14 @@ public:
     template <typename... Arg1>
     RangeOperator(const F& f_, Arg1&&... arg_) : f(f_), arg(std::forward<Arg1>(arg_)...) {}
     
-    template <typename R>
-    friend auto operator |(R&& a, RangeOperator&& b) -> decltype(apply(b.f, std::tuple_cat(std::tuple<R&&>(std::forward<R>(a)), b.arg))) {
-        
-        return apply(b.f, std::tuple_cat(std::tuple<R&&>(std::forward<R>(a)), b.arg));
-        
-    }
-    
 };
+
+template <typename R, typename F, typename... Arg>
+inline auto operator |(R&& a, RangeOperator<F, Arg...>&& b) -> decltype(apply(b.f, std::tuple_cat(std::tuple<R&&>(std::forward<R>(a)), b.arg))) {
+    
+    return apply(b.f, std::tuple_cat(std::tuple<R&&>(std::forward<R>(a)), b.arg));
+    
+}
 
 }
 }
