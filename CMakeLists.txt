@@ -16,6 +16,7 @@ set(EXAMPLE
     Any
     CommandLine
     ExceptionWrapper
+    Range
     String
     System
     X86Feature)

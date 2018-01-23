@@ -24,25 +24,62 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#ifndef CATS_CORECAT_UTIL_RANGE_TAKERANGE_HPP
+#define CATS_CORECAT_UTIL_RANGE_TAKERANGE_HPP
 
 
-#include "Util/Allocator.hpp"
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Detector.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
-#include "Util/Function.hpp"
-#include "Util/Iterator.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Range.hpp"
-#include "Util/Sequence.hpp"
-#include "Util/VoidType.hpp"
+#include <cstddef>
+
+#include <algorithm>
+
+#include "RangeOperator.hpp"
+#include "RangeTraits.hpp"
+
+
+namespace Cats {
+namespace Corecat {
+inline namespace Util {
+
+template <typename R>
+class TakeRange {
+    
+public:
+    
+    using Iterator = typename RangeTraits<R>::IteratorType;
+    using DifferenceType = typename RangeTraits<R>::DifferenceType;
+    
+private:
+    
+    R r;
+    DifferenceType count;
+    
+public:
+    
+    TakeRange(R r_, DifferenceType count_) : r(std::move(r_)), count(count_) {}
+    
+    Iterator begin() const { return std::begin(r); }
+    Iterator end() const { return advanceUntil(std::begin(r), std::end(r), count); }
+    
+};
+
+
+namespace Impl {
+
+struct TakeRangeFunc {
+    
+    template <typename T>
+    RangeOperator<TakeRangeFunc, T> operator ()(T count) const { return {*this, count}; }
+    template <typename R>
+    TakeRange<typename std::decay<R>::type> operator ()(R&& r, typename RangeTraits<R>::DifferenceType count) const { return {std::forward<R>(r), count}; }
+    
+};
+
+}
+namespace { constexpr Impl::TakeRangeFunc take; }
+
+}
+}
+}
 
 
 #endif

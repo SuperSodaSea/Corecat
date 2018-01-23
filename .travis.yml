@@ -32,8 +32,9 @@ script:
 
 after_success:
 - ./build/Any
-- ./build/CommandLine
+- ./build/CommandLine -O3 -o output input1 input2 input3
 - ./build/ExceptionWrapper
+- ./build/Range
 - ./build/String
 - ./build/System
 - ./build/X86Feature

@@ -24,25 +24,45 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#ifndef CATS_CORECAT_UTIL_RANGE_RANGEOPERATOR_HPP
+#define CATS_CORECAT_UTIL_RANGE_RANGEOPERATOR_HPP
 
 
-#include "Util/Allocator.hpp"
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Detector.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
-#include "Util/Function.hpp"
-#include "Util/Iterator.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Range.hpp"
-#include "Util/Sequence.hpp"
-#include "Util/VoidType.hpp"
+#include <tuple>
+#include <utility>
+
+#include "../Function.hpp"
+
+
+namespace Cats {
+namespace Corecat {
+inline namespace Util {
+
+template <typename F, typename... Arg>
+class RangeOperator {
+    
+public:
+    
+    const F& f;
+    std::tuple<Arg...> arg;
+    
+public:
+    
+    template <typename... Arg1>
+    RangeOperator(const F& f_, Arg1&&... arg_) : f(f_), arg(std::forward<Arg1>(arg_)...) {}
+    
+    template <typename R>
+    friend auto operator |(R&& a, RangeOperator&& b) -> decltype(apply(b.f, std::tuple_cat(std::tuple<R&&>(std::forward<R>(a)), b.arg))) {
+        
+        return apply(b.f, std::tuple_cat(std::tuple<R&&>(std::forward<R>(a)), b.arg));
+        
+    }
+    
+};
+
+}
+}
+}
 
 
 #endif

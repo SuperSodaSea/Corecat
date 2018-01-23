@@ -99,12 +99,12 @@ struct InvokeResultImpl<decltype(void(invoke(std::declval<F>(), std::declval<Arg
 
 }
 template <typename F, typename... Arg>
-using InvokeResult = Impl::InvokeResultImpl<F, Arg...>;
+using InvokeResult = Impl::InvokeResultImpl<void, F, Arg...>;
 
 
 namespace Impl {
 
-#define APPLY_IMPL_EXPR invoke(std::forward<F>(f), std::get<I>(std::forward<T>(t))...)
+#define APPLY_IMPL_EXPR Util::invoke(std::forward<F>(f), std::get<I>(std::forward<T>(t))...)
 template <typename F, typename T, std::size_t... I>
 constexpr auto applyImpl(F&& f, T&& t, Sequence<std::size_t, I...>) noexcept(noexcept(APPLY_IMPL_EXPR)) -> decltype(APPLY_IMPL_EXPR) { return APPLY_IMPL_EXPR; }
 #undef APPLY_IMPL_EXPR

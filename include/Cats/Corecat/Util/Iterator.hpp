@@ -28,6 +28,7 @@
 #define CATS_CORECAT_UTIL_ITERATOR_HPP
 
 
+#include <algorithm>
 #include <type_traits>
 #include <utility>
 
@@ -37,6 +38,50 @@
 namespace Cats {
 namespace Corecat {
 inline namespace Util {
+
+template <typename I>
+using IteratorConcept = VoidType<
+    decltype(*std::declval<I>()),
+    decltype(std::declval<I>() == std::declval<I>()),
+    decltype(std::declval<I>() != std::declval<I>())>;
+template <typename I>
+using InputIteratorConcept = VoidType<
+    IteratorConcept<I>,
+    decltype(++std::declval<I&>())>;
+template <typename I>
+using ForwardIteratorConcept = VoidType<
+    InputIteratorConcept<I>,
+    decltype(std::declval<I&>()++)>;
+template <typename I>
+using BidirectionalIteratorConcept = VoidType<
+    ForwardIteratorConcept<I>,
+    decltype(--std::declval<I&>()),
+    decltype(std::declval<I&>()--)>;
+template <typename I>
+using RandomAccessIteratorConcept = VoidType<
+    BidirectionalIteratorConcept<I>,
+    decltype(std::declval<I&>() += std::declval<decltype(std::declval<I>() - std::declval<I>())>()),
+    decltype(std::declval<I&>() -= std::declval<decltype(std::declval<I>() - std::declval<I>())>()),
+    decltype(std::declval<I>() + std::declval<decltype(std::declval<I>() - std::declval<I>())>()),
+    decltype(std::declval<decltype(std::declval<I>() - std::declval<I>())>() + std::declval<I>()),
+    decltype(std::declval<I>() - std::declval<decltype(std::declval<I>() - std::declval<I>())>()),
+    decltype(std::declval<I>() - std::declval<I>()),
+    decltype(std::declval<I>()[std::declval<decltype(std::declval<I>() - std::declval<I>())>()]),
+    decltype(std::declval<I>() < std::declval<I>()),
+    decltype(std::declval<I>() > std::declval<I>()),
+    decltype(std::declval<I>() <= std::declval<I>()),
+    decltype(std::declval<I>() >= std::declval<I>())>;
+
+template <typename I>
+using IsIterator = IsDetected<IteratorConcept, I>;
+template <typename I>
+using IsInputIterator = IsDetected<InputIteratorConcept, I>;
+template <typename I>
+using IsForwardIterator = IsDetected<ForwardIteratorConcept, I>;
+template <typename I>
+using IsBidirectionalIterator = IsDetected<BidirectionalIteratorConcept, I>;
+template <typename I>
+using IsRandomAccessIterator = IsDetected<RandomAccessIteratorConcept, I>;
 
 template <typename I>
 struct IteratorTraits {
@@ -55,48 +100,12 @@ public:
     
     using DifferenceType = DetectedType<DifferenceTypeImpl, I>;
     
-private:
-    
-    template <typename T>
-    using IteratorConcept = VoidType<
-        decltype(*std::declval<T>()),
-        decltype(std::declval<T>() == std::declval<T>()),
-        decltype(std::declval<T>() != std::declval<T>())>;
-    template <typename T>
-    using InputIteratorConcept = VoidType<
-        IteratorConcept<T>,
-        decltype(++std::declval<T&>())>;
-    template <typename T>
-    using ForwardIteratorConcept = VoidType<
-        InputIteratorConcept<T>,
-        decltype(std::declval<T&>()++)>;
-    template <typename T>
-    using BidirectionalIteratorConcept = VoidType<
-        ForwardIteratorConcept<T>,
-        decltype(--std::declval<T&>()),
-        decltype(std::declval<T&>()--)>;
-    template <typename T>
-    using RandomAccessIteratorConcept = VoidType<
-        BidirectionalIteratorConcept<T>,
-        decltype(std::declval<T&>() += std::declval<DifferenceType>()),
-        decltype(std::declval<T&>() -= std::declval<DifferenceType>()),
-        decltype(std::declval<T>() + std::declval<DifferenceType>()),
-        decltype(std::declval<DifferenceType>() + std::declval<T>()),
-        decltype(std::declval<T>() - std::declval<DifferenceType>()),
-        decltype(std::declval<T>() - std::declval<T>()),
-        decltype(std::declval<T>()[std::declval<DifferenceType>()]),
-        decltype(std::declval<T>() < std::declval<T>()),
-        decltype(std::declval<T>() > std::declval<T>()),
-        decltype(std::declval<T>() <= std::declval<T>()),
-        decltype(std::declval<T>() >= std::declval<T>())>;
-    
 public:
     
-    static constexpr bool IS_ITERATOR = IsDetected<IteratorConcept, I>::value;
-    static constexpr bool IS_INPUT_ITERATOR = IsDetected<InputIteratorConcept, I>::value;
-    static constexpr bool IS_FORWARD_ITERATOR = IsDetected<ForwardIteratorConcept, I>::value;
-    static constexpr bool IS_BIDIRECTIONAL_ITERATOR = IsDetected<BidirectionalIteratorConcept, I>::value;
-    static constexpr bool IS_RANDOM_ACCESS_ITERATOR = IsDetected<RandomAccessIteratorConcept, I>::value;
+    static constexpr bool IS_INPUT_ITERATOR = IsInputIterator<I>::value;
+    static constexpr bool IS_FORWARD_ITERATOR = IsForwardIterator<I>::value;
+    static constexpr bool IS_BIDIRECTIONAL_ITERATOR = IsBidirectionalIterator<I>::value;
+    static constexpr bool IS_RANDOM_ACCESS_ITERATOR = IsRandomAccessIterator<I>::value;
     
 };
 
@@ -110,7 +119,7 @@ private:
     using ValueType = typename Traits::ValueType;
     using DiffType = typename Traits::DifferenceType;
     
-    static_assert(Traits::IS_BIDIRECTIONAL_ITERATOR, "Iterator must be bidirectional");
+    static_assert(Traits::IS_BIDIRECTIONAL_ITERATOR, "ReverseIterator must be bidirectional");
     
     template <typename X>
     using EnableIfRandomAccessIterator = typename std::enable_if<Traits::IS_RANDOM_ACCESS_ITERATOR, X>::type;
@@ -155,6 +164,21 @@ public:
     friend EnableIfRandomAccessIterator<X> operator >=(const ReverseIterator& a, const ReverseIterator& b) { return !(a < b); }
     
 };
+
+
+template <typename I, typename T>
+typename std::enable_if<!IteratorTraits<I>::IS_RANDOM_ACCESS_ITERATOR, I>::type advanceUntil(I b, I e, T count) {
+    
+    for(T i = T(); b != e && i < count; ++b, ++i);
+    return b;
+    
+}
+template <typename I, typename T>
+typename std::enable_if<IteratorTraits<I>::IS_RANDOM_ACCESS_ITERATOR, I>::type advanceUntil(I b, I e, T count) {
+    
+    return b + std::min(count, e - b);
+    
+}
 
 }
 }

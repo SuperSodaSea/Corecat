@@ -24,25 +24,57 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#ifndef CATS_CORECAT_UTIL_RANGE_REVERSERANGE_HPP
+#define CATS_CORECAT_UTIL_RANGE_REVERSERANGE_HPP
 
 
-#include "Util/Allocator.hpp"
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Detector.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
-#include "Util/Function.hpp"
-#include "Util/Iterator.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Range.hpp"
-#include "Util/Sequence.hpp"
-#include "Util/VoidType.hpp"
+#include <cstddef>
+
+#include "RangeOperator.hpp"
+#include "RangeTraits.hpp"
+
+
+namespace Cats {
+namespace Corecat {
+inline namespace Util {
+
+template <typename R>
+class ReverseRange {
+    
+public:
+    
+    using Iterator = ReverseIterator<typename RangeTraits<R>::IteratorType>;
+    
+private:
+    
+    R r;
+    
+public:
+    
+    ReverseRange(R r_) : r(std::move(r_)) {}
+    
+    Iterator begin() const { return std::end(r); }
+    Iterator end() const { return std::begin(r); }
+    
+};
+
+
+namespace Impl {
+
+struct ReverseRangeFunc {
+    
+    RangeOperator<ReverseRangeFunc> operator ()() const { return {*this}; }
+    template <typename R>
+    ReverseRange<typename std::decay<R>::type> operator ()(R&& r) const { return {std::forward<R>(r)}; }
+    
+};
+
+}
+namespace { constexpr Impl::ReverseRangeFunc reverse; }
+
+}
+}
+}
 
 
 #endif

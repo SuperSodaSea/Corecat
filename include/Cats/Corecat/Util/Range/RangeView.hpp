@@ -24,25 +24,49 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#ifndef CATS_CORECAT_UTIL_RANGE_RANGEVIEW_HPP
+#define CATS_CORECAT_UTIL_RANGE_RANGEVIEW_HPP
 
 
-#include "Util/Allocator.hpp"
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Detector.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
-#include "Util/Function.hpp"
-#include "Util/Iterator.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Range.hpp"
-#include "Util/Sequence.hpp"
-#include "Util/VoidType.hpp"
+#include <initializer_list>
+#include <iterator>
+#include <utility>
+
+
+namespace Cats {
+namespace Corecat {
+inline namespace Util {
+
+template <typename I>
+class RangeView {
+    
+public:
+    
+    using Iterator = I;
+    
+private:
+    
+    I b, e;
+    
+public:
+    
+    RangeView(I b_, I e_) : b(std::move(b_)), e(std::move(e_)) {}
+    
+    I begin() const noexcept { return b; }
+    I end() const noexcept { return e; }
+    
+};
+
+template <typename I>
+inline RangeView<I> rangeView(I b, I e) { return RangeView<I>(std::move(b), std::move(e)); }
+template <typename T>
+inline auto rangeView(T& t) -> decltype(rangeView(std::begin(t), std::end(t))) { return rangeView(std::begin(t), std::end(t)); }
+template <typename T>
+inline auto rangeView(std::initializer_list<T> t) -> decltype(rangeView(std::begin(t), std::end(t))) { return rangeView(std::begin(t), std::end(t)); }
+
+}
+}
+}
 
 
 #endif

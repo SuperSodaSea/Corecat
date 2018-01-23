@@ -24,25 +24,36 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#ifndef CATS_CORECAT_UTIL_RANGE_FOREACH_HPP
+#define CATS_CORECAT_UTIL_RANGE_FOREACH_HPP
 
 
-#include "Util/Allocator.hpp"
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Detector.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
-#include "Util/Function.hpp"
-#include "Util/Iterator.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Range.hpp"
-#include "Util/Sequence.hpp"
-#include "Util/VoidType.hpp"
+#include <utility>
+
+#include "RangeOperator.hpp"
+
+
+namespace Cats {
+namespace Corecat {
+inline namespace Util {
+
+namespace Impl {
+
+struct ForEachFunc {
+    
+    template <typename F>
+    RangeOperator<ForEachFunc, F> operator ()(F&& f) const { return {*this, std::forward<F>(f)}; }
+    template <typename R, typename F>
+    R&& operator ()(R&& r, F&& f) const { for(auto&& x : r) f(x); return std::forward<R>(r); }
+    
+};
+
+}
+namespace { constexpr Impl::ForEachFunc forEach; }
+
+}
+}
+}
 
 
 #endif
