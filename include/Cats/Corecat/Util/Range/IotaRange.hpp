@@ -47,7 +47,7 @@ public:
         
         friend IotaRange;
         
-        using DifferenceType = typename std::make_signed<T>::type;
+        using DifferenceType = std::make_signed_t<T>;
         
         T data, step;
         bool end;

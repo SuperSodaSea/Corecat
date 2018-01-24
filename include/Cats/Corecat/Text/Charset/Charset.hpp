@@ -47,7 +47,7 @@ struct Charset {
     
     static int compare(const T* begin1, const T* end1, const T* begin2, const T* end2) noexcept {
         
-        using U = typename std::make_unsigned<T>::type;
+        using U = std::make_unsigned_t<T>;
         for(auto p = begin1, q = begin2; ; ++p, ++q) {
             
             bool m1 = p == end1, m2 = q == end2;

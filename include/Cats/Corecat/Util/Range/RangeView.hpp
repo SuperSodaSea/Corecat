@@ -60,9 +60,9 @@ public:
 template <typename I>
 inline RangeView<I> rangeView(I b, I e) { return RangeView<I>(std::move(b), std::move(e)); }
 template <typename T>
-inline auto rangeView(T& t) -> decltype(rangeView(std::begin(t), std::end(t))) { return rangeView(std::begin(t), std::end(t)); }
+inline decltype(auto) rangeView(T& t) { return rangeView(std::begin(t), std::end(t)); }
 template <typename T>
-inline auto rangeView(std::initializer_list<T> t) -> decltype(rangeView(std::begin(t), std::end(t))) { return rangeView(std::begin(t), std::end(t)); }
+inline decltype(auto) rangeView(std::initializer_list<T> t) { return rangeView(std::begin(t), std::end(t)); }
 
 }
 }

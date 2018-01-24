@@ -94,11 +94,11 @@ private:
     using ResultType = typename ResultTypeImpl<U>::Type;
     
     template <typename U>
-    using EnableIfVoid = typename std::enable_if<std::is_void<U>::value>::type;
+    using EnableIfVoid = std::enable_if_t<std::is_void<U>::value>;
     template <typename U>
-    using EnableIfNotVoid = typename std::enable_if<!std::is_void<U>::value>::type;
+    using EnableIfNotVoid = std::enable_if_t<!std::is_void<U>::value>;
     template <typename U>
-    using EnableIfNotPromise = typename std::enable_if<!IsPromise<U>::value>::type;
+    using EnableIfNotPromise = std::enable_if_t<!IsPromise<U>::value>;
     
     using Mutex = std::mutex;
     
@@ -108,7 +108,7 @@ private:
     State state = State::Pending;
     std::deque<std::function<void()>> resolvedQueue;
     std::deque<std::function<void()>> rejectedQueue;
-    typename std::conditional<std::is_void<T>::value, char, T>::type result;
+    std::conditional_t<std::is_void<T>::value, char, T> result;
     ExceptionWrapper exception;
     
 private:
@@ -187,7 +187,7 @@ public:
         }
         
     }
-    template <typename U = T, typename = EnableIfNotVoid<U>, typename = EnableIfNotPromise<typename std::decay<U>::type>>
+    template <typename U = T, typename = EnableIfNotVoid<U>, typename = EnableIfNotPromise<typename std::decay_t<U>>>
     void resolve(U&& u) {
         
         std::unique_lock<Mutex> lock(mutex);

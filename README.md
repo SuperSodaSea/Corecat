@@ -15,4 +15,4 @@ Travis CI | [![Travis CI](https://travis-ci.org/SuperSodaSea/Corecat.svg?branch=
 
 ## Requirement
 
-+ C++11
++ C++14

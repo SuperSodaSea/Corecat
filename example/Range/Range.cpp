@@ -34,10 +34,9 @@
 using namespace Cats::Corecat;
 
 
-std::function<void(int)> printRange() {
+decltype(auto) printRange() {
     
-    bool first = true;
-    return [=](int x) mutable {
+    return [first = true](int x) mutable {
         if(first) first = false;
         else std::cout << ", ";
         std::cout << x;

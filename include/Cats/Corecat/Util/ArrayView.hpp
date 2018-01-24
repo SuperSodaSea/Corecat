@@ -33,6 +33,8 @@
 #include <iterator>
 #include <memory>
 
+#include "Iterator.hpp"
+
 
 namespace Cats {
 namespace Corecat {
@@ -47,8 +49,8 @@ public:
     
     using Iterator = Type*;
     using ConstIterator = const Type*;
-    using ReverseIterator = std::reverse_iterator<Iterator>;
-    using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
+    using ReverseIterator = Corecat::ReverseIterator<Iterator>;
+    using ConstReverseIterator = Corecat::ReverseIterator<ConstIterator>;
     
 private:
     

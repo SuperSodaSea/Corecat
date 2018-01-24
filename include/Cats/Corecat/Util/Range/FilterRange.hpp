@@ -53,9 +53,9 @@ public:
         using ValueType = typename IterTraits::ValueType;
         
         template <typename X>
-        using EnableIfForwardIterator = typename std::enable_if<IterTraits::IS_FORWARD_ITERATOR, X>::type;
+        using EnableIfForwardIterator = std::enable_if_t<IterTraits::IS_FORWARD_ITERATOR, X>;
         template <typename X>
-        using EnableIfBidirectionalIterator = typename std::enable_if<IterTraits::IS_BIDIRECTIONAL_ITERATOR, X>::type;
+        using EnableIfBidirectionalIterator = std::enable_if_t<IterTraits::IS_BIDIRECTIONAL_ITERATOR, X>;
         
         const FilterRange* r;
         Iter i;

@@ -74,7 +74,7 @@ public:
     
 };
 template <typename T>
-class WrapperOutputStream<T, typename std::enable_if<std::is_base_of<std::ostream, T>::value>::type> : public OutputStream<char> {
+class WrapperOutputStream<T, std::enable_if_t<std::is_base_of<std::ostream, T>::value>> : public OutputStream<char> {
     
 private:
     

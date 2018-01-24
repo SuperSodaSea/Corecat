@@ -65,7 +65,7 @@ struct ReverseRangeFunc {
     
     RangeOperator<ReverseRangeFunc> operator ()() const { return {*this}; }
     template <typename R>
-    ReverseRange<typename std::decay<R>::type> operator ()(R&& r) const { return {std::forward<R>(r)}; }
+    ReverseRange<std::decay_t<R>> operator ()(R&& r) const { return {std::forward<R>(r)}; }
     
 };
 

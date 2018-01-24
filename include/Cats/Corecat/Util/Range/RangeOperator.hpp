@@ -54,7 +54,7 @@ public:
 };
 
 template <typename R, typename F, typename... Arg>
-inline auto operator |(R&& a, RangeOperator<F, Arg...>&& b) -> decltype(apply(b.f, std::tuple_cat(std::tuple<R&&>(std::forward<R>(a)), b.arg))) {
+inline decltype(auto) operator |(R&& a, RangeOperator<F, Arg...>&& b) {
     
     return apply(b.f, std::tuple_cat(std::tuple<R&&>(std::forward<R>(a)), b.arg));
     

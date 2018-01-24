@@ -154,7 +154,7 @@ inline T* i64ToString(std::int64_t x, T* p) {
 
 
 template <typename C, typename T>
-String<C> toString(T t, typename std::enable_if<std::is_unsigned<T>::value && sizeof(T) <= 4>::type* = 0) {
+String<C> toString(T t, std::enable_if_t<std::is_unsigned<T>::value && sizeof(T) <= 4>* = 0) {
     
     String<C> s;
     s.setLength(u32ToString(t, s.getData()) - s.getData());
@@ -162,7 +162,7 @@ String<C> toString(T t, typename std::enable_if<std::is_unsigned<T>::value && si
     
 }
 template <typename C, typename T>
-String<C> toString(T t, typename std::enable_if<std::is_signed<T>::value && sizeof(T) <= 4>::type* = 0) {
+String<C> toString(T t, std::enable_if_t<std::is_signed<T>::value && sizeof(T) <= 4>* = 0) {
     
     String<C> s;
     s.setLength(i32ToString(t, s.getData()) - s.getData());
@@ -170,7 +170,7 @@ String<C> toString(T t, typename std::enable_if<std::is_signed<T>::value && size
     
 }
 template <typename C, typename T>
-String<C> toString(T t, typename std::enable_if<(std::is_unsigned<T>::value && sizeof(T) > 4 && sizeof(T) <= 8)>::type* = 0) {
+String<C> toString(T t, std::enable_if_t<(std::is_unsigned<T>::value && sizeof(T) > 4 && sizeof(T) <= 8)>* = 0) {
     
     String<C> s;
     s.setLength(u64ToString(t, s.getData()) - s.getData());
@@ -178,7 +178,7 @@ String<C> toString(T t, typename std::enable_if<(std::is_unsigned<T>::value && s
     
 }
 template <typename C, typename T>
-String<C> toString(T t, typename std::enable_if<(std::is_signed<T>::value && sizeof(T) > 4 && sizeof(T) <= 8)>::type* = 0) {
+String<C> toString(T t, std::enable_if_t<(std::is_signed<T>::value && sizeof(T) > 4 && sizeof(T) <= 8)>* = 0) {
     
     String<C> s;
     s.setLength(i64ToString(t, s.getData()) - s.getData());
@@ -211,7 +211,7 @@ using DigitTable = Util::SequenceTable<MapperSequence<Digit<T, CAP>, IndexSequen
 }
 
 template <typename C, typename T>
-inline typename std::enable_if<std::is_unsigned<T>::value, String<C>>::type toStringBase(T t, std::size_t base, bool capital = false) {
+inline std::enable_if_t<std::is_unsigned<T>::value, String<C>> toStringBase(T t, std::size_t base, bool capital = false) {
     
     using CharType = typename C::CharType;
     
@@ -328,10 +328,10 @@ template <typename C>
 void formatString(String<C>& writer, const String<C>& str, StringView<C> arg) { formatString(writer, StringView<C>(str), arg); }
 
 template <typename C, typename T>
-typename std::enable_if<std::is_integral<T>::value>::type formatString(String<C>& writer, T t, StringView<C> arg) {
+std::enable_if_t<std::is_integral<T>::value> formatString(String<C>& writer, T t, StringView<C> arg) {
     
     using CharType = typename C::CharType;
-    using UnsignedType = typename std::make_unsigned<T>::type;
+    using UnsignedType = std::make_unsigned_t<T>;
     
     if(arg.isEmpty()) { writer += toString<C>(t); return; }
     
@@ -495,7 +495,7 @@ public:
     template<typename... Arg>
     StringType format(Arg&&... arg) const {
         
-        std::array<std::unique_ptr<HolderBase>, sizeof...(arg)> arr = {{std::unique_ptr<HolderBase>(new Holder<typename std::decay<Arg>::type>(arg))...}};
+        std::array<std::unique_ptr<HolderBase>, sizeof...(arg)> arr = {{std::unique_ptr<HolderBase>(new Holder<std::decay_t<Arg>>(arg))...}};
         StringType str;
         for(auto&& segment : segments) {
             

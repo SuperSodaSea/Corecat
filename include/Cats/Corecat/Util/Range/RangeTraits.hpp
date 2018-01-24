@@ -42,7 +42,7 @@ inline namespace Util {
 
 template <typename R>
 using RangeConcept = VoidType<
-    typename std::enable_if<std::is_same<decltype(std::end(std::declval<R>())), decltype(std::begin(std::declval<R>()))>::value>::type,
+    std::enable_if_t<std::is_same<decltype(std::end(std::declval<R>())), decltype(std::begin(std::declval<R>()))>::value>,
     InputIteratorConcept<decltype(std::begin(std::declval<R>()))>>;
 template <typename R>
 using SizedRangeConcept = VoidType<
@@ -50,9 +50,9 @@ using SizedRangeConcept = VoidType<
     RandomAccessIteratorConcept<decltype(std::begin(std::declval<R>()))>>;
 
 template <typename R>
-using IsRange = IsDetected<RangeConcept, R>;
+constexpr bool IsRange = IsDetected<RangeConcept, R>;
 template <typename R>
-using IsSizedRange = IsDetected<SizedRangeConcept, R>;
+constexpr bool IsSizedRange = IsDetected<SizedRangeConcept, R>;
 
 
 template <typename R>
@@ -63,7 +63,7 @@ struct RangeTraits {
     using ReferenceType = typename IteratorTraits<IteratorType>::ReferenceType;
     using DifferenceType = typename IteratorTraits<IteratorType>::DifferenceType;
     
-    static constexpr bool IS_SIZED_RANGE = IsSizedRange<R>::value;
+    static constexpr bool IS_SIZED_RANGE = IsSizedRange<R>;
     
 };
 

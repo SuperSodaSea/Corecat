@@ -53,7 +53,7 @@ template <>
 struct DefaultCharsetImpl<wchar_t> {
     
     static_assert(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4, "Unknown size of wchar_t");
-    using Type = typename std::conditional<sizeof(wchar_t) == 2, UTF16Charset<wchar_t>, UTF32Charset<wchar_t>>::type;
+    using Type = std::conditional_t<sizeof(wchar_t) == 2, UTF16Charset<wchar_t>, UTF32Charset<wchar_t>>;
     
 };
 

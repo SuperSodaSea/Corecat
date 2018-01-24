@@ -46,7 +46,7 @@ class ExceptionWrapper {
 private:
     
     template <typename T>
-    using EnableIfException = typename std::enable_if<std::is_base_of<std::exception, T>::value>::type;
+    using EnableIfException = std::enable_if_t<std::is_base_of<std::exception, T>::value>;
     
     template <typename F>
     struct ArgumantTypeImpl;
@@ -54,7 +54,7 @@ private:
     struct ArgumantTypeImpl<Ret (Class::*)(Arg)> { using Type = Arg; };
     template <typename Class, typename Arg, typename Ret>
     struct ArgumantTypeImpl<Ret (Class::*)(Arg) const> { using Type = Arg; };
-    template <typename F, typename T = typename std::decay<F>::type>
+    template <typename F, typename T = std::decay_t<F>>
     using ArgumentType = typename ArgumantTypeImpl<decltype(&T::operator())>::Type;
     
 private:
@@ -75,7 +75,7 @@ public:
     ~ExceptionWrapper() = default;
     
     ExceptionWrapper() noexcept = default;
-    template <typename T, typename U = typename std::decay<T>::type, typename = EnableIfException<U>>
+    template <typename T, typename U = std::decay_t<T>, typename = EnableIfException<U>>
     ExceptionWrapper(T&& t) : exception(std::make_shared<T>(t)), type(&typeid(U)), throwFunction(throwFunctionImpl<U>) {}
     ExceptionWrapper(std::exception_ptr eptr_) noexcept : eptr(eptr_) {}
     
@@ -96,7 +96,7 @@ public:
         
     }
     
-    template <typename F, typename Arg = typename std::decay<ArgumentType<F>>::type>
+    template <typename F, typename Arg = std::decay_t<ArgumentType<F>>>
     bool with(F&& f) const {
         
         if(exception && *type == typeid(Arg)) {

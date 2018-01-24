@@ -115,7 +115,7 @@ private:
 public:
     
     Any() noexcept : data(buffer), capacity(BUFFER_SIZE), empty(true) {}
-    template <typename T, typename std::enable_if<!std::is_same<typename std::decay<T>::type, Any>::value, int>::type = 0>
+    template <typename T, std::enable_if_t<!std::is_same<std::decay_t<T>, Any>::value, int> = 0>
     Any(T&& t) : Any() { emplace<T>(std::move(t)); }
     Any(const Any& src) : Any() {
         
@@ -132,7 +132,7 @@ public:
     Any(Any&& src) : Any() { swap(src); }
     ~Any() {}
     
-    template <typename T, typename std::enable_if<!std::is_same<typename std::decay<T>::type, Any>::value, int>::type = 0>
+    template <typename T, std::enable_if_t<!std::is_same<std::decay_t<T>, Any>::value, int> = 0>
     Any& operator =(T&& t) { emplace<T>(std::move(t)); return *this; }
     Any& operator =(const Any& src) {
         

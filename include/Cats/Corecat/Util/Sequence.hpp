@@ -61,19 +61,19 @@ namespace Impl {
 template <typename S, std::size_t I1, std::size_t I2, typename = void>
 struct ContainSequenceImpl;
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct ContainSequenceImpl<Sequence<T, V...>, I1, I2, typename std::enable_if<sizeof...(V) == 0>::type> {
+struct ContainSequenceImpl<Sequence<T, V...>, I1, I2, std::enable_if_t<sizeof...(V) == 0>> {
     
     static constexpr bool get(T /*t*/) { return false; }
     
 };
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct ContainSequenceImpl<Sequence<T, V...>, I1, I2, typename std::enable_if<I1 == I2>::type> {
+struct ContainSequenceImpl<Sequence<T, V...>, I1, I2, std::enable_if_t<I1 == I2>> {
     
     static constexpr bool get(T t) { return t == GetSequence<Sequence<T, V...>>::get(I1); }
     
 };
 template <typename T, T... V, std::size_t I1, std::size_t I2>
-struct ContainSequenceImpl<Sequence<T, V...>, I1, I2, typename std::enable_if<(I1 < I2)>::type> {
+struct ContainSequenceImpl<Sequence<T, V...>, I1, I2, std::enable_if_t<(I1 < I2)>> {
     
     static constexpr bool get(T t) {
         
@@ -110,19 +110,19 @@ struct IndexSequenceImpl {
     
 };
 template <typename T, T Begin, T End>
-struct IndexSequenceImpl<T, Begin, End, typename std::enable_if<Begin == End>::type> {
+struct IndexSequenceImpl<T, Begin, End, std::enable_if_t<Begin == End>> {
     
     using Type = Sequence<T>;
     
 };
 template <typename T, T Begin, T End>
-struct IndexSequenceImpl<T, Begin, End, typename std::enable_if<(Begin + 1 == End)>::type> {
+struct IndexSequenceImpl<T, Begin, End, std::enable_if_t<(Begin + 1 == End)>> {
     
     using Type = Sequence<T, Begin>;
     
 };
 template <typename T, T Begin, T End>
-struct IndexSequenceImpl<T, Begin, End, typename std::enable_if<(Begin + 1 < End)>::type> {
+struct IndexSequenceImpl<T, Begin, End, std::enable_if_t<(Begin + 1 < End)>> {
     
     using Type = ConcatSequence<typename IndexSequenceImpl<T, Begin, (Begin + End) / 2>::Type,
         typename IndexSequenceImpl<T, (Begin + End) / 2, End>::Type>;
@@ -141,6 +141,7 @@ struct MapperSequenceImpl;
 template <typename F, typename T, T... V>
 struct MapperSequenceImpl<F, Sequence<T, V...>> {
     
+    // TODO: Replace std::result_of
     using Type = Sequence<typename std::result_of<decltype(&F::get)(T)>::type, F::get(V)...>;
     
 };

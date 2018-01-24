@@ -4,27 +4,27 @@ sudo: required
 
 matrix:
   include:
-    - env: CONFIG=debug FLAGS="-m32"
+    - env: CONFIG=Debug CXX=g++-5 FLAGS="-m32"
       compiler: gcc
-    - env: CONFIG=release FLAGS="-m32"
+    - env: CONFIG=Release CXX=g++-5 FLAGS="-m32"
       compiler: gcc
-    - env: CONFIG=debug FLAGS="-m64"
+    - env: CONFIG=Debug CXX=g++-5 FLAGS="-m64"
       compiler: gcc
-    - env: CONFIG=release FLAGS="-m64"
+    - env: CONFIG=Release CXX=g++-5 FLAGS="-m64"
       compiler: gcc
-    - env: CONFIG=debug FLAGS="-m32"
+    - env: CONFIG=Debug CXX=clang++ FLAGS="-m32"
       compiler: clang
-    - env: CONFIG=release FLAGS="-m32"
+    - env: CONFIG=Release CXX=clang++ FLAGS="-m32"
       compiler: clang
-    - env: CONFIG=debug FLAGS="-m64"
+    - env: CONFIG=Debug CXX=clang++ FLAGS="-m64"
       compiler: clang
-    - env: CONFIG=release FLAGS="-m64"
+    - env: CONFIG=Release CXX=clang++ FLAGS="-m64"
       compiler: clang
 
 before_script:
 - sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
 - sudo apt-get update -qq
-- sudo apt-get install -y g++-multilib lib32stdc++6 libc6-dev-i386
+- sudo apt-get install -y g++-5 g++-multilib lib32stdc++6
 - cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_CXX_FLAGS=$FLAGS
 
 script:

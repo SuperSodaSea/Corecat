@@ -43,13 +43,13 @@ namespace Impl {
 template <typename T, typename = void>
 struct SwapBytes;
 template <typename T>
-struct SwapBytes<T, typename std::enable_if<sizeof(T) == 1>::type> {
+struct SwapBytes<T, std::enable_if_t<sizeof(T) == 1>> {
     
     static T swapBytes(T t) { return t; }
     
 };
 template <typename T>
-struct SwapBytes<T, typename std::enable_if<sizeof(T) == 2>::type> {
+struct SwapBytes<T, std::enable_if_t<sizeof(T) == 2>> {
     
     static T swapBytes(T t) {
         
@@ -61,7 +61,7 @@ struct SwapBytes<T, typename std::enable_if<sizeof(T) == 2>::type> {
     
 };
 template <typename T>
-struct SwapBytes<T, typename std::enable_if<sizeof(T) == 4>::type> {
+struct SwapBytes<T, std::enable_if_t<sizeof(T) == 4>> {
     
     static T swapBytes(T t) {
         
@@ -74,7 +74,7 @@ struct SwapBytes<T, typename std::enable_if<sizeof(T) == 4>::type> {
     
 };
 template <typename T>
-struct SwapBytes<T, typename std::enable_if<sizeof(T) == 8>::type> {
+struct SwapBytes<T, std::enable_if_t<sizeof(T) == 8>> {
     
     static T swapBytes(T t) {
         

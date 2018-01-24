@@ -41,41 +41,43 @@ inline namespace Util {
 
 namespace Impl {
 
-template <class T>
-struct IsReferenceWrapper : std::false_type {};
-template <class T>
-struct IsReferenceWrapper<std::reference_wrapper<T>> : std::true_type {};
+template <typename T>
+struct IsReferenceWrapperImpl { static constexpr bool VALUE = false; };
+template <typename T>
+struct IsReferenceWrapperImpl<std::reference_wrapper<T>> : std::true_type { static constexpr bool VALUE = true; };
+template <typename T>
+constexpr bool IsReferenceWrapper = IsReferenceWrapperImpl<T>::VALUE;
 
 #define INVOKE_IMPL_EXPR std::forward<F>(f)(std::forward<Arg>(arg)...)
 template <typename F, typename... Arg>
-constexpr auto invokeImpl(F&& f, Arg&&... arg) noexcept(noexcept(INVOKE_IMPL_EXPR)) -> decltype(INVOKE_IMPL_EXPR) { return INVOKE_IMPL_EXPR; }
+constexpr decltype(auto) invokeImpl(F&& f, Arg&&... arg) noexcept(noexcept(INVOKE_IMPL_EXPR)) { return INVOKE_IMPL_EXPR; }
 #undef INVOKE_IMPL_EXPR
 
 #define INVOKE_IMPL_MEMBER_FUNCTION(cond, expr) \
-    template <typename F, typename C, typename T, typename = typename std::enable_if<std::is_function<F>::value && (cond)>::type, typename... Arg> \
-    constexpr auto invokeImpl(F C::* f, T&& t, Arg&&... arg) noexcept(noexcept(expr)) -> decltype(expr) { return expr; }
+    template <typename F, typename C, typename T, std::enable_if_t<std::is_function<F>::value && (cond)>* = 0, typename... Arg> \
+    constexpr decltype(auto) invokeImpl(F C::* f, T&& t, Arg&&... arg) noexcept(noexcept(expr)) { return expr; }
 INVOKE_IMPL_MEMBER_FUNCTION(
-    (std::is_base_of<C, typename std::decay<T>::type>::value),
+    (std::is_base_of<C, std::decay_t<T>>::value),
     (std::forward<T>(t).*f)(std::forward<Arg>(arg)...));
 INVOKE_IMPL_MEMBER_FUNCTION(
-    (IsReferenceWrapper<typename std::decay<T>::type>::value),
+    (IsReferenceWrapper<std::decay_t<T>>),
     (t.get().*f)(std::forward<Arg>(arg)...));
 INVOKE_IMPL_MEMBER_FUNCTION(
-    (!std::is_base_of<C, typename std::decay<T>::type>::value && !IsReferenceWrapper<typename std::decay<T>::type>::value),
+    (!std::is_base_of<C, std::decay_t<T>>::value && !IsReferenceWrapper<std::decay_t<T>>),
     ((*std::forward<T>(t)).*f)(std::forward<Arg>(arg)...));
 #undef INVOKE_IMPL_MEMBER_FUNCTION
 
 #define INVOKE_IMPL_MEMBER_OBJECT(cond, expr) \
-    template <typename F, typename C, typename T, typename = typename std::enable_if<!std::is_function<F>::value && (cond)>::type> \
-    constexpr auto invokeImpl(F C::* f, T&& t) noexcept(noexcept(expr)) -> decltype(expr) { return expr; }
+    template <typename F, typename C, typename T, std::enable_if_t<!std::is_function<F>::value && (cond)>* = 0> \
+    constexpr decltype(auto) invokeImpl(F C::* f, T&& t) noexcept(noexcept(expr)) { return expr; }
 INVOKE_IMPL_MEMBER_OBJECT(
-    (std::is_base_of<C, typename std::decay<T>::type>::value),
+    (std::is_base_of<C, std::decay_t<T>>::value),
     std::forward<T>(t).*f);
 INVOKE_IMPL_MEMBER_OBJECT(
-    (IsReferenceWrapper<typename std::decay<T>::type>::value),
+    (IsReferenceWrapper<std::decay_t<T>>),
     t.get().*f);
 INVOKE_IMPL_MEMBER_OBJECT(
-    (!std::is_base_of<C, typename std::decay<T>::type>::value && !IsReferenceWrapper<typename std::decay<T>::type>::value),
+    (!std::is_base_of<C, std::decay_t<T>>::value && !IsReferenceWrapper<std::decay_t<T>>),
     (*std::forward<T>(t)).*f);
 #undef INVOKE_IMPL_MEMBER_OBJECT
 
@@ -83,7 +85,7 @@ INVOKE_IMPL_MEMBER_OBJECT(
 
 #define INVOKE_EXPR Impl::invokeImpl(std::forward<F>(f), std::forward<Arg>(arg)...)
 template <typename F, typename... Arg>
-constexpr auto invoke(F&& f, Arg&&... arg) noexcept(noexcept(INVOKE_EXPR)) -> decltype(INVOKE_EXPR) { return INVOKE_EXPR; }
+constexpr decltype(auto) invoke(F&& f, Arg&&... arg) noexcept(noexcept(INVOKE_EXPR)) { return INVOKE_EXPR; }
 #undef INVOKE_EXPR
 
 namespace Impl {
@@ -106,16 +108,16 @@ namespace Impl {
 
 #define APPLY_IMPL_EXPR Util::invoke(std::forward<F>(f), std::get<I>(std::forward<T>(t))...)
 template <typename F, typename T, std::size_t... I>
-constexpr auto applyImpl(F&& f, T&& t, Sequence<std::size_t, I...>) noexcept(noexcept(APPLY_IMPL_EXPR)) -> decltype(APPLY_IMPL_EXPR) { return APPLY_IMPL_EXPR; }
+constexpr decltype(auto) applyImpl(F&& f, T&& t, Sequence<std::size_t, I...>) noexcept(noexcept(APPLY_IMPL_EXPR)) { return APPLY_IMPL_EXPR; }
 #undef APPLY_IMPL_EXPR
 
 }
 
 #define APPLY_EXPR \
     Impl::applyImpl(std::forward<F>(f), std::forward<T>(t), \
-        IndexSequence<std::size_t, 0, std::tuple_size<typename std::remove_reference<T>::type>::value>())
+        IndexSequence<std::size_t, 0, std::tuple_size<std::remove_reference_t<T>>::value>())
 template <typename F, typename T>
-constexpr auto apply(F&& f, T&& t) noexcept(noexcept(APPLY_EXPR)) -> decltype(APPLY_EXPR) { return APPLY_EXPR; }
+constexpr decltype(auto) apply(F&& f, T&& t) noexcept(noexcept(APPLY_EXPR)) { return APPLY_EXPR; }
 #undef APPLY_EXPR
 
 }

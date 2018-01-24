@@ -73,7 +73,7 @@ public:
     
 };
 template <typename T>
-class WrapperInputStream<T, typename std::enable_if<std::is_base_of<std::istream, T>::value>::type> : public InputStream<char> {
+class WrapperInputStream<T, std::enable_if_t<std::is_base_of<std::istream, T>::value>> : public InputStream<char> {
     
 private:
     

@@ -50,13 +50,12 @@ namespace Impl {
 
 template <typename T, typename, template <typename...> class Op, typename... Arg>
 struct DetectorImpl {
-    using ValueType = std::false_type;
     static constexpr bool VALUE = false;
     using Type = T;
 };
 template <typename T, template <typename...> class Op, typename... Arg>
 struct DetectorImpl<T, VoidType<Op<Arg...>>, Op, Arg...> {
-    using ValueType = std::true_type;
+    static constexpr bool VALUE = true;
     using Type = Op<Arg...>;
 };
 
@@ -64,15 +63,15 @@ struct DetectorImpl<T, VoidType<Op<Arg...>>, Op, Arg...> {
 template <typename T, template <typename...> class Op, typename... Arg>
 using Detector = Impl::DetectorImpl<T, void, Op, Arg...>;
 template <template <typename...> class Op, typename... Arg>
-using IsDetected = typename Detector<None, Op, Arg...>::ValueType;
+constexpr bool IsDetected = Detector<None, Op, Arg...>::VALUE;
 template <template <typename...> class Op, typename... Arg>
 using DetectedType = typename Detector<None, Op, Arg...>::Type;
 template <typename T, template <typename...> class Op, typename... Arg>
 using DetectedOrType = typename Detector<T, Op, Arg...>::Type;
 template <typename T, template <typename...> class Op, typename... Arg>
-using IsDetectedExactly = typename std::is_same<DetectedType<Op, Arg...>, T>::type;
+constexpr bool IsDetectedExactly = std::is_same<DetectedType<Op, Arg...>, T>::value;
 template <typename T, template <typename...> class Op, typename... Arg>
-using IsDetectedConvertible = typename std::is_convertible<DetectedType<Op, Arg...>, T>::type;
+constexpr bool IsDetectedConvertible = std::is_convertible<DetectedType<Op, Arg...>, T>::value;
 
 }
 }

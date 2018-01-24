@@ -53,11 +53,11 @@ public:
         using DiffType = typename Traits::DifferenceType;
         
         template <typename X>
-        using EnableIfForwardIterator = typename std::enable_if<IterTraits::IS_FORWARD_ITERATOR, X>::type;
+        using EnableIfForwardIterator = std::enable_if_t<IterTraits::IS_FORWARD_ITERATOR, X>;
         template <typename X>
-        using EnableIfBidirectionalIterator = typename std::enable_if<IterTraits::IS_BIDIRECTIONAL_ITERATOR, X>::type;
+        using EnableIfBidirectionalIterator = std::enable_if_t<IterTraits::IS_BIDIRECTIONAL_ITERATOR, X>;
         template <typename X>
-        using EnableIfRandomAccessIterator = typename std::enable_if<IterTraits::IS_RANDOM_ACCESS_ITERATOR, X>::type;
+        using EnableIfRandomAccessIterator = std::enable_if_t<IterTraits::IS_RANDOM_ACCESS_ITERATOR, X>;
         
         const TransformRange* r;
         Iter i;
@@ -130,7 +130,7 @@ struct TransformRangeFunc {
     template <typename F>
     RangeOperator<TransformRangeFunc, F> operator ()(F&& f) const { return {*this, std::forward<F>(f)}; }
     template <typename R, typename F>
-    TransformRange<typename std::decay<R>::type, typename std::decay<F>::type> operator ()(R&& r, F&& f) const { return {std::forward<R>(r), std::forward<F>(f)}; }
+    TransformRange<std::decay_t<R>, std::decay_t<F>> operator ()(R&& r, F&& f) const { return {std::forward<R>(r), std::forward<F>(f)}; }
     
 };
 
