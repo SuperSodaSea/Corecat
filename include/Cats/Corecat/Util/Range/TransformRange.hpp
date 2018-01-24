@@ -130,7 +130,7 @@ struct TransformRangeFunc {
     template <typename F>
     RangeOperator<TransformRangeFunc, F> operator ()(F&& f) const { return {*this, std::forward<F>(f)}; }
     template <typename R, typename F>
-    TransformRange<std::decay_t<R>, std::decay_t<F>> operator ()(R&& r, F&& f) const { return {std::forward<R>(r), std::forward<F>(f)}; }
+    TransformRange<std::remove_cv_t<std::remove_reference_t<R>>, std::remove_cv_t<std::remove_reference_t<F>>> operator ()(R&& r, F&& f) const { return {std::forward<R>(r), std::forward<F>(f)}; }
     
 };
 

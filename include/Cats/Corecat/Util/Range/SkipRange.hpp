@@ -70,7 +70,7 @@ struct SkipRangeFunc {
     template <typename T>
     RangeOperator<SkipRangeFunc, T> operator ()(T count) const { return {*this, count}; }
     template <typename R>
-    SkipRange<std::decay_t<R>> operator ()(R&& r, typename RangeTraits<R>::DifferenceType count) const { return {std::forward<R>(r), count}; }
+    SkipRange<std::remove_cv_t<std::remove_reference_t<R>>> operator ()(R&& r, typename RangeTraits<R>::DifferenceType count) const { return {std::forward<R>(r), count}; }
     
 };
 

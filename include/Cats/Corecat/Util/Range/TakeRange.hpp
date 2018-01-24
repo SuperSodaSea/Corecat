@@ -70,7 +70,7 @@ struct TakeRangeFunc {
     template <typename T>
     RangeOperator<TakeRangeFunc, T> operator ()(T count) const { return {*this, count}; }
     template <typename R>
-    TakeRange<std::decay_t<R>> operator ()(R&& r, typename RangeTraits<R>::DifferenceType count) const { return {std::forward<R>(r), count}; }
+    TakeRange<std::remove_cv_t<std::remove_reference_t<R>>> operator ()(R&& r, typename RangeTraits<R>::DifferenceType count) const { return {std::forward<R>(r), count}; }
     
 };
 

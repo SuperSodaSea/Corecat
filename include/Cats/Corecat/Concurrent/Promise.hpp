@@ -187,7 +187,7 @@ public:
         }
         
     }
-    template <typename U = T, typename = EnableIfNotVoid<U>, typename = EnableIfNotPromise<typename std::decay_t<U>>>
+    template <typename U = T, typename = EnableIfNotVoid<U>, typename = EnableIfNotPromise<std::remove_cv_t<std::remove_reference_t<U>>>>
     void resolve(U&& u) {
         
         std::unique_lock<Mutex> lock(mutex);
