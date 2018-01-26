@@ -39,6 +39,10 @@ inline namespace Util {
 template <typename R, typename F>
 class TransformRange {
     
+private:
+    
+    using Iter = typename RangeTraits<R>::IteratorType;
+    
 public:
     
     class Iterator {
@@ -47,22 +51,41 @@ public:
         
         friend TransformRange;
         
-        using Traits = RangeTraits<R>;
-        using Iter = typename Traits::IteratorType;
-        using IterTraits = IteratorTraits<Iter>;
-        using DiffType = typename Traits::DifferenceType;
+    public:
+        
+        using value_type = decltype(std::declval<F>()(*std::declval<Iter>()));
+        using difference_type = typename std::iterator_traits<Iter>::difference_type;
+        using reference = value_type&;
+        using iterator_category = typename std::iterator_traits<Iter>::iterator_category;
+        
+        class pointer {
+            
+        private:
+            
+            value_type data;
+            
+        public:
+            
+            pointer(value_type data_) : data(std::move(data_)) {}
+            
+            const value_type& operator *() const noexcept { return data; }
+            value_type& operator *() noexcept { return data; }
+            const value_type* operator ->() const noexcept { return &data; }
+            value_type* operator ->() noexcept { return &data; }
+            
+        };
+        
+    private: 
         
         template <typename X>
-        using EnableIfForwardIterator = std::enable_if_t<IterTraits::IS_FORWARD_ITERATOR, X>;
+        using EnableIfForwardIterator = std::enable_if_t<IsForwardIterator<Iter>, X>;
         template <typename X>
-        using EnableIfBidirectionalIterator = std::enable_if_t<IterTraits::IS_BIDIRECTIONAL_ITERATOR, X>;
+        using EnableIfBidirectionalIterator = std::enable_if_t<IsBidirectionalIterator<Iter>, X>;
         template <typename X>
-        using EnableIfRandomAccessIterator = std::enable_if_t<IterTraits::IS_RANDOM_ACCESS_ITERATOR, X>;
+        using EnableIfRandomAccessIterator = std::enable_if_t<IsRandomAccessIterator<Iter>, X>;
         
         const TransformRange* r;
         Iter i;
-        
-        using ValueType = decltype(r->f(*i));
         
     private:
         
@@ -70,7 +93,8 @@ public:
         
     public:
         
-        ValueType operator *() const { return r->f(*i); }
+        value_type operator *() const { return r->f(*i); }
+        pointer operator ->() const { return **this; }
         Iterator& operator ++() { ++i; return *this; }
         friend bool operator ==(const Iterator& a, const Iterator& b) { return a.i == b.i; }
         friend bool operator !=(const Iterator& a, const Iterator& b) { return a.i != b.i; }
@@ -84,19 +108,19 @@ public:
         EnableIfBidirectionalIterator<X> operator --(int) { auto t = *this; --i; return t; }
         
         template <typename X = Iterator&>
-        EnableIfRandomAccessIterator<X> operator +=(DiffType n) { i += n; return *this; }
+        EnableIfRandomAccessIterator<X> operator +=(difference_type n) { i += n; return *this; }
         template <typename X = Iterator&>
-        EnableIfRandomAccessIterator<X> operator -=(DiffType n) { i -= n; return *this; }
+        EnableIfRandomAccessIterator<X> operator -=(difference_type n) { i -= n; return *this; }
         template <typename X = Iterator>
-        friend EnableIfRandomAccessIterator<X> operator +(Iterator a, DiffType b) { return a += b; }
+        friend EnableIfRandomAccessIterator<X> operator +(Iterator a, difference_type b) { return a += b; }
         template <typename X = Iterator>
-        friend EnableIfRandomAccessIterator<X> operator +(DiffType a, Iterator b) { return b += a; }
+        friend EnableIfRandomAccessIterator<X> operator +(difference_type a, Iterator b) { return b += a; }
         template <typename X = Iterator>
-        friend EnableIfRandomAccessIterator<X> operator -(Iterator a, DiffType b) { return a -= b; }
-        template <typename X = DiffType>
+        friend EnableIfRandomAccessIterator<X> operator -(Iterator a, difference_type b) { return a -= b; }
+        template <typename X = difference_type>
         friend EnableIfRandomAccessIterator<X> operator -(const Iterator& a, const Iterator& b) { return a.i - b.i; }
-        template <typename X = ValueType>
-        EnableIfRandomAccessIterator<X> operator [](DiffType n) { return *(*this + n); }
+        template <typename X = value_type>
+        EnableIfRandomAccessIterator<X> operator [](difference_type n) { return *(*this + n); }
         template <typename X = bool>
         friend EnableIfRandomAccessIterator<X> operator <(const Iterator& a, const Iterator& b) { return a.i < b.i; }
         template <typename X = bool>

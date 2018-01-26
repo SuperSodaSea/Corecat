@@ -29,6 +29,7 @@
 
 
 #include <algorithm>
+#include <iterator>
 #include <type_traits>
 #include <utility>
 
@@ -40,40 +41,14 @@ namespace Corecat {
 inline namespace Util {
 
 template <typename I>
-using IteratorConcept = VoidType<
-    decltype(*std::declval<I>()),
-    decltype(std::declval<I>() == std::declval<I>()),
-    decltype(std::declval<I>() != std::declval<I>())>;
+using InputIteratorConcept = std::enable_if_t<std::is_base_of<std::input_iterator_tag, typename std::iterator_traits<I>::iterator_category>::value>;
 template <typename I>
-using InputIteratorConcept = VoidType<
-    IteratorConcept<I>,
-    decltype(++std::declval<I&>())>;
+using ForwardIteratorConcept = std::enable_if_t<std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<I>::iterator_category>::value>;
 template <typename I>
-using ForwardIteratorConcept = VoidType<
-    InputIteratorConcept<I>,
-    decltype(std::declval<I&>()++)>;
+using BidirectionalIteratorConcept = std::enable_if_t<std::is_base_of<std::bidirectional_iterator_tag, typename std::iterator_traits<I>::iterator_category>::value>;
 template <typename I>
-using BidirectionalIteratorConcept = VoidType<
-    ForwardIteratorConcept<I>,
-    decltype(--std::declval<I&>()),
-    decltype(std::declval<I&>()--)>;
-template <typename I>
-using RandomAccessIteratorConcept = VoidType<
-    BidirectionalIteratorConcept<I>,
-    decltype(std::declval<I&>() += std::declval<decltype(std::declval<I>() - std::declval<I>())>()),
-    decltype(std::declval<I&>() -= std::declval<decltype(std::declval<I>() - std::declval<I>())>()),
-    decltype(std::declval<I>() + std::declval<decltype(std::declval<I>() - std::declval<I>())>()),
-    decltype(std::declval<decltype(std::declval<I>() - std::declval<I>())>() + std::declval<I>()),
-    decltype(std::declval<I>() - std::declval<decltype(std::declval<I>() - std::declval<I>())>()),
-    decltype(std::declval<I>() - std::declval<I>()),
-    decltype(std::declval<I>()[std::declval<decltype(std::declval<I>() - std::declval<I>())>()]),
-    decltype(std::declval<I>() < std::declval<I>()),
-    decltype(std::declval<I>() > std::declval<I>()),
-    decltype(std::declval<I>() <= std::declval<I>()),
-    decltype(std::declval<I>() >= std::declval<I>())>;
+using RandomAccessIteratorConcept = std::enable_if_t<std::is_base_of<std::random_access_iterator_tag, typename std::iterator_traits<I>::iterator_category>::value>;
 
-template <typename I>
-constexpr bool IsIterator = IsDetected<IteratorConcept, I>;
 template <typename I>
 constexpr bool IsInputIterator = IsDetected<InputIteratorConcept, I>;
 template <typename I>
@@ -83,46 +58,24 @@ constexpr bool IsBidirectionalIterator = IsDetected<BidirectionalIteratorConcept
 template <typename I>
 constexpr bool IsRandomAccessIterator = IsDetected<RandomAccessIteratorConcept, I>;
 
-template <typename I>
-struct IteratorTraits {
-    
-public:
-    
-    using ValueType = std::decay_t<decltype(*std::declval<I>())>;
-    using ReferenceType = ValueType&;
-    
-private:
-    
-    template <typename X>
-    using DifferenceTypeImpl = decltype(std::declval<X>() - std::declval<X>());
-    
-public:
-    
-    using DifferenceType = DetectedType<DifferenceTypeImpl, I>;
-    
-public:
-    
-    static constexpr bool IS_INPUT_ITERATOR = IsInputIterator<I>;
-    static constexpr bool IS_FORWARD_ITERATOR = IsForwardIterator<I>;
-    static constexpr bool IS_BIDIRECTIONAL_ITERATOR = IsBidirectionalIterator<I>;
-    static constexpr bool IS_RANDOM_ACCESS_ITERATOR = IsRandomAccessIterator<I>;
-    
-};
-
 
 template <typename I>
 class ReverseIterator {
     
+public:
+    
+    static_assert(IsBidirectionalIterator<I>, "ReverseIterator must be bidirectional");
+    
+    using value_type = typename std::iterator_traits<I>::value_type;
+    using difference_type = typename std::iterator_traits<I>::difference_type;
+    using pointer = typename std::iterator_traits<I>::pointer;
+    using reference = typename std::iterator_traits<I>::reference;
+    using iterator_category = typename std::iterator_traits<I>::iterator_category;
+    
 private:
     
-    using Traits = IteratorTraits<I>;
-    using ValueType = typename Traits::ValueType;
-    using DiffType = typename Traits::DifferenceType;
-    
-    static_assert(Traits::IS_BIDIRECTIONAL_ITERATOR, "ReverseIterator must be bidirectional");
-    
     template <typename X>
-    using EnableIfRandomAccessIterator = std::enable_if_t<Traits::IS_RANDOM_ACCESS_ITERATOR, X>;
+    using EnableIfRandomAccessIterator = std::enable_if_t<IsRandomAccessIterator<I>, X>;
     
     I i;
     
@@ -130,7 +83,8 @@ public:
     
     ReverseIterator(I i_) : i(std::move(i_)) {}
     
-    ValueType operator *() const { return *--I(i); }
+    value_type operator *() const { return *--I(i); }
+    pointer operator ->() const { return (--I(i)).operator ->(); }
     ReverseIterator& operator ++() { --i; return *this; }
     friend bool operator ==(const ReverseIterator& a, const ReverseIterator& b) { return a.i == b.i; }
     friend bool operator !=(const ReverseIterator& a, const ReverseIterator& b) { return a.i != b.i; }
@@ -141,19 +95,19 @@ public:
     ReverseIterator& operator --(int) { auto t = *this; ++i; return t; }
     
     template <typename X = ReverseIterator&>
-    EnableIfRandomAccessIterator<X> operator +=(DiffType n) { i -= n; return *this; }
+    EnableIfRandomAccessIterator<X> operator +=(difference_type n) { i -= n; return *this; }
     template <typename X = ReverseIterator&>
-    EnableIfRandomAccessIterator<X> operator -=(DiffType n) { i += n; return *this; }
+    EnableIfRandomAccessIterator<X> operator -=(difference_type n) { i += n; return *this; }
     template <typename X = ReverseIterator>
-    friend EnableIfRandomAccessIterator<X> operator +(ReverseIterator a, DiffType b) { return a += b; }
+    friend EnableIfRandomAccessIterator<X> operator +(ReverseIterator a, difference_type b) { return a += b; }
     template <typename X = ReverseIterator>
-    friend EnableIfRandomAccessIterator<X> operator +(DiffType a, ReverseIterator b) { return b += a; }
+    friend EnableIfRandomAccessIterator<X> operator +(difference_type a, ReverseIterator b) { return b += a; }
     template <typename X = ReverseIterator>
-    friend EnableIfRandomAccessIterator<X> operator -(ReverseIterator a, DiffType b) { return a -= b; }
-    template <typename X = DiffType>
+    friend EnableIfRandomAccessIterator<X> operator -(ReverseIterator a, difference_type b) { return a -= b; }
+    template <typename X = difference_type>
     friend EnableIfRandomAccessIterator<X> operator -(const ReverseIterator& a, const ReverseIterator& b) { return b.i - a.i; }
-    template <typename X = ValueType>
-    EnableIfRandomAccessIterator<X> operator [](DiffType n) { return *(*this + n); }
+    template <typename X = value_type>
+    EnableIfRandomAccessIterator<X> operator [](difference_type n) { return *(*this + n); }
     template <typename X = bool>
     friend EnableIfRandomAccessIterator<X> operator <(const ReverseIterator& a, const ReverseIterator& b) { return b.i < a.i; }
     template <typename X = bool>
@@ -167,14 +121,14 @@ public:
 
 
 template <typename I, typename T>
-std::enable_if_t<!IteratorTraits<I>::IS_RANDOM_ACCESS_ITERATOR, I> advanceUntil(I b, I e, T count) {
+std::enable_if_t<!IsRandomAccessIterator<I>, I> advanceUntil(I b, I e, T count) {
     
     for(T i = T(); b != e && i < count; ++b, ++i);
     return b;
     
 }
 template <typename I, typename T>
-std::enable_if_t<IteratorTraits<I>::IS_RANDOM_ACCESS_ITERATOR, I> advanceUntil(I b, I e, T count) {
+std::enable_if_t<IsRandomAccessIterator<I>, I> advanceUntil(I b, I e, T count) {
     
     return b + std::min(count, e - b);
     

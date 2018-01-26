@@ -36,7 +36,7 @@ using namespace Cats::Corecat;
 
 decltype(auto) printRange() {
     
-    return [first = true](int x) mutable {
+    return [first = true](auto&& x) mutable {
         if(first) first = false;
         else std::cout << ", ";
         std::cout << x;

@@ -47,7 +47,15 @@ public:
         
         friend IotaRange;
         
-        using DifferenceType = std::make_signed_t<T>;
+    public:
+        
+        using value_type = T;
+        using difference_type = std::make_signed_t<value_type>;
+        using pointer = T*;
+        using reference = T&;
+        using iterator_category = std::random_access_iterator_tag;
+        
+    private:
         
         T data, step;
         bool end;
@@ -60,6 +68,7 @@ public:
     public:
         
         T operator *() const { return data; }
+        const T* operator ->() const { return &data; }
         Iterator& operator ++() { data += step; return *this; }
         friend bool operator ==(const Iterator& a, const Iterator& b) { return !a.end && !b.end && a.data == b.data; }
         friend bool operator !=(const Iterator& a, const Iterator& b) { return a.end || b.end || a.data != b.data; }
@@ -69,20 +78,20 @@ public:
         Iterator& operator --() { data -= step; return *this; }
         Iterator& operator --(int) { auto t = *this; data -= step; return t; }
         
-        Iterator& operator +=(DifferenceType n) { data += step * n; return *this; }
-        Iterator& operator -=(DifferenceType n) { data -= step * n; return *this; }
-        friend Iterator operator +(Iterator a, DifferenceType b) { return a += b; }
-        friend Iterator operator +(DifferenceType a, Iterator b) { return b += a; }
-        friend Iterator operator -(Iterator a, DifferenceType b) { return a -= b; }
-        friend DifferenceType operator -(const Iterator& a, const Iterator& b) {
+        Iterator& operator +=(difference_type n) { data += step * n; return *this; }
+        Iterator& operator -=(difference_type n) { data -= step * n; return *this; }
+        friend Iterator operator +(Iterator a, difference_type b) { return a += b; }
+        friend Iterator operator +(difference_type a, Iterator b) { return b += a; }
+        friend Iterator operator -(Iterator a, difference_type b) { return a -= b; }
+        friend difference_type operator -(const Iterator& a, const Iterator& b) {
             
-            return (a.end && b.end) ? DifferenceType()
-                : a.end ? std::numeric_limits<DifferenceType>::max()
-                : b.end ? std::numeric_limits<DifferenceType>::min()
-                : (DifferenceType(a.data - b.data) / a.step);
+            return (a.end && b.end) ? difference_type()
+                : a.end ? std::numeric_limits<difference_type>::max()
+                : b.end ? std::numeric_limits<difference_type>::min()
+                : (difference_type(a.data - b.data) / a.step);
             
         }
-        T operator [](DifferenceType n) { return *(*this + n); }
+        T operator [](difference_type n) { return *(*this + n); }
         friend bool operator <(const Iterator& a, const Iterator& b) { return !a.end && (b.end || ((a.step < 0) ^ (a.data < b.data))); }
         friend bool operator >(const Iterator& a, const Iterator& b) { return b < a; }
         friend bool operator <=(const Iterator& a, const Iterator& b) { return !(b < a); }

@@ -39,6 +39,10 @@ inline namespace Util {
 template <typename R, typename F>
 class FilterRange {
     
+private:
+    
+    using Iter = typename RangeTraits<R>::IteratorType;
+    
 public:
     
     class Iterator {
@@ -47,15 +51,20 @@ public:
         
         friend FilterRange;
         
-        using Traits = RangeTraits<R>;
-        using Iter = typename Traits::IteratorType;
-        using IterTraits = IteratorTraits<Iter>;
-        using ValueType = typename IterTraits::ValueType;
+    public:
+        
+        using value_type = typename std::iterator_traits<Iter>::value_type;
+        using difference_type = typename std::iterator_traits<Iter>::difference_type;
+        using pointer = typename std::iterator_traits<Iter>::pointer;
+        using reference = typename std::iterator_traits<Iter>::reference;
+        using iterator_category = typename std::iterator_traits<Iter>::iterator_category;
+        
+    private:
         
         template <typename X>
-        using EnableIfForwardIterator = std::enable_if_t<IterTraits::IS_FORWARD_ITERATOR, X>;
+        using EnableIfForwardIterator = std::enable_if_t<IsForwardIterator<Iter>, X>;
         template <typename X>
-        using EnableIfBidirectionalIterator = std::enable_if_t<IterTraits::IS_BIDIRECTIONAL_ITERATOR, X>;
+        using EnableIfBidirectionalIterator = std::enable_if_t<IsBidirectionalIterator<Iter>, X>;
         
         const FilterRange* r;
         Iter i;
@@ -66,7 +75,8 @@ public:
         
     public:
         
-        ValueType operator *() const { return *i; }
+        value_type operator *() const { return *i; }
+        pointer operator ->() const { return i.operator ->(); }
         Iterator& operator ++() {
             
             while(i != std::end(r->r) && !r->f(*++i));
@@ -95,7 +105,7 @@ private:
     
     R r;
     F f;
-    typename RangeTraits<R>::IteratorType b;
+    Iter b;
     
 public:
     

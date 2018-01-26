@@ -38,10 +38,11 @@ using namespace Cats::Corecat;
 
 int main() {
     
-    std::cout << std::boolalpha << std::hex;
+    std::cout << std::boolalpha;
     
-    PRINTEX(X86Feature::MAX_BASIC_CPUID, << "0x" << std::setw(8) << std::setfill('0')); 
-    PRINTEX(X86Feature::MAX_EXTENDED_CPUID, << "0x" << std::setw(8) << std::setfill('0')); 
+    std::cout << std::hex << std::uppercase << std::setfill('0');
+    PRINTEX(X86Feature::MAX_BASIC_CPUID, << "0x" << std::setw(8));
+    PRINTEX(X86Feature::MAX_EXTENDED_CPUID, << "0x" << std::setw(8));
     std::cout << std::endl;
     
     PRINT(X86Feature::VENDOR);

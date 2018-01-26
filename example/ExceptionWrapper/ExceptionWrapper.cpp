@@ -41,7 +41,7 @@ ExceptionWrapper func1() {
 }
 ExceptionWrapper func2() {
     
-    return std::runtime_error("Runtime error");
+    return Exception("ExceptionWrapper example");
     
 }
 

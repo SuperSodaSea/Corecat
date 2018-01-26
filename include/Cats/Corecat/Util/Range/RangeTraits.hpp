@@ -59,9 +59,9 @@ template <typename R>
 struct RangeTraits {
     
     using IteratorType = decltype(std::begin(std::declval<R>()));
-    using ValueType = typename IteratorTraits<IteratorType>::ValueType;
-    using ReferenceType = typename IteratorTraits<IteratorType>::ReferenceType;
-    using DifferenceType = typename IteratorTraits<IteratorType>::DifferenceType;
+    using ValueType = typename std::iterator_traits<IteratorType>::value_type;
+    using ReferenceType = typename std::iterator_traits<IteratorType>::reference;
+    using DifferenceType = typename std::iterator_traits<IteratorType>::difference_type;
     
     static constexpr bool IS_SIZED_RANGE = IsSizedRange<R>;
     
