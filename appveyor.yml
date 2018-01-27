@@ -7,10 +7,6 @@ configuration:
 
 environment:
   matrix:
-  - VS_VERSION: 14 2015
-    VS_PLATFORM: win32
-  - VS_VERSION: 14 2015
-    VS_PLATFORM: x64
   - VS_VERSION: 15 2017
     VS_PLATFORM: win32
   - VS_VERSION: 15 2017

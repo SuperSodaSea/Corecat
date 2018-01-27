@@ -34,14 +34,18 @@
 using namespace Cats::Corecat;
 
 
-auto printRange = [first = true](auto&& x) mutable {
-    if(first) first = false;
-    else std::cout << ", ";
-    std::cout << x;
-};
+decltype(auto) printRange() {
+    
+    return [first = true](auto&& x) mutable {
+        if(first) first = false;
+        else std::cout << ", ";
+        std::cout << x;
+    };
+    
+}
 
 #define PRINT(...) do { std::cout << #__VA_ARGS__ << "\n    -> "; std::cout << (__VA_ARGS__) << std::endl; } while(0)
-#define PRINT_RANGE(...) do { std::cout << #__VA_ARGS__ << "\n    -> "; do { __VA_ARGS__ | forEach(printRange); } while(0); std::cout << std::endl; } while(0)
+#define PRINT_RANGE(...) do { std::cout << #__VA_ARGS__ << "\n    -> "; do { __VA_ARGS__ | forEach(printRange()); } while(0); std::cout << std::endl; } while(0)
 
 int main() {
     

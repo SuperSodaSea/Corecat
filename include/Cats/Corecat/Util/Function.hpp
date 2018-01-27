@@ -35,6 +35,7 @@
 
 #include "Sequence.hpp"
 
+
 namespace Cats {
 namespace Corecat {
 inline namespace Util {
