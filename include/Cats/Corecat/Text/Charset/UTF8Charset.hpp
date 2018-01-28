@@ -83,14 +83,14 @@ struct UTF8Charset : public Charset<T> {
             
             // 0xxxxxxx
             if(!size) return false;
-            *p++ = codepoint;
+            *p++ = T(codepoint);
             return true;
             
         } else if(codepoint <= 0x07FF) {
             
             // 110xxxxx 10xxxxxx
             if(size < 2) return false;
-            *p++ = 0xC0 | (codepoint >> 6);
+            *p++ = 0xC0 | (T(codepoint) >> 6);
             *p++ = 0x80 | (codepoint & 0x3F);
             return true;
             
@@ -98,10 +98,10 @@ struct UTF8Charset : public Charset<T> {
             
             // 1110xxxx 10xxxxxx 10xxxxxx
             if(size < 3) return false;
-            if(codepoint - 0xD800 < 0x0800) { *p++ = 0xEF; *p++ = 0xBF; *p++ = 0xBD; }
+            if(codepoint - 0xD800 < 0x0800) { *p++ = T(0xEF); *p++ = T(0xBF); *p++ = T(0xBD); }
             else {
                 
-                *p++ = 0xE0 | (codepoint >> 12);
+                *p++ = 0xE0 | (T(codepoint) >> 12);
                 *p++ = 0x80 | ((codepoint >> 6) & 0x3F);
                 *p++ = 0x80 | (codepoint & 0x3F);
                 
@@ -112,7 +112,7 @@ struct UTF8Charset : public Charset<T> {
             
             // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
             if(size < 4) return false;
-            *p++ = 0xF0 | (codepoint >> 18);
+            *p++ = 0xF0 | (T(codepoint) >> 18);
             *p++ = 0x80 | ((codepoint >> 12) & 0x3F);
             *p++ = 0x80 | ((codepoint >> 6) & 0x3F);
             *p++ = 0x80 | (codepoint & 0x3F);
@@ -121,7 +121,7 @@ struct UTF8Charset : public Charset<T> {
         } else {
             
             // Invalid code point
-            *p++ = 0xEF; *p++ = 0xBF; *p++ = 0xBD;
+            *p++ = T(0xEF); *p++ = T(0xBF); *p++ = T(0xBD);
             return true;
             
         }

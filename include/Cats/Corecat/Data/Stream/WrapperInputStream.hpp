@@ -66,7 +66,7 @@ public:
     }
     void skip(std::size_t count) override {
         
-        if(std::fseek(file, count, SEEK_CUR))
+        if(std::fseek(file, long(count), SEEK_CUR))
             throw IOException("std::fseek failed");
         
     }
