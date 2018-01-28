@@ -289,12 +289,14 @@ public:
 using String8 = String<UTF8Charset<>>;
 using String16 = String<UTF16Charset<>>;
 using String32 = String<UTF32Charset<>>;
+using WString = String<WideCharset<>>;
 
 inline namespace StringLiteral {
 
 inline String8 operator "" _s(const char* str, std::size_t len) { return {str, len}; }
 inline String16 operator "" _s(const char16_t* str, std::size_t len) { return {str, len}; }
 inline String32 operator "" _s(const char32_t* str, std::size_t len) { return {str, len}; }
+inline WString operator "" _s(const wchar_t* str, std::size_t len) { return {str, len}; }
 
 }
 
@@ -464,12 +466,14 @@ public:
 using StringView8 = StringView<UTF8Charset<>>;
 using StringView16 = StringView<UTF16Charset<>>;
 using StringView32 = StringView<UTF32Charset<>>;
+using WStringView = StringView<WideCharset<>>;
 
 inline namespace StringViewLiteral {
 
 constexpr StringView8 operator "" _sv(const char* str, std::size_t len) noexcept { return {str, len}; }
 constexpr StringView16 operator "" _sv(const char16_t* str, std::size_t len) noexcept { return {str, len}; }
 constexpr StringView32 operator "" _sv(const char32_t* str, std::size_t len) noexcept { return {str, len}; }
+constexpr WStringView operator "" _sv(const wchar_t* str, std::size_t len) noexcept { return {str, len}; }
 
 }
 

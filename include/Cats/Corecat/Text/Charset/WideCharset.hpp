@@ -24,14 +24,12 @@
  *
  */
 
-#ifndef CATS_CORECAT_TEXT_CHARSET_DEFAULTCHARSET_HPP
-#define CATS_CORECAT_TEXT_CHARSET_DEFAULTCHARSET_HPP
+#ifndef CATS_CORECAT_TEXT_CHARSET_WIDECHARSET_HPP
+#define CATS_CORECAT_TEXT_CHARSET_WIDECHARSET_HPP
 
 
-#include <type_traits>
-
-#include "UTF8Charset.hpp"
-#include "WideCharset.hpp"
+#include "UTF16Charset.hpp"
+#include "UTF32Charset.hpp"
 
 
 namespace Cats {
@@ -41,19 +39,16 @@ inline namespace Text {
 namespace Impl {
 
 template <typename T>
-struct DefaultCharsetImpl;
-template <>
-struct DefaultCharsetImpl<char> { using Type = UTF8Charset<>; };
-template <>
-struct DefaultCharsetImpl<char16_t> { using Type = UTF16Charset<>; };
-template <>
-struct DefaultCharsetImpl<char32_t> { using Type = UTF32Charset<>; };
-template <>
-struct DefaultCharsetImpl<wchar_t> { using Type = WideCharset<>; };
+struct WideCharsetImpl {
+    
+    static_assert(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4, "Unknown size of wchar_t");
+    using Type = std::conditional_t<sizeof(wchar_t) == 2, UTF16Charset<wchar_t>, UTF32Charset<wchar_t>>;
+    
+};
 
 }
-template <typename T>
-using DefaultCharset = typename Impl::DefaultCharsetImpl<T>::Type;
+template <typename T = wchar_t>
+using WideCharset = typename Impl::WideCharsetImpl<T>::Type;
 
 }
 }
