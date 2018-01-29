@@ -194,7 +194,9 @@ public:
     
     bool isEmpty() const noexcept { return !getLength(); }
     
+    bool startsWith(CharType c) const noexcept { return getView().startsWith(c); }
     bool startsWith(const StringViewType& sv) const noexcept { return getView().startsWith(sv); }
+    bool endsWith(CharType c) const noexcept { return getView().endsWith(c); }
     bool endsWith(const StringViewType& sv) const noexcept { return getView().endsWith(sv); }
     
     std::ptrdiff_t find(CharType ch, std::ptrdiff_t beginPos = 0) const noexcept { return getView().find(ch, beginPos); }
@@ -370,6 +372,7 @@ public:
     
     bool isEmpty() const noexcept { return !length; }
     
+    bool startsWith(CharType c) const noexcept { return !isEmpty() && data[0] == c; }
     bool startsWith(const StringView& sv) const noexcept {
         
         std::size_t len1 = getLength(), len2 = sv.getLength();
@@ -377,6 +380,7 @@ public:
         return StringView(getData(), len2) == sv;
         
     }
+    bool endsWith(CharType c) const noexcept { return !isEmpty() && data[getLength() - 1] == c; }
     bool endsWith(const StringView& sv) const noexcept {
         
         std::size_t len1 = getLength(), len2 = sv.getLength();
