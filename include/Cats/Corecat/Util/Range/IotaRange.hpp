@@ -73,10 +73,10 @@ public:
         friend bool operator ==(const Iterator& a, const Iterator& b) { return !a.end && !b.end && a.data == b.data; }
         friend bool operator !=(const Iterator& a, const Iterator& b) { return a.end || b.end || a.data != b.data; }
         
-        Iterator& operator ++(int) { auto t = *this; data += step; return t; }
+        Iterator operator ++(int) { auto t = *this; data += step; return t; }
         
         Iterator& operator --() { data -= step; return *this; }
-        Iterator& operator --(int) { auto t = *this; data -= step; return t; }
+        Iterator operator --(int) { auto t = *this; data -= step; return t; }
         
         Iterator& operator +=(difference_type n) { data += step * n; return *this; }
         Iterator& operator -=(difference_type n) { data -= step * n; return *this; }

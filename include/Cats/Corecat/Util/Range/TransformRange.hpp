@@ -99,12 +99,12 @@ public:
         friend bool operator ==(const Iterator& a, const Iterator& b) { return a.i == b.i; }
         friend bool operator !=(const Iterator& a, const Iterator& b) { return a.i != b.i; }
         
-        template <typename X = Iterator&>
+        template <typename X = Iterator>
         EnableIfForwardIterator<X> operator ++(int) { auto t = *this; ++i; return t; }
         
         template <typename X = Iterator&>
         EnableIfBidirectionalIterator<X> operator --() { --i; return *this; }
-        template <typename X = Iterator&>
+        template <typename X = Iterator>
         EnableIfBidirectionalIterator<X> operator --(int) { auto t = *this; --i; return t; }
         
         template <typename X = Iterator&>

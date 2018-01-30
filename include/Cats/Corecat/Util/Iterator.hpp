@@ -89,10 +89,10 @@ public:
     friend bool operator ==(const ReverseIterator& a, const ReverseIterator& b) { return a.i == b.i; }
     friend bool operator !=(const ReverseIterator& a, const ReverseIterator& b) { return a.i != b.i; }
     
-    ReverseIterator& operator ++(int) { auto t = *this; --i; return t; }
+    ReverseIterator operator ++(int) { auto t = *this; --i; return t; }
     
     ReverseIterator& operator --() { ++i; return *this; }
-    ReverseIterator& operator --(int) { auto t = *this; ++i; return t; }
+    ReverseIterator operator --(int) { auto t = *this; ++i; return t; }
     
     template <typename X = ReverseIterator&>
     EnableIfRandomAccessIterator<X> operator +=(difference_type n) { i -= n; return *this; }
