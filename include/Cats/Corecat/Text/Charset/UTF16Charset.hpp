@@ -28,8 +28,6 @@
 #define CATS_CORECAT_TEXT_CHARSET_UTF16CHARSET_HPP
 
 
-#include <cstddef>
-
 #include "Charset.hpp"
 
 
@@ -40,22 +38,24 @@ inline namespace Text {
 template <typename T = char16_t>
 struct UTF16Charset : public Charset<T> {
     
-    static const char* getName() noexcept { return "UTF-16"; }
+    static constexpr const char* NAME = "UTF-16";
+    static constexpr std::size_t MAX_CODE_UNIT = 2;
     
     static char32_t decode(const T*& p, const T* q) {
         
         std::ptrdiff_t size = q - p;
         if(!size) return 0xFFFFFFFF;
-        char32_t h = char16_t(*p++);
-        if(h - 0xD800 >= 0x0800) return h;
+        char32_t h = char16_t(*p);
+        if(h - 0xD800 >= 0x0800) { ++p; return h; }
         else if(h <= 0xDBFF) {
             
             if(size < 2) return 0xFFFFFFFF;
+            ++p;
             char32_t l = char16_t(*p++);
             if(l - 0xDC00 < 0x0400) return 0x10000 + (((h & 0x3FF) << 10) | (l & 0x3FF));
             else return 0xFFFD;
             
-        } else return 0xFFFD;
+        } else { ++p; return 0xFFFD; }
         
     }
     static bool encode(T*& p, T* q, char32_t codepoint) {

@@ -28,6 +28,8 @@
 #define CATS_CORECAT_TEXT_CHARSET_CHARSET_HPP
 
 
+#include <cstddef>
+
 #include <type_traits>
 
 
@@ -39,8 +41,6 @@ template <typename T>
 struct Charset {
     
     using CharType = T;
-    
-    static const char* getName();
     
     static char32_t decode(const T*& p, const T* q);
     static bool encode(T*& p, T* q, char32_t codepoint);

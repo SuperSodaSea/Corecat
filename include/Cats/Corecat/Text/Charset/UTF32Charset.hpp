@@ -38,7 +38,8 @@ inline namespace Text {
 template <typename T = char32_t>
 struct UTF32Charset : public Charset<T> {
     
-    static const char* getName() noexcept { return "UTF-32"; }
+    static constexpr const char* NAME = "UTF-32";
+    static constexpr std::size_t MAX_CODE_UNIT = 1;
     
     static char32_t decode(const T*& p, const T* q) {
         

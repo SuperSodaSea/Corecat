@@ -97,26 +97,13 @@ public:
     explicit String(CharType ch, std::size_t count = 1) : String() { append(ch, count); }
     explicit String(const StringViewType& sv) : String() { append(sv); }
     template <typename D>
-    explicit String(const StringView<D>& sv) : String() {
-        
-        CharType buf[8];
-        const typename D::CharType* p = sv.getData();
-        const typename D::CharType* pEnd = p + sv.getLength();
-        while(true) {
-            
-            char32_t c = D::decode(p, pEnd);
-            if(c == 0xFFFFFFFF) break;
-            CharType* q = buf;
-            C::encode(q, buf + 8, c);
-            append(buf, q - buf);
-            
-        }
-        
-    }
+    explicit String(const StringView<D>& sv) : String() { append(sv); }
     template <typename T>
     explicit String(const T* data_) : String(StringView<DefaultCharset<T>>(data_)) {}
     template <typename D>
     explicit String(const String<D>& s) : String(s.getView()) {}
+    template <typename I>
+    String(I b, I e) : String() { append(b, e); }
     String(const String& src) : String() { append(src); }
     String(String&& src) noexcept : String() { swap(src); }
     ~String() { if(!isSmall()) delete[] storage.data; }
@@ -270,6 +257,45 @@ public:
     String& append(const CharType* data_) { return append(data_, C::getLength(data_)); }
     String& append(const String& str) { return append(str.getData(), str.getLength()); }
     String& append(const StringViewType& sv) { return append(sv.getData(), sv.getLength()); }
+    template <typename D>
+    String& append(const StringView<D>& sv) {
+        
+        CharType buf[C::MAX_CODE_UNIT];
+        auto b = sv.getData(), e = b + sv.getLength();
+        while(b != e) {
+            
+            char32_t c = D::decode(b, e);
+            if(c == 0xFFFFFFFF) break;
+            auto q = buf;
+            C::encode(q, std::end(buf), c);
+            append(buf, q - buf);
+            
+        }
+        return *this;
+        
+    }
+    template <typename I, typename D = DefaultCharset<typename std::iterator_traits<I>::value_type>>
+    String& append(I b, I e) {
+        
+        typename D::CharType buf1[D::MAX_CODE_UNIT];
+        CharType buf2[C::MAX_CODE_UNIT];
+        auto q = buf1;
+        while(b != e) {
+            
+            do *q++ = *b++; while(q != std::end(buf1) && b != e);
+            const typename D::CharType* p = buf1;
+            char32_t c = D::decode(p, q);
+            if(c == 0xFFFFFFFF) break;
+            auto r = buf2;
+            C::encode(r, std::end(buf2), c);
+            append(buf2, r - buf2);
+            if(p == buf1) break;
+            q = std::copy(p, static_cast<decltype(p)>(q), buf1), p = buf1;
+            
+        }
+        return *this;
+        
+    }
     
     void swap(String& src) noexcept { std::swap(storage, src.storage); }
     
@@ -326,8 +352,8 @@ private:
 public:
     
     constexpr StringView() noexcept : data(nullptr), length(0) {}
-    StringView(const CharType* data_) noexcept : data(data_), length(C::getLength(data_)) {}
     constexpr StringView(const CharType* data_, std::size_t length_) noexcept : data(data_), length(length_) {}
+    StringView(const CharType* data_) noexcept : StringView(data_, C::getLength(data_)) {}
     constexpr StringView(const StringView& src) noexcept = default;
     ~StringView() = default;
     

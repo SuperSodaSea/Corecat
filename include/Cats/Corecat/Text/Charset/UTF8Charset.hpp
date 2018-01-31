@@ -28,8 +28,6 @@
 #define CATS_CORECAT_TEXT_CHARSET_UTF8CHARSET_HPP
 
 
-#include <cstddef>
-
 #include "Charset.hpp"
 
 
@@ -40,18 +38,20 @@ inline namespace Text {
 template <typename T = char>
 struct UTF8Charset : public Charset<T> {
     
-    static const char* getName() noexcept { return "UTF-8"; }
+    static constexpr const char* NAME = "UTF-8";
+    static constexpr std::size_t MAX_CODE_UNIT = 4;
     
     static char32_t decode(const T*& p, const T* q)  {
         
         std::ptrdiff_t size = q - p;
         if(!size) return 0xFFFFFFFF;
-        char32_t a = static_cast<unsigned char>(*p++);
-        if(a <= 0x7F) return a;
+        char32_t a = static_cast<unsigned char>(*p);
+        if(a <= 0x7F) { ++p; return a; }
         else if(a <= 0xBF) return 0xFFFD;
         else if(a <= 0xDF) {
             
             if(size < 2) return 0xFFFFFFFF;
+            ++p;
             char32_t b = static_cast<unsigned char>(*p++); if((b & 0xC0) != 0x80) return 0xFFFD;
             char32_t codepoint = ((a & 0x1F) << 6) | (b & 0x3F);
             return (codepoint >= 0x0080) ? codepoint : 0xFFFD;
@@ -59,6 +59,7 @@ struct UTF8Charset : public Charset<T> {
         } else if(a <= 0xEF) {
             
             if(size < 3) return 0xFFFFFFFF;
+            ++p;
             char32_t b = static_cast<unsigned char>(*p++); if((b & 0xC0) != 0x80) return 0xFFFD;
             char32_t c = static_cast<unsigned char>(*p++); if((c & 0xC0) != 0x80) return 0xFFFD;
             char32_t codepoint = ((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F);
@@ -67,6 +68,7 @@ struct UTF8Charset : public Charset<T> {
         } else if(a <= 0xF7) {
             
             if(size < 4) return 0xFFFFFFFF;
+            ++p;
             char32_t b = static_cast<unsigned char>(*p++); if((b & 0xC0) != 0x80) return 0xFFFD;
             char32_t c = static_cast<unsigned char>(*p++); if((c & 0xC0) != 0x80) return 0xFFFD;
             char32_t d = static_cast<unsigned char>(*p++); if((d & 0xC0) != 0x80) return 0xFFFD;
