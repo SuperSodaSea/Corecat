@@ -257,32 +257,17 @@ public:
     String& append(const CharType* data_) { return append(data_, C::getLength(data_)); }
     String& append(const String& str) { return append(str.getData(), str.getLength()); }
     String& append(const StringViewType& sv) { return append(sv.getData(), sv.getLength()); }
-    template <typename D>
-    String& append(const StringView<D>& sv) {
-        
-        CharType buf[C::MAX_CODE_UNIT];
-        auto b = sv.getData(), e = b + sv.getLength();
-        while(b != e) {
-            
-            char32_t c = D::decode(b, e);
-            if(c == 0xFFFFFFFF) break;
-            auto q = buf;
-            C::encode(q, std::end(buf), c);
-            append(buf, q - buf);
-            
-        }
-        return *this;
-        
-    }
-    template <typename I, typename D = DefaultCharset<typename std::iterator_traits<I>::value_type>>
+    template <typename D, typename = std::enable_if_t<!std::is_same<C, D>::value>>
+    String& append(const StringView<D>& sv) { return append(sv.begin(), sv.end()); }
+    template <typename I, typename D = DefaultCharset<typename std::iterator_traits<I>::value_type>, typename = std::enable_if_t<!std::is_pointer<I>::value>>
     String& append(I b, I e) {
         
         typename D::CharType buf1[D::MAX_CODE_UNIT];
         CharType buf2[C::MAX_CODE_UNIT];
         auto q = buf1;
-        while(b != e) {
+        while(b != e || q != buf1) {
             
-            do *q++ = *b++; while(q != std::end(buf1) && b != e);
+            while(q != std::end(buf1) && b != e) *q++ = *b++;
             const typename D::CharType* p = buf1;
             char32_t c = D::decode(p, q);
             if(c == 0xFFFFFFFF) break;
@@ -291,6 +276,22 @@ public:
             append(buf2, r - buf2);
             if(p == buf1) break;
             q = std::copy(p, static_cast<decltype(p)>(q), buf1), p = buf1;
+            
+        }
+        return *this;
+        
+    }
+    template <typename T, typename D = DefaultCharset<typename std::iterator_traits<T*>::value_type>>
+    String& append(T* b, T* e) {
+        
+        CharType buf[C::MAX_CODE_UNIT];
+        while(b != e) {
+            
+            char32_t c = D::decode(b, e);
+            if(c == 0xFFFFFFFF) break;
+            auto q = buf;
+            C::encode(q, std::end(buf), c);
+            append(buf, q - buf);
             
         }
         return *this;

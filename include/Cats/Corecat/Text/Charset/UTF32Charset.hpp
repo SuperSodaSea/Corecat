@@ -43,7 +43,7 @@ struct UTF32Charset : public Charset<T> {
     
     static char32_t decode(const T*& p, const T* q) {
         
-        if(p == q) return 0xFFFFFFFF;
+        if(p >= q) return 0xFFFFFFFF;
         char32_t codepoint = *p++;
         if(codepoint <= 0x10FFFF && codepoint - 0xD800 >= 0x0800) return codepoint;
         else return 0xFFFD;
@@ -51,7 +51,7 @@ struct UTF32Charset : public Charset<T> {
     }
     static bool encode(T*& p, T* q, char32_t codepoint) {
         
-        if(p == q) return false;
+        if(p >= q) return false;
         if(codepoint <= 0x10FFFF && codepoint - 0xD800 >= 0x0800) *p++ = codepoint;
         else *p++ = 0xFFFD;
         return true;

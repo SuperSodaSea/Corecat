@@ -39,12 +39,12 @@ template <typename T = char16_t>
 struct UTF16Charset : public Charset<T> {
     
     static constexpr const char* NAME = "UTF-16";
-    static constexpr std::size_t MAX_CODE_UNIT = 2;
+    static constexpr std::size_t MAX_CODE_UNIT = 8;
     
     static char32_t decode(const T*& p, const T* q) {
         
         std::ptrdiff_t size = q - p;
-        if(!size) return 0xFFFFFFFF;
+        if(size < 1) return 0xFFFFFFFF;
         char32_t h = char16_t(*p);
         if(h - 0xD800 >= 0x0800) { ++p; return h; }
         else if(h <= 0xDBFF) {
@@ -63,7 +63,7 @@ struct UTF16Charset : public Charset<T> {
         std::ptrdiff_t size = q - p;
         if(codepoint <= 0xFFFF) {
             
-            if(!size) return false;
+            if(size < 1) return false;
             if(codepoint - 0xD800 >= 0x0800) *p++ = char16_t(codepoint);
             else *p++ = 0xFFFD;
             return true;

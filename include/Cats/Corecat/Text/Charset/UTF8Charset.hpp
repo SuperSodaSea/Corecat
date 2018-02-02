@@ -44,7 +44,7 @@ struct UTF8Charset : public Charset<T> {
     static char32_t decode(const T*& p, const T* q)  {
         
         std::ptrdiff_t size = q - p;
-        if(!size) return 0xFFFFFFFF;
+        if(size < 1) return 0xFFFFFFFF;
         char32_t a = static_cast<unsigned char>(*p);
         if(a <= 0x7F) { ++p; return a; }
         else if(a <= 0xBF) return 0xFFFD;
@@ -84,7 +84,7 @@ struct UTF8Charset : public Charset<T> {
         if(codepoint <= 0x007F) {
             
             // 0xxxxxxx
-            if(!size) return false;
+            if(size < 1) return false;
             *p++ = T(codepoint);
             return true;
             
