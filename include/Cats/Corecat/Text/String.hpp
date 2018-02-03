@@ -281,8 +281,8 @@ public:
         return *this;
         
     }
-    template <typename T, typename D = DefaultCharset<typename std::iterator_traits<T*>::value_type>>
-    String& append(T* b, T* e) {
+    template <typename T, typename D = DefaultCharset<typename std::iterator_traits<const T*>::value_type>, typename = std::enable_if_t<!std::is_same<T, CharType>::value>>
+    String& append(const T* b, const T* e) {
         
         CharType buf[C::MAX_CODE_UNIT];
         while(b != e) {
@@ -297,6 +297,7 @@ public:
         return *this;
         
     }
+    String& append(const CharType* b, const CharType* e) { return append(b, e - b); }
     
     void swap(String& src) noexcept { std::swap(storage, src.storage); }
     
