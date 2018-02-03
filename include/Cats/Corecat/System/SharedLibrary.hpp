@@ -34,7 +34,7 @@
 
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
 #   include "../Win32/Windows.hpp"
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
 #   include <dlfcn.h>
 #else
 #   error Unknown OS
@@ -56,7 +56,7 @@ private:
     
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
     HMODULE handle = nullptr;
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
     void* handle = nullptr;
 #endif
     
@@ -65,8 +65,8 @@ public:
     SharedLibrary(const String8& path) {
         
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
-        handle = LoadLibraryW(reinterpret_cast<const WCHAR*>(String16(path).getData()));
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+        handle = LoadLibraryW(WString(path).getData());
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
         handle = dlopen(path.getData(), RTLD_NOW);
 #endif
         if(!handle) throw SystemException("Failed to load shared library");
@@ -78,7 +78,7 @@ public:
         
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
         if(handle) FreeLibrary(handle);
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
         if(handle) dlclose(handle);
 #endif
         
@@ -91,7 +91,7 @@ public:
         
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
         return reinterpret_cast<void*>(GetProcAddress(handle, name.getData()));
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX)
+#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
         return dlsym(handle, name.getData());
 #endif
         
