@@ -71,25 +71,23 @@ private:
     
 public:
     
-    ExceptionWrapper(const ExceptionWrapper& src) : exception(src.exception), type(src.type), throwFunction(src.throwFunction), eptr(src.eptr) {}
-    ~ExceptionWrapper() = default;
-    
-    ExceptionWrapper() noexcept = default;
+    ExceptionWrapper() = default;
     template <typename T, typename U = std::decay_t<T>, typename = EnableIfException<U>>
     ExceptionWrapper(T&& t) : exception(std::make_shared<T>(t)), type(&typeid(U)), throwFunction(throwFunctionImpl<U>) {}
     ExceptionWrapper(std::exception_ptr eptr_) noexcept : eptr(eptr_) {}
-    
-    ExceptionWrapper& operator =(const ExceptionWrapper& src) noexcept { exception = src.exception; type = src.type; throwFunction = src.throwFunction; eptr = src.eptr; return *this; }
+    ExceptionWrapper(const ExceptionWrapper& src) : exception(src.exception), type(src.type), throwFunction(src.throwFunction), eptr(src.eptr) {}
     
     ExceptionWrapper& operator =(std::exception_ptr eptr_) noexcept { return *this = ExceptionWrapper(eptr_); }
     template <typename T, typename = EnableIfException<T>>
     ExceptionWrapper& operator =(T&& t) { return *this = ExceptionWrapper(std::forward<T>(t)); }
+    ExceptionWrapper& operator =(const ExceptionWrapper& src) noexcept { exception = src.exception; type = src.type; throwFunction = src.throwFunction; eptr = src.eptr; return *this; }
     
     operator bool() const noexcept { return exception || eptr; }
     
+    bool isRethrowable() const { return (exception && throwFunction) || eptr; }
     [[noreturn]] void rethrow() const {
         
-        if(exception) throwFunction(*exception.get());
+        if(exception && throwFunction) throwFunction(*exception.get());
         else if(eptr) std::rethrow_exception(eptr);
         else throw InvalidArgumentException("No exception in ExceptionWrapper");
         std::terminate();
@@ -104,10 +102,11 @@ public:
             f(static_cast<const Arg&>(*exception));
             return true;
             
-        } else if(eptr) {
+        }
+        if(isRethrowable()) {
             
             try { rethrow(); }
-            catch(const Arg& arg) { f(arg); }
+            catch(const Arg& arg) { f(arg); return true; }
             catch(...) {}
             
         }

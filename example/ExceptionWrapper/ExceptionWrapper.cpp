@@ -34,16 +34,8 @@ using namespace Cats::Corecat;
 
 #define PRINT(x) do { std::cout << #x << " -> " << (x) << std::endl; } while(0)
 
-ExceptionWrapper func1() {
-    
-    try { throw 233; } catch(...) { return ExceptionWrapper::current(); }
-    
-}
-ExceptionWrapper func2() {
-    
-    return Exception("ExceptionWrapper example");
-    
-}
+ExceptionWrapper func1() { try { throw 123; } catch(...) { return ExceptionWrapper::current(); } }
+ExceptionWrapper func2() { return Exception("ExceptionWrapper example"); }
 
 int main() {
     
@@ -52,7 +44,7 @@ int main() {
     catch(int e1) { PRINT(e1); }
     
     auto ew2 = func2();
-    ew2.with([](const std::runtime_error& e2) { PRINT(e2.what()); });
+    ew2.with([](const std::exception& e2) { PRINT(e2.what()); });
     
     return 0;
     
