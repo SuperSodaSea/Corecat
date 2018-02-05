@@ -356,6 +356,7 @@ public:
     constexpr StringView() noexcept : data(nullptr), length(0) {}
     constexpr StringView(const CharType* data_, std::size_t length_) noexcept : data(data_), length(length_) {}
     StringView(const CharType* data_) noexcept : StringView(data_, C::getLength(data_)) {}
+    constexpr StringView(const CharType* b, const CharType* e) noexcept : data(b), length(e - b) {}
     constexpr StringView(const StringView& src) noexcept = default;
     ~StringView() = default;
     
