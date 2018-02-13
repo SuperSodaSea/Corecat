@@ -49,8 +49,9 @@ struct HighResolutionClock {
     static time_point now() noexcept {
         
         LARGE_INTEGER nf, n;
-        QueryPerformanceFrequency(&nf);
-        QueryPerformanceCounter(&n);
+        // TODO: move ::QueryPerformanceFrequency away
+        ::QueryPerformanceFrequency(&nf);
+        ::QueryPerformanceCounter(&n);
         return time_point(duration(double(n.QuadPart) / nf.QuadPart));
         
     }

@@ -58,9 +58,10 @@ public:
         
         std::array<std::uint32_t, 4> data;
 #if defined(CATS_CORECAT_SYSTEM_COMPILER_CLANG) || defined(CATS_CORECAT_SYSTEM_COMPILER_GCC)
+        // __cpuid_count is a macro, so :: is not needed
         __cpuid_count(func, sub, data[0], data[1], data[2], data[3]);
 #elif defined(CATS_CORECAT_SYSTEM_COMPILER_MSVC)
-        __cpuidex(reinterpret_cast<int*>(data.data()), func, sub);
+        ::__cpuidex(reinterpret_cast<int*>(data.data()), func, sub);
 #endif
         return data;
         

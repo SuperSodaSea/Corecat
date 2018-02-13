@@ -65,9 +65,9 @@ public:
     SharedLibrary(const String8& path) {
         
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
-        handle = LoadLibraryW(WString(path).getData());
+        handle = ::LoadLibraryW(WString(path).getData());
 #elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
-        handle = dlopen(path.getData(), RTLD_NOW);
+        handle = ::dlopen(path.getData(), RTLD_NOW);
 #endif
         if(!handle) throw SystemException("Failed to load shared library");
         
@@ -77,9 +77,9 @@ public:
     ~SharedLibrary() {
         
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
-        if(handle) FreeLibrary(handle);
+        if(handle) ::FreeLibrary(handle);
 #elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
-        if(handle) dlclose(handle);
+        if(handle) ::dlclose(handle);
 #endif
         
     }
@@ -90,9 +90,9 @@ public:
     void* get(const String8& name) {
         
 #if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
-        return reinterpret_cast<void*>(GetProcAddress(handle, name.getData()));
+        return reinterpret_cast<void*>(::GetProcAddress(handle, name.getData()));
 #elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
-        return dlsym(handle, name.getData());
+        return ::dlsym(handle, name.getData());
 #endif
         
     }
