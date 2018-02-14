@@ -72,6 +72,7 @@ script:
 
 after_success:
 - ./build/Any
+- ./build/Benchmark
 - ./build/CommandLine -O3 -o output input1 input2 input3
 - ./build/ExceptionWrapper
 - ./build/Range

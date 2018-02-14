@@ -22,6 +22,7 @@ build:
 
 test_script:
 - build\%CONFIGURATION%\Any.exe
+- build\%CONFIGURATION%\Benchmark.exe
 - build\%CONFIGURATION%\CommandLine.exe -O3 -o output input1 input2 input3
 - build\%CONFIGURATION%\ExceptionWrapper.exe
 - build\%CONFIGURATION%\Range.exe

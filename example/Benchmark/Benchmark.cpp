@@ -24,26 +24,27 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#include <array>
+
+#include "Cats/Corecat/Util.hpp"
 
 
-#include "Util/Allocator.hpp"
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Benchmark.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Detector.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
-#include "Util/Function.hpp"
-#include "Util/Iterator.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Range.hpp"
-#include "Util/Sequence.hpp"
-#include "Util/VoidType.hpp"
+using namespace Cats::Corecat;
 
 
-#endif
+int main() {
+    
+    std::vector<std::array<std::int32_t, 3>> v(16384, {87654321, 12345678});
+    Benchmark<> benchmark;
+    benchmark
+        .add("nop", [&](auto _) { while(_) for(auto&& x : v) x[2] = x[0]; })
+        .add("add", [&](auto _) { while(_) for(auto&& x : v) x[2] = x[0] + x[1]; })
+        .add("sub", [&](auto _) { while(_) for(auto&& x : v) x[2] = x[0] - x[1]; })
+        .add("mul", [&](auto _) { while(_) for(auto&& x : v) x[2] = x[0] * x[1]; })
+        .add("div", [&](auto _) { while(_) for(auto&& x : v) x[2] = x[0] / x[1]; })
+        .argument()
+        .run();
+        
+    return 0;
+    
+}

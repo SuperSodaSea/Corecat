@@ -18,6 +18,7 @@ include_directories("include")
 
 set(EXAMPLE
     Any
+    Benchmark
     CommandLine
     ExceptionWrapper
     Range
