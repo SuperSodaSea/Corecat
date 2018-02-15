@@ -32,9 +32,9 @@
 #include "../Text/String.hpp"
 #include "../Util/Exception.hpp"
 
-#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+#if defined(CORECAT_OS_WINDOWS)
 #   include "../Win32/Windows.hpp"
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
+#elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
 #   include <dlfcn.h>
 #else
 #   error Unknown OS
@@ -54,9 +54,9 @@ private:
     
 private:
     
-#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+#if defined(CORECAT_OS_WINDOWS)
     HMODULE handle = nullptr;
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
+#elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
     void* handle = nullptr;
 #endif
     
@@ -64,9 +64,9 @@ public:
     
     SharedLibrary(const String8& path) {
         
-#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+#if defined(CORECAT_OS_WINDOWS)
         handle = ::LoadLibraryW(WString(path).getData());
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
+#elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
         handle = ::dlopen(path.getData(), RTLD_NOW);
 #endif
         if(!handle) throw SystemException("Failed to load shared library");
@@ -76,9 +76,9 @@ public:
     SharedLibrary(SharedLibrary&& src) noexcept : handle(src.handle) { src.handle = nullptr; }
     ~SharedLibrary() {
         
-#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+#if defined(CORECAT_OS_WINDOWS)
         if(handle) ::FreeLibrary(handle);
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
+#elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
         if(handle) ::dlclose(handle);
 #endif
         
@@ -89,9 +89,9 @@ public:
     
     void* get(const String8& name) {
         
-#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+#if defined(CORECAT_OS_WINDOWS)
         return reinterpret_cast<void*>(::GetProcAddress(handle, name.getData()));
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
+#elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
         return ::dlsym(handle, name.getData());
 #endif
         

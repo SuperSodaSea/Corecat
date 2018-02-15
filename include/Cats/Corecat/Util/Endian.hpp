@@ -59,9 +59,9 @@ template <typename T>
 inline std::enable_if_t<sizeof(T) == 1, T> reverseEndian(T t) { return t; }
 template <typename T>
 inline std::enable_if_t<std::is_integral<T>::value && sizeof(T) == 2, T> reverseEndian(T t) {
-#if defined(CATS_CORECAT_SYSTEM_COMPILER_CLANG) || defined(CATS_CORECAT_SYSTEM_COMPILER_GCC)
+#if defined(CORECAT_COMPILER_CLANG) || defined(CORECAT_COMPILER_GCC)
     return __builtin_bswap16(t);
-#elif defined(CATS_CORECAT_SYSTEM_COMPILER_MSVC)
+#elif defined(CORECAT_COMPILER_MSVC)
     return _byteswap_ushort(t);
 #else
     auto p = reinterpret_cast<Byte*>(&t);
@@ -72,9 +72,9 @@ inline std::enable_if_t<std::is_integral<T>::value && sizeof(T) == 2, T> reverse
 }
 template <typename T>
 inline std::enable_if_t<std::is_integral<T>::value && sizeof(T) == 4, T> reverseEndian(T t) {
-#if defined(CATS_CORECAT_SYSTEM_COMPILER_CLANG) || defined(CATS_CORECAT_SYSTEM_COMPILER_GCC)
+#if defined(CORECAT_COMPILER_CLANG) || defined(CORECAT_COMPILER_GCC)
     return __builtin_bswap32(t);
-#elif defined(CATS_CORECAT_SYSTEM_COMPILER_MSVC)
+#elif defined(CORECAT_COMPILER_MSVC)
     return _byteswap_ulong(t);
 #else
     auto p = reinterpret_cast<Byte*>(&t);
@@ -87,9 +87,9 @@ inline std::enable_if_t<std::is_integral<T>::value && sizeof(T) == 4, T> reverse
 }
 template <typename T>
 inline std::enable_if_t<std::is_integral<T>::value && sizeof(T) == 8, T> reverseEndian(T t) {
-#if defined(CATS_CORECAT_SYSTEM_COMPILER_CLANG) || defined(CATS_CORECAT_SYSTEM_COMPILER_GCC)
+#if defined(CORECAT_COMPILER_CLANG) || defined(CORECAT_COMPILER_GCC)
     return __builtin_bswap64(t);
-#elif defined(CATS_CORECAT_SYSTEM_COMPILER_MSVC)
+#elif defined(CORECAT_COMPILER_MSVC)
     return _byteswap_uint64(t);
 #else
     auto p = reinterpret_cast<Byte*>(&t);

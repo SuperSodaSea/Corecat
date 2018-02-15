@@ -32,9 +32,9 @@
 
 #include "../System/OS.hpp"
 
-#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+#if defined(CORECAT_OS_WINDOWS)
 #   include "../Win32/Windows.hpp"
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
+#elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
 #include <time.h>
 #else
 #   error Unknown OS
@@ -55,13 +55,13 @@ struct HighResolutionClock {
     static constexpr bool is_steady = false;
     
     static time_point now() noexcept {
-#if defined(CATS_CORECAT_SYSTEM_OS_WINDOWS)
+#if defined(CORECAT_OS_WINDOWS)
         LARGE_INTEGER nf, n;
         // TODO: move ::QueryPerformanceFrequency away
         ::QueryPerformanceFrequency(&nf);
         ::QueryPerformanceCounter(&n);
         return time_point(duration(double(n.QuadPart) / nf.QuadPart));
-#elif defined(CATS_CORECAT_SYSTEM_OS_LINUX) || defined(CATS_CORECAT_SYSTEM_OS_MACOS)
+#elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
         timespec t;
         ::clock_gettime(CLOCK_REALTIME, &t);
         return time_point(duration(t.tv_sec + t.tv_nsec * 0.000000001));

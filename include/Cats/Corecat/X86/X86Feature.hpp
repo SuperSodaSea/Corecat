@@ -35,9 +35,9 @@
 #include "../System/Compiler.hpp"
 #include "../Text/String.hpp"
 
-#if defined(CATS_CORECAT_SYSTEM_COMPILER_CLANG) || defined(CATS_CORECAT_SYSTEM_COMPILER_GCC)
+#if defined(CORECAT_COMPILER_CLANG) || defined(CORECAT_COMPILER_GCC)
 #   include <cpuid.h>
-#elif defined(CATS_CORECAT_SYSTEM_COMPILER_MSVC)
+#elif defined(CORECAT_COMPILER_MSVC)
 #   include <intrin.h>
 #else
 #   error Unknown compiler
@@ -57,10 +57,10 @@ public:
     static std::array<std::uint32_t, 4> cpuid(std::uint32_t func, std::uint32_t sub) {
         
         std::array<std::uint32_t, 4> data;
-#if defined(CATS_CORECAT_SYSTEM_COMPILER_CLANG) || defined(CATS_CORECAT_SYSTEM_COMPILER_GCC)
+#if defined(CORECAT_COMPILER_CLANG) || defined(CORECAT_COMPILER_GCC)
         // __cpuid_count is a macro, so :: is not needed
         __cpuid_count(func, sub, data[0], data[1], data[2], data[3]);
-#elif defined(CATS_CORECAT_SYSTEM_COMPILER_MSVC)
+#elif defined(CORECAT_COMPILER_MSVC)
         ::__cpuidex(reinterpret_cast<int*>(data.data()), func, sub);
 #endif
         return data;

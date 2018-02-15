@@ -29,14 +29,14 @@
 
 
 #if defined(__clang__)
-#   define CATS_CORECAT_SYSTEM_COMPILER_CLANG
-#   define CATS_CORECAT_SYSTEM_COMPILER "Clang"
+#   define CORECAT_COMPILER_CLANG
+#   define CORECAT_COMPILER "Clang"
 #elif defined(__GNUC__)
-#   define CATS_CORECAT_SYSTEM_COMPILER_GCC
-#   define CATS_CORECAT_SYSTEM_COMPILER "GCC"
+#   define CORECAT_COMPILER_GCC
+#   define CORECAT_COMPILER "GCC"
 #elif defined(_MSC_VER)
-#   define CATS_CORECAT_SYSTEM_COMPILER_MSVC
-#   define CATS_CORECAT_SYSTEM_COMPILER "MSVC"
+#   define CORECAT_COMPILER_MSVC
+#   define CORECAT_COMPILER "MSVC"
 #endif
 
 

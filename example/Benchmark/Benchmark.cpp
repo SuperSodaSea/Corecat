@@ -34,7 +34,7 @@ using namespace Cats::Corecat;
 
 int main() {
     
-    std::vector<std::array<std::int32_t, 3>> v(16384, {87654321, 12345678});
+    std::vector<std::array<std::int32_t, 3>> v(16384, {{87654321, 12345678}});
     Benchmark<> benchmark;
     benchmark
         .add("nop", [&](auto _) { while(_) for(auto&& x : v) x[2] = x[0]; })

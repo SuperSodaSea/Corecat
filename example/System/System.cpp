@@ -33,8 +33,8 @@
 
 int main() {
     
-    PRINT(CATS_CORECAT_SYSTEM_COMPILER);
-    PRINT(CATS_CORECAT_SYSTEM_OS);
+    PRINT(CORECAT_COMPILER);
+    PRINT(CORECAT_OS);
     
     return 0;
     
