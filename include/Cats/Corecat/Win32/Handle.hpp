@@ -28,8 +28,6 @@
 #define CATS_CORECAT_WIN32_HANDLE_HPP
 
 
-#include <cassert>
-
 #include "Windows.hpp"
 
 
@@ -58,7 +56,7 @@ public:
     operator HANDLE() const { return handle; }
     explicit operator bool() const { return handle != nullptr && handle != INVALID_HANDLE_VALUE; }
     
-    void close() { assert(*this); CloseHandle(handle); handle = nullptr; }
+    void close() { ::CloseHandle(handle); handle = nullptr; }
     
 };
 

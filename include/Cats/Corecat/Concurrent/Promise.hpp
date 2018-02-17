@@ -53,7 +53,7 @@ class PromiseImpl : public std::enable_shared_from_this<PromiseImpl<T>> {
     
 private:
     
-    enum class State {Pending, Resolved, Rejected};
+    enum class State {PENDING, RESOLVED, REJECTED};
     
 private:
     
@@ -105,7 +105,7 @@ private:
 private:
     
     Mutex mutex;
-    State state = State::Pending;
+    State state = State::PENDING;
     std::deque<std::function<void()>> resolvedQueue;
     std::deque<std::function<void()>> rejectedQueue;
     std::conditional_t<std::is_void<T>::value, char, T> result;
@@ -140,25 +140,25 @@ private:
         
     }
     
-    template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfVoid<Ret>* = 0) {
         
         rejected(); promise.resolve();
         
     }
-    template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Ret>* = 0) {
         
         promise.resolve(rejected());
         
     }
-    template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Ret>* = 0) {
         
         rejected(exception); promise.resolve();
         
     }
-    template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Ret>* = 0) {
         
         promise.resolve(rejected(exception));
@@ -177,9 +177,9 @@ public:
     void resolve() {
         
         std::unique_lock<Mutex> lock(mutex);
-        if(state == State::Pending) {
+        if(state == State::PENDING) {
             
-            state = State::Resolved;
+            state = State::RESOLVED;
             for(auto&& x : resolvedQueue) x();
             resolvedQueue.clear();
             rejectedQueue.clear();
@@ -191,9 +191,9 @@ public:
     void resolve(U&& u) {
         
         std::unique_lock<Mutex> lock(mutex);
-        if(state == State::Pending) {
+        if(state == State::PENDING) {
             
-            state = State::Resolved;
+            state = State::RESOLVED;
             result = std::forward<U>(u);
             for(auto&& x : resolvedQueue) x();
             resolvedQueue.clear();
@@ -221,9 +221,9 @@ public:
     void rejected(const ExceptionWrapper& e) {
         
         std::unique_lock<Mutex> lock(mutex);
-        if(state == State::Pending) {
+        if(state == State::PENDING) {
             
-            state = State::Rejected;
+            state = State::REJECTED;
             exception = e;
             for(auto& x : rejectedQueue) x();
             resolvedQueue.clear();
@@ -245,14 +245,14 @@ public:
         auto cb2 = [=]() { promise.reject(exception); };
         std::unique_lock<Mutex> lock(mutex);
         switch(state) {
-        case State::Pending: resolvedQueue.emplace_back(std::move(cb1)); rejectedQueue.emplace_back(std::move(cb2)); break;
-        case State::Resolved: cb1(); break;
-        case State::Rejected: cb2(); break;
+        case State::PENDING: resolvedQueue.emplace_back(std::move(cb1)); rejectedQueue.emplace_back(std::move(cb2)); break;
+        case State::RESOLVED: cb1(); break;
+        case State::REJECTED: cb2(); break;
         }
         return promise;
         
     }
-    template <typename F, typename Arg = ArgumentType<F, ExceptionWrapper>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     Promise<Res> fail(F&& rejected) {
         
         Promise<Res> promise;
@@ -264,9 +264,9 @@ public:
         };
         std::unique_lock<Mutex> lock(mutex);
         switch(state) {
-        case State::Pending: rejectedQueue.emplace_back(std::move(cb)); break;
-        case State::Resolved: break;
-        case State::Rejected: cb(); break;
+        case State::PENDING: rejectedQueue.emplace_back(std::move(cb)); break;
+        case State::RESOLVED: break;
+        case State::REJECTED: cb(); break;
         }
         return promise;
         
