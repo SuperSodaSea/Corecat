@@ -51,7 +51,7 @@ public:
     CastInputStream(InputStream<U>& is_) : is(&is_) {}
     ~CastInputStream() override = default;
     
-    std::size_t readSome(T* buffer, std::size_t count) override {
+    std::size_t read(T* buffer, std::size_t count) override {
         
         std::memcpy(buffer, data, size);
         std::size_t x = size;

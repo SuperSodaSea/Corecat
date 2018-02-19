@@ -58,7 +58,7 @@ public:
     
     WrapperOutputStream& operator =(WrapperOutputStream&& src) { file = src.file, src.file = nullptr; return *this; }
     
-    std::size_t writeSome(const char* buffer, std::size_t count) override {
+    std::size_t write(const char* buffer, std::size_t count) override {
         
         if(std::fwrite(buffer, 1, count, file) != count)
             throw IOException("std::fwrite failed");
@@ -88,7 +88,7 @@ public:
     
     WrapperOutputStream& operator =(WrapperOutputStream&& src) { os = src.os, src.os = nullptr; return *this; }
     
-    std::size_t writeSome(const char* buffer, std::size_t count) override { os->write(buffer, count); return count; }
+    std::size_t write(const char* buffer, std::size_t count) override { os->write(buffer, count); return count; }
     void flush() override { os->flush(); };
     
 };

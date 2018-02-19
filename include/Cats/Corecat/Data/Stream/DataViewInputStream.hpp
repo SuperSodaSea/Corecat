@@ -59,7 +59,7 @@ public:
     
     DataViewInputStream& operator =(DataViewInputStream&& src) { dv = src.dv, src.dv = nullptr, offset = src.offset; return *this; }
     
-    std::size_t readSome(T* buffer, std::size_t count) override {
+    std::size_t read(T* buffer, std::size_t count) override {
         
         count = std::min(count, static_cast<std::size_t>(dv->getSize() - offset));
         dv->read(buffer, count, offset);

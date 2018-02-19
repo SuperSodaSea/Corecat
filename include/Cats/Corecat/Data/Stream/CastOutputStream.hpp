@@ -51,7 +51,7 @@ public:
     CastOutputStream(OutputStream<U>& os_) : os(&os_) {}
     ~CastOutputStream() override = default;
     
-    std::size_t writeSome(const T* buffer, std::size_t count) override {
+    std::size_t write(const T* buffer, std::size_t count) override {
         
         if(size + count * sizeof(T) < sizeof(U)) {
             

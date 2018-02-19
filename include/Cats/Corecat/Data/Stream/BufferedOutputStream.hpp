@@ -61,7 +61,7 @@ public:
         
     }
     
-    std::size_t writeSome(const T* buffer, std::size_t count) override {
+    std::size_t write(const T* buffer, std::size_t count) override {
         
         if(size + count <= data.size()) std::copy(buffer, buffer + count, data.data() + size), size += count;
         else {

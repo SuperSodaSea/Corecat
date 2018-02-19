@@ -62,7 +62,7 @@ public:
         
     }
     
-    std::size_t readSome(T* buffer, std::size_t count) override {
+    std::size_t read(T* buffer, std::size_t count) override {
         
         if(size) {
             
@@ -75,13 +75,13 @@ public:
             
             if(count < data.size() / 2) {
                 
-                size = is->readSome(data.data(), data.size());
+                size = is->read(data.data(), data.size());
                 offset = std::min(count, size);
                 std::copy(data.data(), data.data() + offset, buffer);
                 size -= offset;
                 return offset;
                 
-            } else return is->readSome(buffer, count);
+            } else return is->read(buffer, count);
             
         }
         

@@ -46,14 +46,14 @@ struct OutputStream {
     
     OutputStream& operator =(const OutputStream& src) = delete;
     
-    virtual std::size_t writeSome(const T* buffer, std::size_t count) = 0;
-    virtual void write(T t) { writeSome(&t, 1); }
+    virtual std::size_t write(const T* buffer, std::size_t count) = 0;
+    virtual void write(T t) { write(&t, 1); }
     virtual void writeAll(const T* buffer, std::size_t count) {
         
         std::size_t size = 0;
         while(size < count) {
             
-            std::size_t x = writeSome(buffer + size, count - size);
+            std::size_t x = write(buffer + size, count - size);
             size += x;
             
         }

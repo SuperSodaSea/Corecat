@@ -57,7 +57,7 @@ public:
     
     DataViewOutputStream& operator =(DataViewOutputStream&& src) { dv = src.dv, src.dv = nullptr, offset = src.offset; return *this; }
     
-    std::size_t writeSome(const T* buffer, std::size_t count) override {
+    std::size_t write(const T* buffer, std::size_t count) override {
         
         dv->write(buffer, count, offset);
         offset += count;

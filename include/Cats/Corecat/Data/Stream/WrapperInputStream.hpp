@@ -58,7 +58,7 @@ public:
     
     WrapperInputStream& operator =(WrapperInputStream&& src) { file = src.file, src.file = nullptr; return *this; }
     
-    std::size_t readSome(char* buffer, std::size_t count) override {
+    std::size_t read(char* buffer, std::size_t count) override {
         
         std::size_t ret = std::fread(buffer, 1, count, file);
         return ret;
@@ -87,7 +87,7 @@ public:
     
     WrapperInputStream& operator =(WrapperInputStream&& src) { is = src.is, src.is = nullptr; return *this; }
     
-    std::size_t readSome(char* buffer, std::size_t count) override { is->read(buffer, count); return is->gcount(); }
+    std::size_t read(char* buffer, std::size_t count) override { is->read(buffer, count); return is->gcount(); }
     void skip(std::size_t count) override { is->ignore(count); }
     
 };
