@@ -52,7 +52,7 @@ struct HighResolutionClock {
     using duration = std::chrono::duration<rep, period>;
     using time_point = std::chrono::time_point<HighResolutionClock>;
     
-    static constexpr bool is_steady = false;
+    static constexpr bool is_steady = true;
     
     static time_point now() noexcept {
 #if defined(CORECAT_OS_WINDOWS)
@@ -63,7 +63,7 @@ struct HighResolutionClock {
         return time_point(duration(double(n.QuadPart) / nf.QuadPart));
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
         timespec t;
-        ::clock_gettime(CLOCK_REALTIME, &t);
+        ::clock_gettime(CLOCK_MONOTONIC, &t);
         return time_point(duration(t.tv_sec + t.tv_nsec * 0.000000001));
 #endif
     }
