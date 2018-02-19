@@ -28,6 +28,7 @@
 #define CATS_CORECAT_CONCURRENT_HPP
 
 
+#include "Concurrent/Coroutine.hpp"
 #include "Concurrent/Event.hpp"
 #include "Concurrent/Promise.hpp"
 #include "Concurrent/ThreadPoolExecutor.hpp"
