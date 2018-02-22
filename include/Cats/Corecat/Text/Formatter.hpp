@@ -51,7 +51,7 @@ namespace Impl {
 template <typename T>
 struct DecimalDigit {
     
-    static constexpr T get(int x) { return '0' + (x % 2 ? (x / 2) % 10 : (x / 2) / 10); }
+    static constexpr T get(int x) { return '0' + ((x % 2) ? (x / 2 % 10) : (x / 2 / 10)); }
     
 };
 template <typename T>

@@ -43,9 +43,8 @@ int main() {
     PRINT(str1.getLength()); // 10
     std::cout << std::endl;
     
-    PRINT(str1 == str1); // true
     PRINT(str1 == "0123456789"); // true
-    PRINT(str1 != "0123456788"); // true
+    PRINT(str1 != "9876543210"); // true
     PRINT(str1 < "0"); // false
     PRINT(str1 > "0"); // true
     std::cout << std::endl;
