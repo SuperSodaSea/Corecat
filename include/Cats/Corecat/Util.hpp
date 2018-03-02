@@ -37,7 +37,7 @@
 #include "Util/Detector.hpp"
 #include "Util/Endian.hpp"
 #include "Util/Exception.hpp"
-#include "Util/ExceptionWrapper.hpp"
+#include "Util/ExceptionPtr.hpp"
 #include "Util/Function.hpp"
 #include "Util/Iterator.hpp"
 #include "Util/Operator.hpp"

@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_EXCEPTIONWRAPPER_HPP
-#define CATS_CORECAT_UTIL_EXCEPTIONWRAPPER_HPP
+#ifndef CATS_CORECAT_UTIL_EXCEPTIONPTR_HPP
+#define CATS_CORECAT_UTIL_EXCEPTIONPTR_HPP
 
 
 #include <exception>
@@ -41,7 +41,7 @@ inline namespace Util {
 
 // Inspired by https://github.com/facebook/folly/blob/master/folly/ExceptionWrapper.h
 
-class ExceptionWrapper {
+class ExceptionPtr {
     
 private:
     
@@ -71,16 +71,16 @@ private:
     
 public:
     
-    ExceptionWrapper() = default;
+    ExceptionPtr() = default;
     template <typename T, typename U = std::decay_t<T>, typename = EnableIfException<U>>
-    ExceptionWrapper(T&& t) : exception(std::make_shared<T>(t)), type(&typeid(U)), throwFunction(throwFunctionImpl<U>) {}
-    ExceptionWrapper(std::exception_ptr eptr_) noexcept : eptr(eptr_) {}
-    ExceptionWrapper(const ExceptionWrapper& src) : exception(src.exception), type(src.type), throwFunction(src.throwFunction), eptr(src.eptr) {}
+    ExceptionPtr(T&& t) : exception(std::make_shared<T>(t)), type(&typeid(U)), throwFunction(throwFunctionImpl<U>) {}
+    ExceptionPtr(std::exception_ptr eptr_) noexcept : eptr(eptr_) {}
+    ExceptionPtr(const ExceptionPtr& src) : exception(src.exception), type(src.type), throwFunction(src.throwFunction), eptr(src.eptr) {}
     
-    ExceptionWrapper& operator =(std::exception_ptr eptr_) noexcept { return *this = ExceptionWrapper(eptr_); }
+    ExceptionPtr& operator =(std::exception_ptr eptr_) noexcept { return *this = ExceptionPtr(eptr_); }
     template <typename T, typename = EnableIfException<T>>
-    ExceptionWrapper& operator =(T&& t) { return *this = ExceptionWrapper(std::forward<T>(t)); }
-    ExceptionWrapper& operator =(const ExceptionWrapper& src) noexcept { exception = src.exception; type = src.type; throwFunction = src.throwFunction; eptr = src.eptr; return *this; }
+    ExceptionPtr& operator =(T&& t) { return *this = ExceptionPtr(std::forward<T>(t)); }
+    ExceptionPtr& operator =(const ExceptionPtr& src) noexcept { exception = src.exception; type = src.type; throwFunction = src.throwFunction; eptr = src.eptr; return *this; }
     
     operator bool() const noexcept { return exception || eptr; }
     
@@ -89,7 +89,7 @@ public:
         
         if(exception && throwFunction) throwFunction(*exception.get());
         else if(eptr) std::rethrow_exception(eptr);
-        else throw InvalidArgumentException("No exception in ExceptionWrapper");
+        else throw InvalidArgumentException("No exception in ExceptionPtr");
         std::terminate();
         
     }
@@ -116,7 +116,7 @@ public:
     
 public:
     
-    static ExceptionWrapper current() noexcept { return std::current_exception(); }
+    static ExceptionPtr current() noexcept { return std::current_exception(); }
     
 };
 

@@ -34,8 +34,8 @@ using namespace Cats::Corecat;
 
 #define PRINT(x) do { std::cout << #x << " -> " << (x) << std::endl; } while(0)
 
-ExceptionWrapper func1() { try { throw 123; } catch(...) { return ExceptionWrapper::current(); } }
-ExceptionWrapper func2() { return Exception("ExceptionWrapper example"); }
+ExceptionPtr func1() { try { throw 123; } catch(...) { return ExceptionPtr::current(); } }
+ExceptionPtr func2() { return Exception("ExceptionPtr example"); }
 
 int main() {
     

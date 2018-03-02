@@ -34,7 +34,7 @@
 #include <mutex>
 #include <type_traits>
 
-#include "../Util/ExceptionWrapper.hpp"
+#include "../Util/ExceptionPtr.hpp"
 
 
 namespace Cats {
@@ -109,7 +109,7 @@ private:
     std::deque<std::function<void()>> resolvedQueue;
     std::deque<std::function<void()>> rejectedQueue;
     std::conditional_t<std::is_void<T>::value, char, T> result;
-    ExceptionWrapper exception;
+    ExceptionPtr exception;
     
 private:
     
@@ -140,25 +140,25 @@ private:
         
     }
     
-    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionPtr&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfVoid<Ret>* = 0) {
         
         rejected(); promise.resolve();
         
     }
-    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionPtr&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfVoid<Arg>* = 0, EnableIfNotVoid<Ret>* = 0) {
         
         promise.resolve(rejected());
         
     }
-    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionPtr&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfVoid<Ret>* = 0) {
         
         rejected(exception); promise.resolve();
         
     }
-    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionPtr&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     void failImpl(F&& rejected, const Promise<Res>& promise, EnableIfNotVoid<Arg>* = 0, EnableIfNotVoid<Ret>* = 0) {
         
         promise.resolve(rejected(exception));
@@ -207,7 +207,7 @@ public:
         
         auto self = shared_from_this();
         promise.then([this, self]() { resolve(); });
-        promise.fail([this, self](ExceptionWrapper e) { rejected(e); });
+        promise.fail([this, self](auto& e) { rejected(e); });
         
     }
     template <typename U = T>
@@ -215,10 +215,10 @@ public:
         
         auto self = shared_from_this();
         promise.then([this, self](T t) { resolve(t); });
-        promise.fail([this, self](ExceptionWrapper e) { rejected(e); });
+        promise.fail([this, self](auto& e) { rejected(e); });
         
     }
-    void rejected(const ExceptionWrapper& e) {
+    void rejected(const ExceptionPtr& e) {
         
         std::unique_lock<Mutex> lock(mutex);
         if(state == State::PENDING) {
@@ -239,7 +239,7 @@ public:
         auto cb1 = [=]() {
             
             try { thenImpl(resolved, promise); }
-            catch(...) { promise.reject(ExceptionWrapper::current()); }
+            catch(...) { promise.reject(ExceptionPtr::current()); }
             
         };
         auto cb2 = [=]() { promise.reject(exception); };
@@ -252,14 +252,14 @@ public:
         return promise;
         
     }
-    template <typename F, typename Arg = ArgumentType<F, const ExceptionWrapper&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
+    template <typename F, typename Arg = ArgumentType<F, const ExceptionPtr&>, typename Ret = ReturnType<F, Arg>, typename Res = ResultType<Ret>>
     Promise<Res> fail(F&& rejected) {
         
         Promise<Res> promise;
         auto cb = [=]() {
             
             try { failImpl(rejected, promise); }
-            catch(...) { promise.reject(ExceptionWrapper::current()); }
+            catch(...) { promise.reject(ExceptionPtr::current()); }
             
         };
         std::unique_lock<Mutex> lock(mutex);
@@ -297,7 +297,7 @@ public:
     
     template <typename... Arg>
     void resolve(Arg&&... arg) const { impl->resolve(std::forward<Arg>(arg)...); }
-    void reject(const ExceptionWrapper& e) const { impl->rejected(e); }
+    void reject(const ExceptionPtr& e) const { impl->rejected(e); }
     template <typename F>
     auto then(F&& resolved) const -> decltype(impl->then(std::forward<F>(resolved))) { return impl->then(std::forward<F>(resolved)); }
     template <typename F>

@@ -20,7 +20,7 @@ set(EXAMPLE
     Any
     Benchmark
     CommandLine
-    ExceptionWrapper
+    ExceptionPtr
     Range
     String
     System

@@ -41,7 +41,7 @@ class Coroutine : public std::enable_shared_from_this<T> {
 protected:
     
     int _coroutineState = 0;
-    ExceptionWrapper _exception;
+    ExceptionPtr _exception;
     
 };
 
