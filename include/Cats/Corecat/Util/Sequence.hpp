@@ -49,9 +49,9 @@ template <typename T, T... V>
 struct GetSequence<Sequence<T, V...>> {
     
 private:
-    static constexpr T TABLE[] = {V...};
+    static constexpr T DATA[] = {V...};
 public:
-    static constexpr std::size_t get(std::size_t index) { return TABLE[index]; }
+    static constexpr std::size_t get(std::size_t index) { return DATA[index]; }
     
 };
 
@@ -158,12 +158,12 @@ struct SequenceTable;
 template <typename T, T... V>
 struct SequenceTable<Sequence<T, V...>> {
     
-    static const T TABLE[];
-    static T get(std::size_t t) { return TABLE[t]; }
+    static const T DATA[];
+    static T get(std::size_t t) { return DATA[t]; }
     
 };
 template <typename T, T... V>
-const T SequenceTable<Sequence<T, V...>>::TABLE[] = { V... };
+const T SequenceTable<Sequence<T, V...>>::DATA[] = { V... };
 
 }
 

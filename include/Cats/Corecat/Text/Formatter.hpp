@@ -60,7 +60,7 @@ using DecimalDigitTable = Util::SequenceTable<MapperSequence<DecimalDigit<T>, In
 template <typename T>
 inline void toStringMiddle2(std::uint8_t x, T*& p) {
     
-    *reinterpret_cast<std::array<T, 2>*>(p) = reinterpret_cast<const std::array<T, 2>*>(DecimalDigitTable<T>::TABLE)[x], p += 2;
+    *reinterpret_cast<std::array<T, 2>*>(p) = reinterpret_cast<const std::array<T, 2>*>(DecimalDigitTable<T>::DATA)[x], p += 2;
     
 }
 template <typename T>
@@ -217,7 +217,7 @@ inline std::enable_if_t<std::is_unsigned<T>::value, String<C>> toStringBase(T t,
     
     if(base < 2 || base > 36) throw InvalidArgumentException("Base must be in [2, 36]");
     
-    auto table = capital ? Impl::DigitTable<CharType, true>::TABLE : Impl::DigitTable<CharType, false>::TABLE;
+    auto table = capital ? Impl::DigitTable<CharType, true>::DATA : Impl::DigitTable<CharType, false>::DATA;
     
     CharType buffer[sizeof(T) * 8];
     auto p = std::end(buffer), q = p;
