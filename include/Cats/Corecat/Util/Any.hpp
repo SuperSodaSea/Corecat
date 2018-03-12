@@ -52,7 +52,7 @@ private:
         
     public:
         
-        virtual ~HolderBase() {}
+        virtual ~HolderBase() = default;
         
         virtual void* get() noexcept = 0;
         const void* get() const noexcept { return const_cast<HolderBase*>(this)->get(); }
