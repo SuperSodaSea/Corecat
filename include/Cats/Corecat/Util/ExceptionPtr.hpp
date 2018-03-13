@@ -39,8 +39,6 @@ namespace Cats {
 namespace Corecat {
 inline namespace Util {
 
-// Inspired by https://github.com/facebook/folly/blob/master/folly/ExceptionWrapper.h
-
 class ExceptionPtr {
     
 private:
@@ -57,7 +55,57 @@ private:
     template <typename F, typename T = std::decay_t<F>>
     using ArgumentType = typename ArgumantTypeImpl<decltype(&T::operator())>::Type;
     
+    class HolderBase {
+        
+    public:
+        
+        virtual ~HolderBase() = default;
+        
+        virtual const void* get() const noexcept = 0;
+        [[noreturn]] virtual void rethrow() const = 0;
+        virtual const std::type_info* getType() const noexcept = 0;
+        
+    };
+    
+    template <typename T>
+    class Holder1 : public HolderBase {
+        
+    private:
+        
+        T t;
+        
+    public:
+        
+        template <typename... Arg>
+        Holder1(Arg&&... arg) : t(std::forward<Arg>(arg)...) {}
+        virtual ~Holder1() = default;
+        
+        const void* get() const noexcept final { return std::addressof(t); }
+        [[noreturn]] void rethrow() const final { throw t; }
+        const std::type_info* getType() const noexcept final { return &typeid(T); }
+        
+    };
+    
+    class Holder2 : public HolderBase {
+        
+    private:
+        
+        std::exception_ptr ptr;
+        
+    public:
+        
+        Holder2(std::exception_ptr ptr_) : ptr(ptr_) {}
+        virtual ~Holder2() = default;
+        
+        const void* get() const noexcept final { return nullptr; }
+        [[noreturn]] void rethrow() const final { std::rethrow_exception(ptr); }
+        const std::type_info* getType() const noexcept final { return nullptr; }
+        
+    };
+    
 private:
+    
+    std::shared_ptr<HolderBase> data;
     
     std::shared_ptr<std::exception> exception;
     const std::type_info* type = nullptr;
@@ -72,44 +120,39 @@ private:
 public:
     
     ExceptionPtr() = default;
-    template <typename T, typename U = std::decay_t<T>, typename = EnableIfException<U>>
-    ExceptionPtr(T&& t) : exception(std::make_shared<T>(t)), type(&typeid(U)), throwFunction(throwFunctionImpl<U>) {}
-    ExceptionPtr(std::exception_ptr eptr_) noexcept : eptr(eptr_) {}
-    ExceptionPtr(const ExceptionPtr& src) : exception(src.exception), type(src.type), throwFunction(src.throwFunction), eptr(src.eptr) {}
+    template <typename T, typename U = std::remove_reference_t<T>, typename = EnableIfException<U>>
+    ExceptionPtr(T&& t) : data(std::make_shared<Holder1<U>>(std::forward<T>(t))) {}
+    ExceptionPtr(std::exception_ptr ptr) : data(std::make_shared<Holder2>(ptr)) {}
+    ExceptionPtr(const ExceptionPtr& src) : data(src.data) {}
     
-    ExceptionPtr& operator =(std::exception_ptr eptr_) noexcept { return *this = ExceptionPtr(eptr_); }
-    template <typename T, typename = EnableIfException<T>>
+    template <typename T, typename U = std::remove_reference_t<T>, typename = EnableIfException<U>>
     ExceptionPtr& operator =(T&& t) { return *this = ExceptionPtr(std::forward<T>(t)); }
-    ExceptionPtr& operator =(const ExceptionPtr& src) noexcept { exception = src.exception; type = src.type; throwFunction = src.throwFunction; eptr = src.eptr; return *this; }
+    ExceptionPtr& operator =(std::exception_ptr ptr) noexcept { return *this = ExceptionPtr(ptr); }
+    ExceptionPtr& operator =(const ExceptionPtr& src) noexcept { data = src.data; return *this; }
     
-    operator bool() const noexcept { return exception || eptr; }
+    operator bool() const noexcept { return bool(data); }
     
-    bool isRethrowable() const { return (exception && throwFunction) || eptr; }
     [[noreturn]] void rethrow() const {
         
-        if(exception && throwFunction) throwFunction(*exception.get());
-        else if(eptr) std::rethrow_exception(eptr);
-        else throw InvalidArgumentException("No exception in ExceptionPtr");
-        std::terminate();
+        if(data) data->rethrow();
+        throw InvalidArgumentException("No exception in ExceptionPtr");
         
     }
     
-    template <typename F, typename Arg = std::decay_t<ArgumentType<F>>>
+    template <typename F, typename T = std::remove_reference_t<ArgumentType<F>>>
     bool with(F&& f) const {
         
-        if(exception && *type == typeid(Arg)) {
+        if(!data) return false;
+        auto type = data->getType();
+        if(type && *type == typeid(T)) {
             
-            f(static_cast<const Arg&>(*exception));
+            f(*static_cast<const T*>(data->get()));
             return true;
             
         }
-        if(isRethrowable()) {
-            
-            try { rethrow(); }
-            catch(const Arg& arg) { f(arg); return true; }
-            catch(...) {}
-            
-        }
+        try { data->rethrow(); }
+        catch(const T& arg) { f(arg); return true; }
+        catch(...) {}
         return false;
         
     }
