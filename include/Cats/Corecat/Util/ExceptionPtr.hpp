@@ -159,7 +159,7 @@ public:
     
 public:
     
-    static ExceptionPtr current() noexcept { return std::current_exception(); }
+    static ExceptionPtr getCurrent() noexcept { return std::current_exception(); }
     
 };
 
