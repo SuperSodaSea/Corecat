@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_ALLOCATOR_HPP
-#define CATS_CORECAT_UTIL_ALLOCATOR_HPP
+#ifndef CATS_CORECAT_ALLOCATOR_FASTALLOCATOR_HPP
+#define CATS_CORECAT_ALLOCATOR_FASTALLOCATOR_HPP
 
 
 #include <cassert>
@@ -34,7 +34,7 @@
 
 namespace Cats {
 namespace Corecat {
-inline namespace Util {
+inline namespace Allocator {
 
 template <std::size_t S = 65536>
 class FastAllocator {

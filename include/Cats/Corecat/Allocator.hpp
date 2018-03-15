@@ -24,25 +24,11 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_HPP
-#define CATS_CORECAT_UTIL_HPP
+#ifndef CATS_CORECAT_ALLOCATOR_HPP
+#define CATS_CORECAT_ALLOCATOR_HPP
 
 
-#include "Util/Any.hpp"
-#include "Util/ArrayView.hpp"
-#include "Util/Benchmark.hpp"
-#include "Util/Byte.hpp"
-#include "Util/CommandLine.hpp"
-#include "Util/Detector.hpp"
-#include "Util/Endian.hpp"
-#include "Util/Exception.hpp"
-#include "Util/ExceptionPtr.hpp"
-#include "Util/Function.hpp"
-#include "Util/Iterator.hpp"
-#include "Util/Operator.hpp"
-#include "Util/Range.hpp"
-#include "Util/Sequence.hpp"
-#include "Util/VoidType.hpp"
+#include "Allocator/FastAllocator.hpp"
 
 
 #endif
