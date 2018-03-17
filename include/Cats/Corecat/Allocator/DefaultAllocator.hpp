@@ -50,9 +50,9 @@ public:
         
     }
     
-    void deallocate(void* p) {
+    void deallocate(void* data) {
         
-        std::free(size);
+        std::free(data);
         
     }
     

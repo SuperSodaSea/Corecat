@@ -31,13 +31,15 @@
 #include <cassert>
 #include <cstdlib>
 
+#include "DefaultAllocator.hpp"
+
 
 namespace Cats {
 namespace Corecat {
 inline namespace Allocator {
 
-template <std::size_t S = 65536>
-class FastAllocator {
+template <typename A = DefaultAllocator, std::size_t S = 65536>
+class FastAllocator : private A {
     
 private:
     
@@ -58,12 +60,12 @@ private:
     
     void allocateBlock(std::size_t size) {
         
-        auto block = static_cast<Block*>(std::malloc(sizeof(Block) + size));
+        auto block = static_cast<Block*>(A::allocate(sizeof(Block) + size));
         block->next = nullptr;
         block->size = size;
         block->free = 0;
-        if(lastBlock) { lastBlock->next = block; lastBlock = block; }
-            else firstBlock = lastBlock = block;
+        if(lastBlock) lastBlock->next = block, lastBlock = block;
+        else firstBlock = lastBlock = block;
         
     }
     
@@ -88,7 +90,7 @@ public:
     
     void clear() {
         
-        for(auto p = firstBlock; p; ) { auto next = p->next; std::free(p); p = next; }
+        for(auto p = firstBlock; p; ) { auto next = p->next; A::deallocate(p); p = next; }
         firstBlock = lastBlock = nullptr;
     
     }
