@@ -235,18 +235,14 @@ inline std::enable_if_t<std::is_unsigned<T>::value, String<C>> toStringBase(T t,
 
 namespace Impl {
 
-template <typename T>
+template <bool IS_NUMERIC, typename T>
 inline std::pair<T, T> parseFormatAlignType(const T*& p, const T* q) {
     
-    T fillChar = ' ', alignType = '<';
-    if(q - p >= 1){
-     
-        if(*p == T('<') || *p == T('>') || *p == T('^'))
-            alignType = *p, ++p;
-        else if(q - p >= 2 && (p[1] == T('<') || p[1] == T('>') || p[1] == T('^')))
-            fillChar = p[0], alignType = p[1], p += 2;
-        
-    }
+    T fillChar = ' ', alignType = IS_NUMERIC ? '>' : '<';
+    if(q - p >= 2 && (p[1] == T('<') || p[1] == T('>') || p[1] == T('^') || (IS_NUMERIC && *p == T('='))))
+        fillChar = p[0], alignType = p[1], p += 2;
+    else if(q - p >= 1 && (*p == T('<') || *p == T('>') || *p == T('^') || (IS_NUMERIC && *p == T('='))))
+        alignType = *p, ++p;
     return {fillChar, alignType};
     
 }
@@ -268,6 +264,16 @@ inline bool parseFormatAlter(const T*& p, const T* q) {
     if(p != q && *p == T('#'))
         alter = true, ++p;
     return alter;
+    
+}
+
+template <typename T>
+inline bool parseFormatZero(const T*& p, const T* q) {
+    
+    bool zero = false;
+    if(p != q && *p == T('0'))
+        zero = true, ++p;
+    return zero;
     
 }
 
@@ -301,7 +307,7 @@ void formatString(String<C>& writer, StringView<C> str, StringView<C> arg) {
     
     auto p = arg.begin(), q = arg.end();
     
-    CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType(p, q);
+    CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType<false>(p, q);
     std::size_t width = Impl::parseFormatWidth(p, q);
     
     if(p != q) throw InvalidArgumentException("Invalid format specifier");
@@ -310,12 +316,25 @@ void formatString(String<C>& writer, StringView<C> str, StringView<C> arg) {
     if(width <= length) { writer += str; return; }
     std::size_t fill = width - length;
     switch(alignType) {
-    case '<': writer += str, writer.append(fillChar, fill); break;
-    case '>': writer.append(fillChar, fill), writer += str; break;
+    case '<': {
+        
+        writer += str;
+        writer.append(fillChar, fill);
+        break;
+    }
+    case '>': {
+        
+        writer.append(fillChar, fill);
+        writer += str;
+        break;
+        
+    }
     case '^': {
         
         std::size_t left = fill / 2, right = fill - left;
-        writer.append(fillChar, left), writer += str, writer.append(fillChar, right);
+        writer.append(fillChar, left);
+        writer += str;
+        writer.append(fillChar, right);
         break;
         
     }
@@ -336,9 +355,11 @@ std::enable_if_t<std::is_integral<T>::value> formatString(String<C>& writer, T t
     if(arg.isEmpty()) { writer += toString<C>(t); return; }
     
     auto p = arg.begin(), q = arg.end();
-    CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType(p, q);
+    CharType fillChar, alignType; std::tie(fillChar, alignType) = Impl::parseFormatAlignType<true>(p, q);
     CharType signType = Impl::parseFormatSignType(p, q);
     bool alter = Impl::parseFormatAlter(p, q);
+    bool zero = Impl::parseFormatZero(p, q);
+    if(zero) fillChar = CharType('0'), alignType = CharType('=');
     std::size_t width = Impl::parseFormatWidth(p, q);
     CharType type = Impl::parseFormatType(p, q, CharType('d'));
     if(type != CharType('b') && type != CharType('c') && type != CharType('d') && type != CharType('o') && type != CharType('x') && type != CharType('X'))
@@ -360,15 +381,46 @@ std::enable_if_t<std::is_integral<T>::value> formatString(String<C>& writer, T t
     }
     
     std::size_t length = str.getLength() + !!sign;
-    if(width <= length) { writer += str; return; }
+    if(width <= length) {
+        
+        if(sign) writer += sign;
+        writer += str;
+        return;
+        
+    }
     std::size_t fill = width - length;
     switch(alignType) {
-    case '<': if(sign) writer += sign; writer += str, writer.append(fillChar, fill); break;
-    case '>': writer.append(fillChar, fill); if(sign) writer += sign; writer += str; break;
+    case '<': {
+        
+        if(sign) writer += sign;
+        writer += str;
+        writer.append(fillChar, fill);
+        break;
+        
+    }
+    case '>': {
+        
+        writer.append(fillChar, fill);
+        if(sign) writer += sign;
+        writer += str;
+        break;
+        
+    }
     case '^': {
         
         std::size_t left = fill / 2, right = fill - left;
-        writer.append(fillChar, left); if(sign) writer += sign; writer += str, writer.append(fillChar, right);
+        writer.append(fillChar, left);
+        if(sign) writer += sign;
+        writer += str;
+        writer.append(fillChar, right);
+        break;
+        
+    }
+    case '=': {
+        
+        if(sign) writer += sign;
+        writer.append(fillChar, fill);
+        writer += str;
         break;
         
     }
