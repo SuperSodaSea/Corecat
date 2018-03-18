@@ -239,7 +239,7 @@ public:
         auto cb1 = [=]() {
             
             try { thenImpl(resolved, promise); }
-            catch(...) { promise.reject(ExceptionPtr::current()); }
+            catch(...) { promise.reject(ExceptionPtr::getCurrent()); }
             
         };
         auto cb2 = [=]() { promise.reject(exception); };
@@ -259,7 +259,7 @@ public:
         auto cb = [=]() {
             
             try { failImpl(rejected, promise); }
-            catch(...) { promise.reject(ExceptionPtr::current()); }
+            catch(...) { promise.reject(ExceptionPtr::getCurrent()); }
             
         };
         std::unique_lock<Mutex> lock(mutex);
