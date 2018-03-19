@@ -28,6 +28,7 @@
 #define CATS_CORECAT_DATA_HPP
 
 
+#include "Data/Allocator.hpp"
 #include "Data/DataView.hpp"
 #include "Data/Stream.hpp"
 

@@ -24,43 +24,12 @@
  *
  */
 
-#ifndef CATS_CORECAT_ALLOCATOR_DEFAULTALLOCATOR_HPP
-#define CATS_CORECAT_ALLOCATOR_DEFAULTALLOCATOR_HPP
+#ifndef CATS_CORECAT_DATA_ALLOCATOR_HPP
+#define CATS_CORECAT_DATA_ALLOCATOR_HPP
 
 
-#include <cstdlib>
-
-
-namespace Cats {
-namespace Corecat {
-inline namespace Allocator {
-
-class DefaultAllocator {
-    
-public:
-    
-    DefaultAllocator() = default;
-    DefaultAllocator(const DefaultAllocator& src) = delete;
-    
-    DefaultAllocator& operator =(const DefaultAllocator& src) = delete;
-    
-    void* allocate(std::size_t size) {
-        
-        return std::malloc(size);
-        
-    }
-    
-    void deallocate(void* data) {
-        
-        std::free(data);
-        
-    }
-    
-};
-
-}
-}
-}
+#include "Allocator/DefaultAllocator.hpp"
+#include "Allocator/FastAllocator.hpp"
 
 
 #endif

@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_ALLOCATOR_FASTALLOCATOR_HPP
-#define CATS_CORECAT_ALLOCATOR_FASTALLOCATOR_HPP
+#ifndef CATS_CORECAT_DATA_ALLOCATOR_FASTALLOCATOR_HPP
+#define CATS_CORECAT_DATA_ALLOCATOR_FASTALLOCATOR_HPP
 
 
 #include <cassert>
@@ -36,6 +36,7 @@
 
 namespace Cats {
 namespace Corecat {
+inline namespace Data {
 inline namespace Allocator {
 
 template <typename A = DefaultAllocator, std::size_t S = 65536>
@@ -97,6 +98,7 @@ public:
     
 };
 
+}
 }
 }
 }
