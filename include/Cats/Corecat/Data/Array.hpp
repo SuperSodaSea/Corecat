@@ -24,8 +24,8 @@
  *
  */
 
-#ifndef CATS_CORECAT_UTIL_ARRAYVIEW_HPP
-#define CATS_CORECAT_UTIL_ARRAYVIEW_HPP
+#ifndef CATS_CORECAT_DATA_ARRAY_HPP
+#define CATS_CORECAT_DATA_ARRAY_HPP
 
 
 #include <cstddef>
@@ -33,12 +33,13 @@
 #include <iterator>
 #include <memory>
 
-#include "Iterator.hpp"
+#include "Allocator/DefaultAllocator.hpp"
+#include "../Util/Iterator.hpp"
 
 
 namespace Cats {
 namespace Corecat {
-inline namespace Util {
+inline namespace Data {
 
 template <typename T>
 class ArrayView {
@@ -54,13 +55,13 @@ public:
     
 private:
     
-    Type* data;
-    std::size_t size;
+    Type* data = nullptr;
+    std::size_t size = 0;
     
 public:
     
-    ArrayView(std::nullptr_t = nullptr) noexcept : data(nullptr), size(0) {}
-    ArrayView(Type& t) noexcept : data(std::addressof(t)), size(1) {}
+    ArrayView() = default;
+    ArrayView(std::nullptr_t) noexcept {}
     ArrayView(Type* data_, std::size_t size_) noexcept : data(data_), size(size_) {}
     template <std::size_t S>
     ArrayView(Type (&array)[S]) noexcept : data(array), size(S) {}

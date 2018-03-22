@@ -35,8 +35,8 @@
 #include <memory>
 #include <vector>
 
-#include "ArrayView.hpp"
 #include "Exception.hpp"
+#include "../Data/Array.hpp"
 #include "../Text/String.hpp"
 
 

@@ -29,6 +29,7 @@
 
 
 #include "Data/Allocator.hpp"
+#include "Data/Array.hpp"
 #include "Data/DataView.hpp"
 #include "Data/Stream.hpp"
 
