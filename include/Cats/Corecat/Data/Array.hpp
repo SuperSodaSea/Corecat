@@ -32,6 +32,7 @@
 
 #include <iterator>
 #include <memory>
+#include <utility>
 
 #include "Allocator/DefaultAllocator.hpp"
 #include "../Util/Iterator.hpp"
@@ -62,12 +63,12 @@ private:
     A allocator;
     Type* data = nullptr;
     std::size_t size = 0;
-    std::size_t capacity = nullptr;
+    std::size_t capacity = 0;
     
 public:
     
     Array() = default;
-    Array(std::size_t size_) noexcept { resize(size_); }
+    Array(std::size_t size_) { resize(size_); }
     Array(const Array& src) = delete;
     ~Array() {
         
@@ -87,12 +88,65 @@ public:
     const Type* getData() const noexcept { return data; }
     Type* getData() noexcept { return data; }
     std::size_t getSize() const noexcept { return size; }
+    std::size_t getCapacity() const noexcept { return capacity; }
     
     bool isEmpty() const noexcept { return !size; }
     
     void clear() noexcept { resize(0); }
     
     void resize(std::size_t size_) {
+        
+        if(size_ < size) {
+            
+            for(std::size_t i = size_ - 1; i != size_ - 1; --i)
+                data[i].~T();
+            
+        } else if(size_ > size) {
+            
+            if(size_ <= capacity) {
+                
+                std::size_t i = size;
+                try {
+                    
+                    for(; i < size_; ++i) new(data + i) T();
+                    
+                } catch(...) {
+                    
+                    for(--i; i != size - 1; --i) data[i].~T();
+                    std::rethrow_exception(std::current_exception());
+                    
+                }
+                
+            } else {
+                
+                T* data_ = static_cast<T*>(allocator.allocate(size_ * sizeof(T)));
+                std::size_t i = 0;
+                try {
+                    
+                    for(; i < size; ++i) new(data_ + i) T(data[i]);
+                    for(; i < size_; ++i) new(data_ + i) T();
+                        
+                } catch(...) {
+                    
+                    for(--i; i != std::size_t(-1); --i) data_[i].~T();
+                    allocator.deallocate(data_, size_ * sizeof(T));
+                    std::rethrow_exception(std::current_exception());
+                    
+                }
+                if(data) {
+                    
+                    for(std::size_t i = size - 1; i != std::size_t(-1); --i)
+                        data[i].~T();
+                    allocator.deallocate(data, capacity * sizeof(T));
+                    
+                }
+                data = data_;
+                capacity = size_;
+                
+            }
+            
+        }
+        size = size_;
         
     }
     

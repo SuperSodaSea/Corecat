@@ -51,7 +51,7 @@ public:
         
     }
     
-    void deallocate(void* data) {
+    void deallocate(void* data, std::size_t /*size*/) {
         
         std::free(data);
         

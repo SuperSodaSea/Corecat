@@ -87,7 +87,7 @@ public:
         
     }
     
-    void deallocate(void* /*p*/) {}
+    void deallocate(void* /*data*/, std::size_t /*size*/) {}
     
     void clear() {
         
