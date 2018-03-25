@@ -94,6 +94,33 @@ public:
     
     void clear() noexcept { resize(0); }
     
+    void reserve(std::size_t capacity_) {
+        
+        if(capacity >= capacity_) return;
+        T* data_ = static_cast<T*>(allocator.allocate(capacity_ * sizeof(T)));
+        std::size_t i = 0;
+        try {
+            
+            for(; i < size; ++i) new(data_ + i) T(data[i]);
+                
+        } catch(...) {
+            
+            for(--i; i != std::size_t(-1); --i) data_[i].~T();
+            allocator.deallocate(data_, capacity_ * sizeof(T));
+            std::rethrow_exception(std::current_exception());
+            
+        }
+        if(data) {
+            
+            for(std::size_t i = size - 1; i != std::size_t(-1); --i) data[i].~T();
+            allocator.deallocate(data, capacity * sizeof(T));
+            
+        }
+        data = data_;
+        capacity = capacity_;
+        
+    }
+    
     void resize(std::size_t size_) {
         
         if(size_ < size) {
@@ -135,8 +162,7 @@ public:
                 }
                 if(data) {
                     
-                    for(std::size_t i = size - 1; i != std::size_t(-1); --i)
-                        data[i].~T();
+                    for(std::size_t i = size - 1; i != std::size_t(-1); --i) data[i].~T();
                     allocator.deallocate(data, capacity * sizeof(T));
                     
                 }

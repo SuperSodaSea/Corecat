@@ -51,7 +51,7 @@ public:
         
     }
     
-    void deallocate(void* data, std::size_t /*size*/) {
+    void deallocate(void* data, std::size_t /*size*/) noexcept {
         
         std::free(data);
         
