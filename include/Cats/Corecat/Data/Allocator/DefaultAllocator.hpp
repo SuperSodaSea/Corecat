@@ -42,8 +42,10 @@ public:
     
     DefaultAllocator() = default;
     DefaultAllocator(const DefaultAllocator& src) = delete;
+    DefaultAllocator(DefaultAllocator&& src) = default;
     
     DefaultAllocator& operator =(const DefaultAllocator& src) = delete;
+    DefaultAllocator& operator =(DefaultAllocator&& src) = default;
     
     void* allocate(std::size_t size) {
         

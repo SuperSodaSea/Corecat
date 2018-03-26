@@ -70,6 +70,7 @@ public:
     Array() = default;
     Array(std::size_t size_) { resize(size_); }
     Array(const Array& src) = delete;
+    Array(Array&& src) { swap(src); }
     ~Array() {
         
         clear();
@@ -78,6 +79,7 @@ public:
     }
     
     Array& operator =(const Array& src) = delete;
+    Array& operator =(Array&& src) { swap(*this, src); return *this; }
     
     operator ArrayView<const Type>() const noexcept { return {data, size}; }
     operator ArrayView<Type>() noexcept { return {data, size}; }
@@ -173,6 +175,15 @@ public:
             
         }
         size = size_;
+        
+    }
+    
+    void swap(Array& src) noexcept {
+        
+        std::swap(allocator, src.allocator);
+        std::swap(data, src.data);
+        std::swap(size, src.size);
+        std::swap(capacity, src.capacity);
         
     }
     
