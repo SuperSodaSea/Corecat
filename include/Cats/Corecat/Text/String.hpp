@@ -177,7 +177,7 @@ public:
     std::size_t getLength() const noexcept { return isSmall() ? BUFFER_SIZE - storage.buffer.length - 1 : storage.length; }
     std::size_t getCapacity() const noexcept { return isSmall() ? BUFFER_SIZE - 1 : storage.capacity; }
     
-    StringViewType getView() const noexcept { return StringViewType(getData(), getLength()); }
+    StringViewType getView() const noexcept { return {getData(), getLength()}; }
     
     bool isEmpty() const noexcept { return !getLength(); }
     
@@ -487,7 +487,12 @@ public:
     template<typename... Arg>
     StringType format(Arg&&... arg) const { return Formatter<C>(*this).format(std::forward<Arg>(arg)...); }
     
-    void swap(StringView& src) noexcept { std::swap(data, src.data), std::swap(length, src.length); }
+    void swap(StringView& src) noexcept {
+        
+        std::swap(data, src.data);
+        std::swap(length, src.length);
+        
+    }
     
     Iterator begin() const noexcept { return getData(); }
     Iterator end() const noexcept { return getData() + getLength(); }
