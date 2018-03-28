@@ -58,6 +58,9 @@ public:
     using ReverseIterator = Corecat::ReverseIterator<Iterator>;
     using ConstReverseIterator = Corecat::ReverseIterator<ConstIterator>;
     
+    using ArrayViewType = ArrayView<T>;
+    using ConstArrayViewType = ArrayView<const T>;
+    
 private:
     
     A allocator;
@@ -81,8 +84,8 @@ public:
     Array& operator =(const Array& src) = delete;
     Array& operator =(Array&& src) { swap(*this, src); return *this; }
     
-    operator ArrayView<const Type>() const noexcept { return {data, size}; }
-    operator ArrayView<Type>() noexcept { return {data, size}; }
+    operator ConstArrayViewType() const noexcept { return getView(); }
+    operator ArrayViewType() noexcept { return getView(); }
     
     const Type& operator [](std::size_t index) const noexcept { return data[index]; }
     Type& operator [](std::size_t index) noexcept { return data[index]; }
@@ -91,6 +94,9 @@ public:
     Type* getData() noexcept { return data; }
     std::size_t getSize() const noexcept { return size; }
     std::size_t getCapacity() const noexcept { return capacity; }
+    
+    ConstArrayViewType getView() const noexcept { return {data, size}; }
+    ArrayViewType getView() noexcept { return {data, size}; }
     
     bool isEmpty() const noexcept { return !size; }
     
