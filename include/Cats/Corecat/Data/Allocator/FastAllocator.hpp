@@ -91,7 +91,7 @@ public:
     
     void clear() {
         
-        for(auto p = firstBlock; p; ) { auto next = p->next; A::deallocate(p); p = next; }
+        for(auto p = firstBlock; p; ) { auto next = p->next; A::deallocate(p, sizeof(Block) + p->size); p = next; }
         firstBlock = lastBlock = nullptr;
     
     }
