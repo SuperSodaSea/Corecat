@@ -184,6 +184,43 @@ public:
         
     }
     
+    void append(const T& t) {
+        
+        if(size < capacity) {
+            
+            new(data + size) T(t);
+            
+        } else {
+            
+            std::size_t newSize = size + 1;
+            T* newData = static_cast<T*>(allocator.allocate(newSize * sizeof(T)));
+            std::size_t i = 0;
+            try {
+                
+                for(; i < size; ++i) new(newData + i) T(data[i]);
+                new(newData + size) T(t);
+                    
+            } catch(...) {
+                
+                for(--i; i != std::size_t(-1); --i) newData[i].~T();
+                allocator.deallocate(newData, newSize * sizeof(T));
+                std::rethrow_exception(std::current_exception());
+                
+            }
+            if(data) {
+                
+                for(std::size_t i = size - 1; i != std::size_t(-1); --i) data[i].~T();
+                allocator.deallocate(data, capacity * sizeof(T));
+                
+            }
+            data = newData;
+            capacity = newSize;
+            
+        }
+        ++size;
+        
+    }
+    
     void swap(Array& src) noexcept {
         
         std::swap(allocator, src.allocator);
