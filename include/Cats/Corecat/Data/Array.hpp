@@ -184,11 +184,12 @@ public:
         
     }
     
-    void append(const T& t) {
+    template <typename... Arg>
+    void append(Arg&&... arg) {
         
         if(size < capacity) {
             
-            new(data + size) T(t);
+            new(data + size) T(std::forward<Arg>(arg)...);
             
         } else {
             
@@ -198,7 +199,7 @@ public:
             try {
                 
                 for(; i < size; ++i) new(newData + i) T(data[i]);
-                new(newData + size) T(t);
+                new(newData + size) T(std::forward<Arg>(arg)...);
                     
             } catch(...) {
                 
