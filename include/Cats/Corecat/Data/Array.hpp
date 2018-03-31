@@ -72,7 +72,25 @@ public:
     
     Array() = default;
     Array(std::size_t size_) { resize(size_); }
-    Array(const Array& src) = delete;
+    Array(const Array& src) {
+        
+        data = static_cast<T*>(allocator.allocate(src.size * sizeof(T)));
+        size = src.size;
+        capacity = size;
+        std::size_t i = 0;
+        try {
+            
+            for(; i < size; ++i) new(data + i) T(src.data[i]);
+                
+        } catch(...) {
+            
+            for(--i; i != std::size_t(-1); --i) data[i].~T();
+            allocator.deallocate(data, capacity * sizeof(T));
+            std::rethrow_exception(std::current_exception());
+            
+        }
+        
+    }
     Array(Array&& src) { swap(src); }
     ~Array() {
         
