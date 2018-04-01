@@ -91,7 +91,7 @@ public:
         }
         
     }
-    Array(Array&& src) { swap(src); }
+    Array(Array&& src) noexcept { swap(src); }
     ~Array() {
         
         clear();
@@ -100,7 +100,7 @@ public:
     }
     
     Array& operator =(const Array& src) = delete;
-    Array& operator =(Array&& src) { swap(*this, src); return *this; }
+    Array& operator =(Array&& src) noexcept { swap(*this, src); return *this; }
     
     operator ConstArrayViewType() const noexcept { return getView(); }
     operator ArrayViewType() noexcept { return getView(); }
