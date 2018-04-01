@@ -84,9 +84,9 @@ public:
                 
         } catch(...) {
             
-            for(--i; i != std::size_t(-1); --i) data[i].~T();
+            for(std::size_t j = 0; j < i; ++j) data[j].~T();
             allocator.deallocate(data, capacity * sizeof(T));
-            std::rethrow_exception(std::current_exception());
+            throw;
             
         }
         
@@ -99,8 +99,61 @@ public:
         
     }
     
-    Array& operator =(const Array& src) = delete;
-    Array& operator =(Array&& src) noexcept { swap(*this, src); return *this; }
+    Array& operator =(const Array& src) {
+        
+        if(src.size > capacity) {
+            
+            T* newData = static_cast<T*>(allocator.allocate(src.size * sizeof(T)));
+            std::size_t i = 0;
+            try {
+                
+                for(; i < src.size; ++i) new(newData + i) T(src.data[i]);
+                    
+            } catch(...) {
+                
+                for(std::size_t j = 0; j < i; ++j) newData[j].~T();
+                allocator.deallocate(newData, src.size * sizeof(T));
+                throw;
+                
+            }
+            if(data) {
+                
+                for(std::size_t i = 0; i < size; ++i) data[i].~T();
+                allocator.deallocate(data, capacity * sizeof(T));
+                
+            }
+            data = newData;
+            size = src.size;
+            capacity = size;
+            
+        } else if(src.size > size) {
+            
+            std::size_t i = 0;
+            for(; i < size; ++i) data[i] = src.data[i];
+            try {
+                
+                for(; i < src.size; ++i) new(data + i) T(src.data[i]);
+                
+            } catch(...) {
+                
+                for(std::size_t j = size; j < i; ++j) data[j].~T();
+                throw;
+                
+            }
+            size = src.size;
+            
+        } else {
+            
+            std::size_t i = 0;
+            for(; i < src.size; ++i) data[i] = src.data[i];
+            for(; i < size; ++i) data[i].~T();
+            size = src.size;
+            
+        }
+        return *this;
+        
+    }
+    Array& operator =(Array&& src) noexcept { swap(src); return *this; }
     
     operator ConstArrayViewType() const noexcept { return getView(); }
     operator ArrayViewType() noexcept { return getView(); }
@@ -131,14 +184,14 @@ public:
                 
         } catch(...) {
             
-            for(--i; i != std::size_t(-1); --i) data_[i].~T();
+            for(std::size_t j = 0; j < i; ++j) data[j].~T();
             allocator.deallocate(data_, capacity_ * sizeof(T));
-            std::rethrow_exception(std::current_exception());
+            throw;
             
         }
         if(data) {
             
-            for(std::size_t i = size - 1; i != std::size_t(-1); --i) data[i].~T();
+            for(std::size_t i = 0; i < size; ++i) data[i].~T();
             allocator.deallocate(data, capacity * sizeof(T));
             
         }
@@ -165,8 +218,8 @@ public:
                     
                 } catch(...) {
                     
-                    for(--i; i != size - 1; --i) data[i].~T();
-                    std::rethrow_exception(std::current_exception());
+                    for(std::size_t j = 0; j < i; ++j) data[j].~T();
+                    throw;
                     
                 }
                 
@@ -181,14 +234,14 @@ public:
                         
                 } catch(...) {
                     
-                    for(--i; i != std::size_t(-1); --i) data_[i].~T();
+                    for(std::size_t j = 0; j < i; ++j) data_[j].~T();
                     allocator.deallocate(data_, size_ * sizeof(T));
-                    std::rethrow_exception(std::current_exception());
+                    throw;
                     
                 }
                 if(data) {
                     
-                    for(std::size_t i = size - 1; i != std::size_t(-1); --i) data[i].~T();
+                    for(std::size_t i = 0; i < size; ++i) data[i].~T();
                     allocator.deallocate(data, capacity * sizeof(T));
                     
                 }
@@ -221,14 +274,14 @@ public:
                     
             } catch(...) {
                 
-                for(--i; i != std::size_t(-1); --i) newData[i].~T();
+                for(std::size_t j = 0; j < i; ++j) newData[j].~T();
                 allocator.deallocate(newData, newSize * sizeof(T));
-                std::rethrow_exception(std::current_exception());
+                throw;
                 
             }
             if(data) {
                 
-                for(std::size_t i = size - 1; i != std::size_t(-1); --i) data[i].~T();
+                for(std::size_t i = 0; i < size; ++i) data[i].~T();
                 allocator.deallocate(data, capacity * sizeof(T));
                 
             }
