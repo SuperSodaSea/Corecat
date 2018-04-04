@@ -49,11 +49,6 @@ class SharedLibrary {
     
 private:
     
-    using String8 = Text::String8;
-    using String16 = Text::String16;
-    
-private:
-    
 #if defined(CORECAT_OS_WINDOWS)
     HMODULE handle = nullptr;
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
