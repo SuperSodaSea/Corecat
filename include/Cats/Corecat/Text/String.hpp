@@ -454,22 +454,14 @@ public:
         
     }
     
-    StringView slice(std::ptrdiff_t beginPos) const noexcept {
-        
-        if(beginPos < 0) beginPos += length;
-        beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
-        if(beginPos < static_cast<std::ptrdiff_t>(length)) return {data + beginPos, length - beginPos};
-        else return {};
-        
-    }
+    StringView slice(std::ptrdiff_t beginPos) const noexcept { return slice(beginPos, length); }
     StringView slice(std::ptrdiff_t beginPos, std::ptrdiff_t endPos) const noexcept {
         
-        if(beginPos < 0) beginPos += length;
-        beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
-        if(endPos < 0) endPos += length;
-        endPos = std::min<std::ptrdiff_t>(std::max<std::ptrdiff_t>(endPos, 0), length);
-        if(beginPos < static_cast<std::ptrdiff_t>(length) && beginPos < endPos)
-            return {data + beginPos, static_cast<std::size_t>(endPos - beginPos)};
+        if(beginPos < 0) beginPos = std::max<std::ptrdiff_t>(beginPos + length, 0);
+        else beginPos = std::min<std::ptrdiff_t>(beginPos, length);
+        if(endPos < 0) endPos = std::max<std::ptrdiff_t>(endPos + length, 0);
+        else endPos = std::min<std::ptrdiff_t>(endPos, length);
+        if(beginPos < endPos) return {data + beginPos, std::size_t(endPos - beginPos)};
         else return {};
         
     }
