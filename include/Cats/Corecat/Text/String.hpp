@@ -469,10 +469,10 @@ public:
     StringView substr(std::ptrdiff_t beginPos) const noexcept { return slice(beginPos); }
     StringView substr(std::ptrdiff_t beginPos, std::size_t count) const noexcept {
         
-        if(beginPos < 0) beginPos += length;
-        beginPos = std::max<std::ptrdiff_t>(beginPos, 0);
-        if(beginPos < static_cast<std::ptrdiff_t>(length)) return {data + beginPos, std::min(count, length - beginPos)};
-        else return {};
+        if(beginPos < 0) beginPos = std::max<std::ptrdiff_t>(beginPos + length, 0);
+        else beginPos = std::min<std::ptrdiff_t>(beginPos, length);
+        count = std::min<std::size_t>(length - beginPos, count);
+        return {data + beginPos, count};
         
     }
     
