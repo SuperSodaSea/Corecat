@@ -352,6 +352,18 @@ public:
     
     bool isEmpty() const noexcept { return !size; }
     
+    ArrayView slice(std::ptrdiff_t beginPos) const noexcept { return slice(beginPos, size); }
+    ArrayView slice(std::ptrdiff_t beginPos, std::ptrdiff_t endPos) const noexcept {
+        
+        if(beginPos < 0) beginPos = std::max<std::ptrdiff_t>(beginPos + size, 0);
+        else beginPos = std::min<std::ptrdiff_t>(beginPos, size);
+        if(endPos < 0) endPos = std::max<std::ptrdiff_t>(endPos + size, 0);
+        else endPos = std::min<std::ptrdiff_t>(endPos, size);
+        if(beginPos < endPos) return {data + beginPos, std::size_t(endPos - beginPos)};
+        else return {};
+        
+    }
+    
     Iterator begin() const noexcept { return data; }
     Iterator end() const noexcept { return data + size; }
     
