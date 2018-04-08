@@ -339,6 +339,7 @@ public:
     ArrayView(Type* data_, std::size_t size_) noexcept : data(data_), size(size_) {}
     template <std::size_t S>
     ArrayView(Type (&array)[S]) noexcept : data(array), size(S) {}
+    ArrayView(std::initializer_list<T> list) noexcept : data(list.begin()), size(list.size()) {}
     ArrayView(const ArrayView& src) = default;
     
     ArrayView& operator =(const ArrayView& src) = default;
