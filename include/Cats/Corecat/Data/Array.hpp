@@ -349,7 +349,9 @@ public:
     Type& operator [](std::size_t index) const noexcept { return data[index]; }
     
     Type* getData() const noexcept { return data; }
+    void setData(T* data_, std::size_t size_) noexcept { data = data_, size = size_; }
     std::size_t getSize() const noexcept { return size; }
+    void setSize(std::size_t size_) noexcept { size = size_; }
     
     bool isEmpty() const noexcept { return !size; }
     
