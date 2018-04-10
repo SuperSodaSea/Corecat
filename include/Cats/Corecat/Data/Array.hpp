@@ -343,6 +343,8 @@ public:
     ArrayView(const ArrayView& src) = default;
     
     ArrayView& operator =(const ArrayView& src) = default;
+    template <std::size_t S>
+    ArrayView& operator =(Type (&array)[S]) noexcept { data = array, size = S; return *this; }
     
     operator ArrayView<const Type>() noexcept { return {data, size}; }
     
