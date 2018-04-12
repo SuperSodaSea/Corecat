@@ -292,6 +292,13 @@ public:
         
     }
     
+    void pop() noexcept {
+        
+        if(!size) return;
+        data[--size].~T();
+        
+    }
+    
     void swap(Array& src) noexcept {
         
         std::swap(allocator, src.allocator);
