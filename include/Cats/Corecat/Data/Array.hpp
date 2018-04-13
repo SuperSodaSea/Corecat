@@ -374,6 +374,13 @@ public:
         
     }
     
+    void swap(ArrayView& src) noexcept {
+        
+        std::swap(data, src.data);
+        std::swap(size, src.size);
+        
+    }
+    
     Iterator begin() const noexcept { return data; }
     Iterator end() const noexcept { return data + size; }
     
