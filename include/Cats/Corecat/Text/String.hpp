@@ -323,10 +323,10 @@ using WString = String<WideCharset<>>;
 
 inline namespace StringLiteral {
 
-inline String8 operator "" _s(const char* str, std::size_t len) { return {str, len}; }
-inline String16 operator "" _s(const char16_t* str, std::size_t len) { return {str, len}; }
-inline String32 operator "" _s(const char32_t* str, std::size_t len) { return {str, len}; }
-inline WString operator "" _s(const wchar_t* str, std::size_t len) { return {str, len}; }
+inline String8 operator "" _s(const char* data, std::size_t length) noexcept { return {data, length}; }
+inline String16 operator "" _s(const char16_t* data, std::size_t length) noexcept { return {data, length}; }
+inline String32 operator "" _s(const char32_t* data, std::size_t length) noexcept { return {data, length}; }
+inline WString operator "" _s(const wchar_t* data, std::size_t length) noexcept { return {data, length}; }
 
 }
 
@@ -486,8 +486,8 @@ public:
         
     }
     
-    Iterator begin() const noexcept { return getData(); }
-    Iterator end() const noexcept { return getData() + getLength(); }
+    Iterator begin() const noexcept { return data; }
+    Iterator end() const noexcept { return data + length; }
     ReverseIterator rbegin() const noexcept { return ReverseIterator(end()); }
     ReverseIterator rend() const noexcept { return ReverseIterator(begin()); }
     
@@ -500,10 +500,10 @@ using WStringView = StringView<WideCharset<>>;
 
 inline namespace StringViewLiteral {
 
-constexpr StringView8 operator "" _sv(const char* str, std::size_t len) noexcept { return {str, len}; }
-constexpr StringView16 operator "" _sv(const char16_t* str, std::size_t len) noexcept { return {str, len}; }
-constexpr StringView32 operator "" _sv(const char32_t* str, std::size_t len) noexcept { return {str, len}; }
-constexpr WStringView operator "" _sv(const wchar_t* str, std::size_t len) noexcept { return {str, len}; }
+constexpr StringView8 operator "" _sv(const char* data, std::size_t length) noexcept { return {data, length}; }
+constexpr StringView16 operator "" _sv(const char16_t* data, std::size_t length) noexcept { return {data, length}; }
+constexpr StringView32 operator "" _sv(const char32_t* data, std::size_t length) noexcept { return {data, length}; }
+constexpr WStringView operator "" _sv(const wchar_t* data, std::size_t length) noexcept { return {data, length}; }
 
 }
 
