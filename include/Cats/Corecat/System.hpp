@@ -30,6 +30,7 @@
 
 #include "System/Compiler.hpp"
 #include "System/OS.hpp"
+#include "System/Process.hpp"
 #include "System/SharedLibrary.hpp"
 
 
