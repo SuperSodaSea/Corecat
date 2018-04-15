@@ -34,8 +34,6 @@
 #include "Corecat/Text.hpp"
 #include "Corecat/Time.hpp"
 #include "Corecat/Util.hpp"
-#include "Corecat/Win32.hpp"
-#include "Corecat/X86.hpp"
 
 
 #endif
