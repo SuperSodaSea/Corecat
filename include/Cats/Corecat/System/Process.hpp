@@ -125,7 +125,7 @@ public:
         Array<const char*> argument(argv.getSize() + 1);
         std::copy(argv.begin(), argv.end(), argument.begin());
         argument[argv.getSize()] = nullptr;
-        if(::posix_spawnp(&pid, file, nullptr, nullptr, argument, nullptr))
+        if(::posix_spawnp(&pid, file, nullptr, nullptr, const_cast<char* const*>(argument.getData()), nullptr))
             throw SystemException("::posix_spawn failed");
 #endif
     }
