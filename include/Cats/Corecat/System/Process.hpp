@@ -95,7 +95,7 @@ private:
     
 public:
     
-    static void create(const char* file, ArrayView<const char* const> argv) {
+    Process(const char* file, ArrayView<const char* const> argv) {
 #if defined(CORECAT_OS_WINDOWS)
         WString argument;
         for(auto&& arg : argv) {
@@ -129,6 +129,10 @@ public:
             throw SystemException("::posix_spawn failed");
 #endif
     }
+    Process(const Process& src) = delete;
+    ~Process() {}
+    
+    Process& operator =(const Process& src) = delete;
     
 };
 
