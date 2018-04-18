@@ -34,7 +34,7 @@
 #include "../Util/Exception.hpp"
 
 #if defined(CORECAT_OS_WINDOWS)
-#   include "../Win32/Windows.hpp"
+#   include "../Win32/Handle.hpp"
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
 #   include <spawn.h>
 #else
@@ -93,6 +93,13 @@ private:
     }
 #endif
     
+private:
+#if defined(CORECAT_OS_WINDOWS)
+    Handle handle;
+#else
+    pid_t pid;
+#endif
+    
 public:
     
     Process(const char* file, ArrayView<const char* const> argv) {
@@ -116,12 +123,11 @@ public:
         si.cb = sizeof(si);
         PROCESS_INFORMATION pi = {};
         auto path = findFullPath(WString(file));
-        if(!::CreateProcessW(path.getData(), argument.getData(), nullptr, nullptr, false, 0, nullptr, nullptr, &si, &pi))
+        if(!::CreateProcessW(path.getData(), argument.getData(), nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi))
             throw SystemException("::CreateProcessW failed");
-        ::CloseHandle(pi.hProcess);
         ::CloseHandle(pi.hThread);
+        handle = pi.hProcess;
 #else
-        pid_t pid;
         Array<const char*> argument(argv.getSize() + 1);
         std::copy(argv.begin(), argv.end(), argument.begin());
         argument[argv.getSize()] = nullptr;
@@ -130,9 +136,20 @@ public:
 #endif
     }
     Process(const Process& src) = delete;
-    ~Process() {}
+    ~Process() = default;
     
     Process& operator =(const Process& src) = delete;
+    
+    void wait() {
+#if defined(CORECAT_OS_WINDOWS)
+        if(::WaitForSingleObject(handle, INFINITE) != WAIT_OBJECT_0)
+            throw SystemException("::WaitForSingleObject failed");
+#else
+        int status;
+        if(::waitpid(pid, &status, 0) < 0)
+            throw SystemException("::waitpid failed");
+#endif
+    }
     
 };
 
