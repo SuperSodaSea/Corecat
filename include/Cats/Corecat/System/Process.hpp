@@ -37,6 +37,7 @@
 #   include "../Win32/Handle.hpp"
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
 #   include <spawn.h>
+#   include <sys/wait.h>
 #else
 #   error Unknown OS
 #endif
