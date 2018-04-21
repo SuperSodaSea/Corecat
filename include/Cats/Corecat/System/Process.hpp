@@ -37,6 +37,7 @@
 #   include "../Win32/Handle.hpp"
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
 #   include <spawn.h>
+#   include <unistd.h>
 #   include <sys/wait.h>
 #else
 #   error Unknown OS
@@ -115,8 +116,7 @@ private:
     
 public:
     
-    Process(const char* file, ArrayView<const char* const> arg) : Process(file, toNullTerminated(arg).getData()) {}
-    Process(const char* file, const char* const* arg) {
+    Process(const char* file, const char* const* arg = nullptr, const char* const* env = nullptr) {
 #if defined(CORECAT_OS_WINDOWS)
         WString argument;
         if(arg) {
@@ -137,19 +137,32 @@ public:
             }
             
         }
+        WString environment;
+        if(env) {
+            
+            for(auto p = env; *p; ++p) {
+                
+                environment += WString(*p);
+                environment += wchar_t();
+                
+            }
+            
+        }
         STARTUPINFOW si = {};
         si.cb = sizeof(si);
         PROCESS_INFORMATION pi = {};
         auto path = findFullPath(WString(file));
-        if(!::CreateProcessW(path.getData(), arg ? argument.getData() : nullptr, nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi))
+        if(!::CreateProcessW(path.getData(), arg ? argument.getData() : nullptr, nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT, env ? environment.getData() : nullptr, nullptr, &si, &pi))
             throw SystemException("::CreateProcessW failed");
         ::CloseHandle(pi.hThread);
         handle = pi.hProcess;
 #else
-        if(::posix_spawnp(&pid, file, nullptr, nullptr, const_cast<char* const*>(arg), nullptr))
+        if(::posix_spawnp(&pid, file, nullptr, nullptr, const_cast<char* const*>(arg), env ? const_cast<char* const*>(env) : environ))
             throw SystemException("::posix_spawn failed");
 #endif
     }
+    Process(const char* file, ArrayView<const char* const> arg) : Process(file, toNullTerminated(arg).getData()) {}
+    Process(const char* file, ArrayView<const char* const> arg, ArrayView<const char* const> env) : Process(file, toNullTerminated(arg).getData(), toNullTerminated(env).getData()) {}
     Process(const Process& src) = delete;
     ~Process() = default;
     
