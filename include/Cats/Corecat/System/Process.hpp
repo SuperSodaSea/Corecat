@@ -49,6 +49,18 @@ inline namespace System {
 
 class Process {
     
+private:
+    
+    template <typename T>
+    static Array<T> toNullTerminated(ArrayView<const T> arr) {
+        
+        Array<T> ret(arr.getSize() + 1);
+        std::copy(arr.begin(), arr.end(), ret.begin());
+        ret[arr.getSize()] = T();
+        return ret;
+        
+    }
+    
 #if defined(CORECAT_OS_WINDOWS)
 private:
     
@@ -103,36 +115,38 @@ private:
     
 public:
     
-    Process(const char* file, ArrayView<const char* const> argv) {
+    Process(const char* file, ArrayView<const char* const> arg) : Process(file, toNullTerminated(arg).getData()) {}
+    Process(const char* file, const char* const* arg) {
 #if defined(CORECAT_OS_WINDOWS)
         WString argument;
-        for(auto&& arg : argv) {
+        if(arg) {
             
-            if(!argument.isEmpty()) argument += L' ';
-            argument += L'"';
-            for(auto&& c : WString(arg)) {
+            for(auto p = arg; *p; ++p) {
                 
-                if(c == L'"') argument += L"\\\"";
-                else if(c == L'\\') argument += L"\\\\";
-                else argument += c;
+                if(!argument.isEmpty()) argument += L' ';
+                argument += L'"';
+                for(auto&& c : WString(*p)) {
+                    
+                    if(c == L'"') argument += L"\\\"";
+                    else if(c == L'\\') argument += L"\\\\";
+                    else argument += c;
+                    
+                }
+                argument += L'"';
                 
             }
-            argument += L'"';
             
         }
         STARTUPINFOW si = {};
         si.cb = sizeof(si);
         PROCESS_INFORMATION pi = {};
         auto path = findFullPath(WString(file));
-        if(!::CreateProcessW(path.getData(), argument.getData(), nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi))
+        if(!::CreateProcessW(path.getData(), arg ? argument.getData() : nullptr, nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi))
             throw SystemException("::CreateProcessW failed");
         ::CloseHandle(pi.hThread);
         handle = pi.hProcess;
 #else
-        Array<const char*> argument(argv.getSize() + 1);
-        std::copy(argv.begin(), argv.end(), argument.begin());
-        argument[argv.getSize()] = nullptr;
-        if(::posix_spawnp(&pid, file, nullptr, nullptr, const_cast<char* const*>(argument.getData()), nullptr))
+        if(::posix_spawnp(&pid, file, nullptr, nullptr, const_cast<char* const*>(arg), nullptr))
             throw SystemException("::posix_spawn failed");
 #endif
     }
