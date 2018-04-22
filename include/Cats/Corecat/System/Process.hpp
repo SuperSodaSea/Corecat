@@ -37,8 +37,13 @@
 #   include "../Win32/Handle.hpp"
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
 #   include <spawn.h>
-#   include <unistd.h>
 #   include <sys/wait.h>
+#   if defined(CORECAT_OS_MACOS)
+#       include <crt_externs.h>
+#       define environ (*_NSGetEnviron())
+#   else
+#       include <unistd.h>
+#   endif
 #else
 #   error Unknown OS
 #endif
