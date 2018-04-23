@@ -107,16 +107,6 @@ private:
     
     std::shared_ptr<HolderBase> data;
     
-    std::shared_ptr<std::exception> exception;
-    const std::type_info* type = nullptr;
-    void (*throwFunction)(const std::exception&) = nullptr;
-    std::exception_ptr eptr = nullptr;
-    
-private:
-    
-    template <typename T>
-    static void throwFunctionImpl(const std::exception& e) { throw static_cast<const T&>(e); }
-    
 public:
     
     ExceptionPtr() = default;
