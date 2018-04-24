@@ -173,14 +173,21 @@ public:
     
     Process& operator =(const Process& src) = delete;
     
-    void wait() {
+    std::int64_t wait() {
 #if defined(CORECAT_OS_WINDOWS)
         if(::WaitForSingleObject(handle, INFINITE) != WAIT_OBJECT_0)
             throw SystemException("::WaitForSingleObject failed");
+        DWORD ret;
+        if(!::GetExitCodeProcess(handle, &ret))
+            throw SystemException("::GetExitCodeProcess failed");
+        handle.close();
+        return ret;
 #else
-        int status;
-        if(::waitpid(pid, &status, 0) < 0)
+        int ret;
+        if(::waitpid(pid, &ret, 0) < 0)
             throw SystemException("::waitpid failed");
+        pid = 0;
+        return ret;
 #endif
     }
     
