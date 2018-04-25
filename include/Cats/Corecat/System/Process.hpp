@@ -78,7 +78,7 @@ private:
         path.setLength(MAX_PATH);
         while(true) {
             
-            DWORD pathLength = ::GetModuleFileNameW(module, path.getData(), path.getLength() + 1);
+            DWORD pathLength = ::GetModuleFileNameW(module, path.getData(), DWORD(path.getLength() + 1));
             if(::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
                 
                 path.setLength(path.getLength() * 2);
