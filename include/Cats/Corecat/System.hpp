@@ -28,6 +28,7 @@
 #define CATS_CORECAT_SYSTEM_HPP
 
 
+#include "System/Architecture.hpp"
 #include "System/Compiler.hpp"
 #include "System/OS.hpp"
 #include "System/Process.hpp"
