@@ -35,5 +35,13 @@
 #include "Corecat/Time.hpp"
 #include "Corecat/Util.hpp"
 
+#if defined(CORECAT_OS_WINDOWS)
+#   include "Corecat/Win32.hpp"
+#endif
+
+#if defined(CORECAT_ARCHITECTURE_X86) || defined(CORECAT_ARCHITECTURE_X86_64)
+#   include "Corecat/X86.hpp"
+#endif
+
 
 #endif
