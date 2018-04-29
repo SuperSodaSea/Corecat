@@ -33,6 +33,7 @@
 
 int main() {
     
+    PRINT(CORECAT_ARCHITECTURE);
     PRINT(CORECAT_COMPILER);
     PRINT(CORECAT_OS);
     
