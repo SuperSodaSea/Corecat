@@ -53,6 +53,18 @@ namespace Cats {
 namespace Corecat {
 inline namespace System {
 
+struct ProcessOption {
+    
+    const char* file = nullptr;
+    const char* const* argument = nullptr;
+    const char* const* environment = nullptr;
+    const char* directory = nullptr;
+    
+    ProcessOption(const char* file_, const char* const* argument_ = nullptr, const char* const* environment_ = nullptr, const char* directory_ = nullptr) :
+        file(file_), argument(argument_), environment(environment_), directory(directory_) {}
+    
+};
+
 class Process {
     
 private:
@@ -121,12 +133,12 @@ private:
     
 public:
     
-    Process(const char* file, const char* const* arg = nullptr, const char* const* env = nullptr) {
+    Process(const ProcessOption& option) {
 #if defined(CORECAT_OS_WINDOWS)
         WString argument;
-        if(arg) {
+        if(option.argument) {
             
-            for(auto p = arg; *p; ++p) {
+            for(auto p = option.argument; *p; ++p) {
                 
                 if(!argument.isEmpty()) argument += L' ';
                 argument += L'"';
@@ -143,9 +155,9 @@ public:
             
         }
         WString environment;
-        if(env) {
+        if(option.environment) {
             
-            for(auto p = env; *p; ++p) {
+            for(auto p = option.environment; *p; ++p) {
                 
                 environment += WString(*p);
                 environment += wchar_t();
@@ -157,18 +169,24 @@ public:
         si.cb = sizeof(si);
         si.wShowWindow = SW_SHOWDEFAULT;
         PROCESS_INFORMATION pi = {};
-        auto path = findFullPath(WString(file));
-        if(!::CreateProcessW(path.getData(), arg ? argument.getData() : nullptr, nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT, env ? environment.getData() : nullptr, nullptr, &si, &pi))
+        auto path = findFullPath(WString(option.file));
+        if(!::CreateProcessW(path.getData(), option.argument ? argument.getData() : nullptr, nullptr, nullptr, true, CREATE_UNICODE_ENVIRONMENT, option.environment ? environment.getData() : nullptr, option.directory ? WString(option.directory).getData() : nullptr, &si, &pi))
             throw SystemException("::CreateProcessW failed");
         ::CloseHandle(pi.hThread);
         handle = pi.hProcess;
 #else
-        if(::posix_spawnp(&pid, file, nullptr, nullptr, const_cast<char* const*>(arg), env ? const_cast<char* const*>(env) : environ))
+        if(::posix_spawnp(&pid, option.file, nullptr, nullptr, const_cast<char* const*>(option.argument), option.environment ? const_cast<char* const*>(option.environment) : environ))
             throw SystemException("::posix_spawn failed");
 #endif
     }
-    Process(const char* file, ArrayView<const char* const> arg) : Process(file, toNullTerminated(arg).getData()) {}
-    Process(const char* file, ArrayView<const char* const> arg, ArrayView<const char* const> env) : Process(file, toNullTerminated(arg).getData(), toNullTerminated(env).getData()) {}
+    Process(const char* file, const char* const* argument = nullptr, const char* const* environment = nullptr, const char* directory = nullptr) :
+        Process(ProcessOption(file, argument, environment, directory)) {}
+    Process(const char* file, const char* directory) :
+        Process(file, nullptr, nullptr, directory) {}
+    Process(const char* file, ArrayView<const char* const> argument, const char* directory = nullptr) :
+        Process(file, toNullTerminated(argument).getData(), nullptr, directory) {}
+    Process(const char* file, ArrayView<const char* const> argument, ArrayView<const char* const> environment, const char* directory = nullptr) :
+        Process(file, toNullTerminated(argument).getData(), toNullTerminated(environment).getData(), directory) {}
     Process(const Process& src) = delete;
     ~Process() = default;
     
