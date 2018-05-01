@@ -155,6 +155,7 @@ public:
         }
         STARTUPINFOW si = {};
         si.cb = sizeof(si);
+        si.wShowWindow = SW_SHOWDEFAULT;
         PROCESS_INFORMATION pi = {};
         auto path = findFullPath(WString(file));
         if(!::CreateProcessW(path.getData(), arg ? argument.getData() : nullptr, nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT, env ? environment.getData() : nullptr, nullptr, &si, &pi))
