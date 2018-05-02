@@ -170,12 +170,28 @@ public:
         si.wShowWindow = SW_SHOWDEFAULT;
         PROCESS_INFORMATION pi = {};
         auto path = findFullPath(WString(option.file));
-        if(!::CreateProcessW(path.getData(), option.argument ? argument.getData() : nullptr, nullptr, nullptr, true, CREATE_UNICODE_ENVIRONMENT, option.environment ? environment.getData() : nullptr, option.directory ? WString(option.directory).getData() : nullptr, &si, &pi))
+        if(!::CreateProcessW(
+            path.getData(),
+            option.argument ? argument.getData() : nullptr,
+            nullptr,
+            nullptr,
+            true,
+            CREATE_UNICODE_ENVIRONMENT,
+            option.environment ? environment.getData() : nullptr,
+            option.directory ? WString(option.directory).getData() : nullptr,
+            &si,
+            &pi))
             throw SystemException("::CreateProcessW failed");
         ::CloseHandle(pi.hThread);
         handle = pi.hProcess;
 #else
-        if(::posix_spawnp(&pid, option.file, nullptr, nullptr, const_cast<char* const*>(option.argument), option.environment ? const_cast<char* const*>(option.environment) : environ))
+        if(::posix_spawnp(
+            &pid,
+            option.file,
+            nullptr,
+            nullptr,
+            const_cast<char* const*>(option.argument),
+            option.environment ? const_cast<char* const*>(option.environment) : environ))
             throw SystemException("::posix_spawn failed");
 #endif
     }
