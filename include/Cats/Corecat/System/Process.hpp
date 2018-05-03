@@ -185,14 +185,21 @@ public:
         ::CloseHandle(pi.hThread);
         handle = pi.hProcess;
 #else
-        if(::posix_spawnp(
-            &pid,
-            option.file,
-            nullptr,
-            nullptr,
-            const_cast<char* const*>(option.argument),
-            option.environment ? const_cast<char* const*>(option.environment) : environ))
-            throw SystemException("::posix_spawn failed");
+        pid = ::fork();
+        if(pid < 0)
+            throw SystemException("::fork failed");
+        if(pid > 0) {
+            
+            // Parent process
+            
+        } else {
+            
+            // Child process
+            if(option.environment) environ = const_cast<char**>(option.environment);
+            ::execvp(option.file, const_cast<char* const*>(option.argument));
+            std::exit(127);
+            
+        }
 #endif
     }
     Process(const char* file, const char* const* argument = nullptr, const char* const* environment = nullptr, const char* directory = nullptr) :
