@@ -194,6 +194,8 @@ public:
             
             // Child process
             if(option.environment) environ = const_cast<char**>(option.environment);
+            if(option.directory && ::chdir(option.directory))
+                std::exit(127);
             ::execvp(option.file, const_cast<char* const*>(option.argument));
             std::exit(127);
             
