@@ -37,6 +37,7 @@
 #   include "../Win32/Handle.hpp"
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
 #   include <unistd.h>
+#   include <sys/ioctl.h>
 #   include <sys/wait.h>
 #   if defined(CORECAT_OS_MACOS)
 #       include <crt_externs.h>
@@ -183,20 +184,71 @@ public:
         ::CloseHandle(pi.hThread);
         handle = pi.hProcess;
 #else
+        int messagePipe[2];
+        if(::pipe(messagePipe))
+            throw SystemException("::pipe failed");
+        
+        int ret;
+        do
+            ret = ::ioctl(messagePipe[1], FIOCLEX);
+        while(ret < 0 && errno == EINTR);
+        if(ret) {
+            
+            ::close(messagePipe[0]);
+            ::close(messagePipe[1]);
+            throw SystemException("::ioctl failed");
+            
+        }
+        
         pid = ::fork();
-        if(pid < 0)
+        if(pid < 0) {
+            
+            ::close(messagePipe[0]);
+            ::close(messagePipe[1]);
             throw SystemException("::fork failed");
+            
+        }
+        
         if(pid > 0) {
             
             // Parent process
+            ::close(messagePipe[1]);
+            
+            ssize_t n;
+            char data;
+            do
+                n = ::read(messagePipe[0], &data, 1);
+            while(n < 0 && errno == EINTR);
+            
+            ::close(messagePipe[0]);
+            if(n) {
+                
+                do
+                    ret = ::waitpid(pid, nullptr, 0);
+                while(ret < 0 && errno == EINTR);
+                throw SystemException("Failed to create process");
+                
+            }
             
         } else {
             
             // Child process
-            if(option.environment) environ = const_cast<char**>(option.environment);
-            if(option.directory && ::chdir(option.directory))
-                std::exit(127);
-            ::execvp(option.file, const_cast<char* const*>(option.argument));
+            ::close(messagePipe[0]);
+            do {
+                
+                if(option.environment) environ = const_cast<char**>(option.environment);
+                if(option.directory && ::chdir(option.directory))
+                    break;
+                ::execvp(option.file, const_cast<char* const*>(option.argument));
+                
+            } while(false);
+            
+            // Failed
+            ssize_t n;
+            char data = 0;
+            do
+                n = ::write(messagePipe[1], &data, 1);
+            while(n < 0 && errno == EINTR);
             std::exit(127);
             
         }
