@@ -249,7 +249,7 @@ public:
             do
                 n = ::write(messagePipe[1], &data, 1);
             while(n < 0 && errno == EINTR);
-            std::exit(127);
+            ::_exit(127);
             
         }
 #endif
@@ -277,11 +277,14 @@ public:
         handle.close();
         return ret;
 #else
-        int ret;
-        if(::waitpid(pid, &ret, 0) < 0)
+        int ret, code;
+        do
+            ret = ::waitpid(pid, &code, 0);
+        while(ret < 0 && errno == EINTR);
+        if(ret < 0)
             throw SystemException("::waitpid failed");
         pid = 0;
-        return ret;
+        return code;
 #endif
     }
     
