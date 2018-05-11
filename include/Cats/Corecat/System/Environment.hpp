@@ -51,6 +51,36 @@ inline namespace System {
 
 class Environment {
     
+public:
+    
+    static Array<String8> getEnvironment() {
+#if defined(CORECAT_OS_WINDOWS)
+        std::size_t count = 0;
+        auto env = ::GetEnvironmentStringsW();
+        if(!env) return {};
+        for(auto p = env; *p; ++count, ++p)
+            while(*++p);
+        Array<String8> data;
+        data.reserve(count);
+        for(auto p = env; *p; ++p) {
+            
+            data.push(WString(p));
+            while(*++p);
+            
+        }
+        ::FreeEnvironmentStringsW(env);
+        return data;
+#else
+        std::size_t count = 0;
+        for(auto p = environ; *p; ++count, ++p);
+        Array<String8> data;
+        data.reserve(count);
+        for(auto p = environ; *p; ++p)
+            data.push(WString(*p));
+        return data;
+#endif
+    }
+    
 };
 
 }
