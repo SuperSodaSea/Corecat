@@ -35,6 +35,7 @@
 #if defined(CORECAT_OS_WINDOWS)
 #   include "../Win32/Windows.hpp"
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
+#   include <limits.h>
 #   include <unistd.h>
 #   if defined(CORECAT_OS_MACOS)
 #       include <crt_externs.h>
@@ -78,6 +79,20 @@ public:
         for(auto p = environ; *p; ++p)
             data.push(WString(*p));
         return data;
+#endif
+    }
+    
+    static String8 getCurrentDirectory() {
+#if defined(CORECAT_OS_WINDOWS)
+        WString path;
+        path.setLength(::GetCurrentDirectoryW(0, nullptr));
+        ::GetCurrentDirectoryW(path.getLength() + 1, path.getData());
+        return String8(path);
+#else
+        char path[PATH_MAX];
+        if(!::getcwd(path, sizeof(path)))
+            throw SystemException("::getcwd failed");
+        return path;
 #endif
     }
     
