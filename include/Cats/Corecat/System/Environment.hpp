@@ -31,6 +31,7 @@
 #include "OS.hpp"
 #include "../Data/Array.hpp"
 #include "../Text/String.hpp"
+#include "../Util/Exception.hpp"
 
 #if defined(CORECAT_OS_WINDOWS)
 #   include "../Win32/Windows.hpp"
@@ -86,7 +87,7 @@ public:
 #if defined(CORECAT_OS_WINDOWS)
         WString path;
         path.setLength(::GetCurrentDirectoryW(0, nullptr));
-        ::GetCurrentDirectoryW(path.getLength() + 1, path.getData());
+        ::GetCurrentDirectoryW(DWORD(path.getLength() + 1), path.getData());
         return String8(path);
 #else
         char path[PATH_MAX];
