@@ -26,7 +26,7 @@
 
 #include <array>
 
-#include "Cats/Corecat/Util.hpp"
+#include "Cats/Corecat/Util/Benchmark.hpp"
 
 
 using namespace Cats::Corecat;
