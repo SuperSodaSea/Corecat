@@ -81,42 +81,81 @@ private:
 #if defined(CORECAT_OS_WINDOWS)
 private:
     
-    static WString getFullPath(const WString& file) {
+    static WString getProcessDirectory() {
         
-        HMODULE module = ::LoadLibraryW(file.getData());
-        if(!module) return {};
         WString path;
         path.setLength(MAX_PATH);
         while(true) {
             
-            DWORD pathLength = ::GetModuleFileNameW(module, path.getData(), DWORD(path.getLength() + 1));
+            DWORD length = ::GetModuleFileNameW(nullptr, path.getData(), DWORD(path.getLength() + 1));
             if(::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
                 
                 path.setLength(path.getLength() * 2);
                 continue;
                 
             }
-            if(!pathLength) {
-                
-                ::FreeLibrary(module);
-                return {};
-                
-            }
-            path.setLength(pathLength);
-            break;
+            if(!length)
+                throw SystemException("::GetModuleFileNameW failed");
+            while(length && path[length - 1] != '/' && path[length - 1] != '\\') --length;
+            if(length) --length;
+            path.setLength(length);
+            return path;
             
         }
-        ::FreeLibrary(module);
+        
+    }
+    static WString getCurrentDirectory() {
+        
+        WString path;
+        path.setLength(::GetCurrentDirectoryW(0, nullptr));
+        ::GetCurrentDirectoryW(DWORD(path.getLength() + 1), path.getData());
+        return path;
+        
+    }
+    static WString getSystemDirectory() {
+        
+        WString path;
+        path.setLength(::GetSystemDirectoryW(nullptr, 0) - 1);
+        ::GetSystemDirectoryW(path.getData(), UINT(path.getLength() + 1));
+        return path;
+        
+    }
+    static WString getWindowsDirectory() {
+        
+        WString path;
+        path.setLength(::GetWindowsDirectoryW(nullptr, 0) - 1);
+        ::GetWindowsDirectoryW(path.getData(), UINT(path.getLength() + 1));
         return path;
         
     }
     
-    static WString findFullPath(const WString& file) {
+    static bool isExist(const WString& path) {
+        
+        DWORD attribute = ::GetFileAttributesW(path.getData());
+        return attribute != INVALID_FILE_ATTRIBUTES && !(attribute & FILE_ATTRIBUTE_DIRECTORY);
+        
+    }
+    
+    static WString enumPath(const WString& file, const Array<WString>& pathList) {
+        
+        for(auto&& x : pathList) {
+            
+            auto path = x + L'\\' + file;
+            if(isExist(path)) return path;
+            
+        }
+        return {};
+        
+    }
+    
+    static WString enumExtension(const WString& file, const Array<WString>& pathList) {
         
         WString path;
-        path = getFullPath(file + L'.');
+        path = enumPath(file, pathList);
         if(!path.isEmpty()) return path;
-        path = getFullPath(file + L".exe.");
+        path = enumPath(file + L".com", pathList);
+        if(!path.isEmpty()) return path;
+        path = enumPath(file + L".exe", pathList);
         if(!path.isEmpty()) return path;
         throw SystemException("File not found");
         
@@ -134,6 +173,14 @@ public:
     
     Process(const ProcessOption& option) {
 #if defined(CORECAT_OS_WINDOWS)
+        Array<WString> pathList;
+        pathList.push(getProcessDirectory());
+        pathList.push(getCurrentDirectory());
+        pathList.push(getSystemDirectory());
+        pathList.push(getWindowsDirectory());
+        // TODO: PATH
+        auto path = enumExtension(WString(option.file), pathList);
+        
         WString argument;
         if(option.argument) {
             
@@ -153,6 +200,7 @@ public:
             }
             
         }
+        
         WString environment;
         if(option.environment) {
             
@@ -164,11 +212,11 @@ public:
             }
             
         }
+        
         STARTUPINFOW si = {};
         si.cb = sizeof(si);
         si.wShowWindow = SW_SHOWDEFAULT;
         PROCESS_INFORMATION pi = {};
-        auto path = findFullPath(WString(option.file));
         if(!::CreateProcessW(
             path.getData(),
             option.argument ? argument.getData() : nullptr,
