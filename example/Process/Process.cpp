@@ -35,7 +35,7 @@ int main() {
     
     try {
         
-        Process process("Environment", {"Environment", "xxx", "-yyy", "--zzz"}, {"A=123", "B=456"}, "/");
+        Process process("Environment", {"Environment", "xxx", "-yyy", "--zzz"}, {"A=123", "B=456"}, ".");
         std::cout << "Return: " << process.wait() << std::endl;
         
     } catch(std::exception& e) { std::cerr << e.what() << std::endl; return 1; }
