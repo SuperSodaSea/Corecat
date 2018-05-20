@@ -20,10 +20,12 @@ set(EXAMPLE
     Any
     Benchmark
     CommandLine
+    Environment
     ExceptionPtr
     Range
     String
     System
+    Process
     X86Feature)
 
 foreach(example ${EXAMPLE})
