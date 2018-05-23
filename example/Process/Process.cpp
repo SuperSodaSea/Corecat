@@ -31,11 +31,13 @@
 
 using namespace Cats::Corecat;
 
-int main() {
+int main(int argc, char** argv) {
     
     try {
         
-        Process process("Environment", {"Environment", "xxx", "-yyy", "--zzz"}, {"A=123", "B=456"}, ".");
+        if(argc < 2) throw InvalidArgumentException("File name needed");
+        
+        Process process(argv[1], {argv[1], "xxx", "-yyy", "--zzz"}, {"A=123", "B=456"}, ".");
         std::cout << "Return: " << process.wait() << std::endl;
         
     } catch(std::exception& e) { std::cerr << e.what() << std::endl; return 1; }
