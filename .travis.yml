@@ -75,7 +75,7 @@ after_success:
 - ./build/Benchmark
 - ./build/CommandLine -O3 -o output input1 input2 input3
 - ./build/ExceptionPtr
-- ./build/Process
+- ./build/Process ./build/Environment
 - ./build/Range
 - ./build/String
 - ./build/System
