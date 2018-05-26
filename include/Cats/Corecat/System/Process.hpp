@@ -107,7 +107,7 @@ private:
     static WString getCurrentDirectory() {
         
         WString path;
-        path.setLength(::GetCurrentDirectoryW(0, nullptr));
+        path.setLength(::GetCurrentDirectoryW(0, nullptr) - 1);
         ::GetCurrentDirectoryW(DWORD(path.getLength() + 1), path.getData());
         return path;
         
