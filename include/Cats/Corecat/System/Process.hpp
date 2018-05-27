@@ -107,24 +107,30 @@ private:
     static WString getCurrentDirectory() {
         
         WString path;
-        path.setLength(::GetCurrentDirectoryW(0, nullptr) - 1);
-        ::GetCurrentDirectoryW(DWORD(path.getLength() + 1), path.getData());
+        DWORD length = ::GetCurrentDirectoryW(0, nullptr);
+        if(!length) return {};
+        path.setLength(length - 1);
+        ::GetCurrentDirectoryW(length, path.getData());
         return path;
         
     }
     static WString getSystemDirectory() {
         
         WString path;
-        path.setLength(::GetSystemDirectoryW(nullptr, 0) - 1);
-        ::GetSystemDirectoryW(path.getData(), UINT(path.getLength() + 1));
+        UINT length = ::GetSystemDirectoryW(nullptr, 0);
+        if(!length) return {};
+        path.setLength(length - 1);
+        ::GetSystemDirectoryW(path.getData(), length);
         return path;
         
     }
     static WString getWindowsDirectory() {
         
         WString path;
-        path.setLength(::GetWindowsDirectoryW(nullptr, 0) - 1);
-        ::GetWindowsDirectoryW(path.getData(), UINT(path.getLength() + 1));
+        UINT length = ::GetWindowsDirectoryW(nullptr, 0);
+        if(!length) return {};
+        path.setLength(length - 1);
+        ::GetWindowsDirectoryW(path.getData(), length);
         return path;
         
     }
@@ -187,15 +193,19 @@ public:
             for(auto p = option.argument; *p; ++p) {
                 
                 if(!argument.isEmpty()) argument += L' ';
-                argument += L'"';
-                for(auto&& c : WString(*p)) {
+                WString src(*p);
+                WString dst;
+                bool quote = false;
+                for(std::size_t i = src.getLength() - 1; i != std::size_t(-1); --i) {
                     
-                    if(c == L'"') argument += L"\\\"";
-                    else if(c == L'\\') argument += L"\\\\";
-                    else argument += c;
+                    auto c = src[i];
+                    dst += c;
+                    if(quote && c == L'\\') dst += L'\\';
+                    else if(c == L'\"') quote = true, dst += L'\\';
+                    else quote = false;
                     
                 }
-                argument += L'"';
+                argument += L'"' + dst.reverse() + L'"';
                 
             }
             
