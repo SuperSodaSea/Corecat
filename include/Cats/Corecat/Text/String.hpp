@@ -299,6 +299,19 @@ public:
     }
     String& append(const CharType* b, const CharType* e) { return append(b, e - b); }
     
+    String reverse() const noexcept {
+        
+        auto length = getLength();
+        if(length <= 1) return *this;
+        auto data = getData();
+        String ret;
+        ret.setLength(length);
+        for(std::size_t i = 0, j = length - 1; i < length; ++i, --j)
+            ret[i] = data[j];
+        return ret;
+        
+    }
+    
     void swap(String& src) noexcept { std::swap(storage, src.storage); }
     
     Iterator begin() noexcept { return getData(); }
