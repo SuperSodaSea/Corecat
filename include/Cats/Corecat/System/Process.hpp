@@ -134,6 +134,16 @@ private:
         return path;
         
     }
+    static WString getEnvironmentPath() {
+        
+        WString path;
+        DWORD length = ::GetEnvironmentVariableW(L"PATH", nullptr, 0);
+        if(!length) return {};
+        path.setLength(length - 1);
+        ::GetEnvironmentVariableW(L"PATH", path.getData(), length);
+        return path;
+        
+    }
     
     static bool isExist(const WString& path) {
         
