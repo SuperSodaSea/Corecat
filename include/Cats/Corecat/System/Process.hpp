@@ -144,6 +144,19 @@ private:
         return path;
         
     }
+    static const char* findPath(const char* const* environment) {
+        
+        for(auto p = environment; *p; ++p) {
+            
+            auto str = *p;
+            if((str[0] == 'P' || str[0] == 'p') && (str[1] == 'A' || str[1] == 'a')
+                && (str[2] == 'T' || str[2] == 't') && (str[3] == 'H' || str[3] == 'h') && str[4] == '=')
+                return str + 5;
+            
+        }
+        return nullptr;
+        
+    }
     
     static bool isExist(const WString& path) {
         
