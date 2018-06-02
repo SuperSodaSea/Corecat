@@ -144,8 +144,17 @@ private:
         return path;
         
     }
+    
+    static bool isExist(const WString& path) {
+        
+        DWORD attribute = ::GetFileAttributesW(path.getData());
+        return attribute != INVALID_FILE_ATTRIBUTES && !(attribute & FILE_ATTRIBUTE_DIRECTORY);
+        
+    }
+    
     static const char* findPath(const char* const* environment) {
         
+        if(!environment) return nullptr;
         for(auto p = environment; *p; ++p) {
             
             auto str = *p;
@@ -155,13 +164,6 @@ private:
             
         }
         return nullptr;
-        
-    }
-    
-    static bool isExist(const WString& path) {
-        
-        DWORD attribute = ::GetFileAttributesW(path.getData());
-        return attribute != INVALID_FILE_ATTRIBUTES && !(attribute & FILE_ATTRIBUTE_DIRECTORY);
         
     }
     
