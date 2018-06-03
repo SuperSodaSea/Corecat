@@ -167,6 +167,22 @@ private:
         
     }
     
+    static void addPath(const ProcessOption& option, Array<WString>& pathList) {
+        
+        auto optionPath = findPath(option.environment);
+        auto path = optionPath ? WString(optionPath) : getEnvironmentPath();
+        for(auto i = path.begin(); i != path.end(); ) {
+            
+            auto j = i;
+            while(*j && *j != L';') ++j;
+            pathList.push(i, j);
+            i = j;
+            if(*i == L';') ++i;
+            
+        }
+        
+    }
+    
     static WString enumPath(const WString& file, const Array<WString>& pathList) {
         
         for(auto&& x : pathList) {
@@ -209,7 +225,7 @@ public:
         pathList.push(getCurrentDirectory());
         pathList.push(getSystemDirectory());
         pathList.push(getWindowsDirectory());
-        // TODO: PATH
+        addPath(option, pathList);
         auto path = enumExtension(WString(option.file), pathList);
         
         WString argument;
