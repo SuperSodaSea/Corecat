@@ -134,16 +134,6 @@ private:
         return path;
         
     }
-    static WString getEnvironmentPath() {
-        
-        WString path;
-        DWORD length = ::GetEnvironmentVariableW(L"PATH", nullptr, 0);
-        if(!length) return {};
-        path.setLength(length - 1);
-        ::GetEnvironmentVariableW(L"PATH", path.getData(), length);
-        return path;
-        
-    }
     
     static bool isExist(const WString& path) {
         
@@ -152,10 +142,10 @@ private:
         
     }
     
-    static const char* findPath(const char* const* environment) {
+    static const char* getOptionPathVariable(const ProcessOption& option) {
         
-        if(!environment) return nullptr;
-        for(auto p = environment; *p; ++p) {
+        if(!option.environment) return nullptr;
+        for(auto p = option.environment; *p; ++p) {
             
             auto str = *p;
             if((str[0] == 'P' || str[0] == 'p') && (str[1] == 'A' || str[1] == 'a')
@@ -166,12 +156,29 @@ private:
         return nullptr;
         
     }
-    
-    static void addPath(const ProcessOption& option, Array<WString>& pathList) {
+    static WString getEnvironmentPathVariable() {
         
-        auto optionPath = findPath(option.environment);
-        auto path = optionPath ? WString(optionPath) : getEnvironmentPath();
-        for(auto i = path.begin(); i != path.end(); ) {
+        WString path;
+        DWORD length = ::GetEnvironmentVariableW(L"PATH", nullptr, 0);
+        if(!length) return {};
+        path.setLength(length - 1);
+        ::GetEnvironmentVariableW(L"PATH", path.getData(), length);
+        return path;
+        
+    }
+    
+    static Array<WString> getPathList(const ProcessOption& option) {
+        
+        Array<WString> pathList;
+        
+        pathList.push(getProcessDirectory());
+        pathList.push(getCurrentDirectory());
+        pathList.push(getSystemDirectory());
+        pathList.push(getWindowsDirectory());
+        
+        auto optionPathVariable = getOptionPathVariable(option);
+        auto pathVariable = optionPathVariable ? WString(optionPathVariable) : getEnvironmentPathVariable();
+        for(auto i = pathVariable.begin(); i != pathVariable.end(); ) {
             
             auto j = i;
             while(*j && *j != L';') ++j;
@@ -180,6 +187,8 @@ private:
             if(*i == L';') ++i;
             
         }
+        
+        return pathList;
         
     }
     
@@ -194,7 +203,6 @@ private:
         return {};
         
     }
-    
     static WString enumExtension(const WString& file, const Array<WString>& pathList) {
         
         WString path;
@@ -220,12 +228,7 @@ public:
     
     Process(const ProcessOption& option) {
 #if defined(CORECAT_OS_WINDOWS)
-        Array<WString> pathList;
-        pathList.push(getProcessDirectory());
-        pathList.push(getCurrentDirectory());
-        pathList.push(getSystemDirectory());
-        pathList.push(getWindowsDirectory());
-        addPath(option, pathList);
+        auto pathList = getPathList(option);
         auto path = enumExtension(WString(option.file), pathList);
         
         WString argument;
