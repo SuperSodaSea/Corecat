@@ -244,6 +244,22 @@ private:
         return argument;
         
     }
+    static WString getEnvironment(const ProcessOption& option) {
+        
+        WString environment;
+        if(option.environment) {
+            
+            for(auto p = option.environment; *p; ++p) {
+                
+                environment += WString(*p);
+                environment += wchar_t();
+                
+            }
+            
+        }
+        return environment;
+        
+    }
 #endif
     
 private:
@@ -261,18 +277,7 @@ public:
         auto path = enumExtension(WString(option.file), pathList);
         
         auto argument = getArgument(option);
-        
-        WString environment;
-        if(option.environment) {
-            
-            for(auto p = option.environment; *p; ++p) {
-                
-                environment += WString(*p);
-                environment += wchar_t();
-                
-            }
-            
-        }
+        auto environment = getEnvironment(option);
         
         STARTUPINFOW si = {};
         si.cb = sizeof(si);
