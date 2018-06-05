@@ -215,21 +215,8 @@ private:
         throw SystemException("File not found");
         
     }
-#endif
     
-private:
-#if defined(CORECAT_OS_WINDOWS)
-    Handle handle;
-#else
-    pid_t pid;
-#endif
-    
-public:
-    
-    Process(const ProcessOption& option) {
-#if defined(CORECAT_OS_WINDOWS)
-        auto pathList = getPathList(option);
-        auto path = enumExtension(WString(option.file), pathList);
+    static WString getArgument(const ProcessOption& option) {
         
         WString argument;
         if(option.argument) {
@@ -254,6 +241,26 @@ public:
             }
             
         }
+        return argument;
+        
+    }
+#endif
+    
+private:
+#if defined(CORECAT_OS_WINDOWS)
+    Handle handle;
+#else
+    pid_t pid;
+#endif
+    
+public:
+    
+    Process(const ProcessOption& option) {
+#if defined(CORECAT_OS_WINDOWS)
+        auto pathList = getPathList(option);
+        auto path = enumExtension(WString(option.file), pathList);
+        
+        auto argument = getArgument(option);
         
         WString environment;
         if(option.environment) {
