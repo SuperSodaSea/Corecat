@@ -81,6 +81,13 @@ private:
 #if defined(CORECAT_OS_WINDOWS)
 private:
     
+    static bool isExist(const WString& path) {
+        
+        DWORD attribute = ::GetFileAttributesW(path.getData());
+        return attribute != INVALID_FILE_ATTRIBUTES && !(attribute & FILE_ATTRIBUTE_DIRECTORY);
+        
+    }
+    
     static WString getProcessDirectory() {
         
         WString path;
@@ -132,13 +139,6 @@ private:
         path.setLength(length - 1);
         ::GetWindowsDirectoryW(path.getData(), length);
         return path;
-        
-    }
-    
-    static bool isExist(const WString& path) {
-        
-        DWORD attribute = ::GetFileAttributesW(path.getData());
-        return attribute != INVALID_FILE_ATTRIBUTES && !(attribute & FILE_ATTRIBUTE_DIRECTORY);
         
     }
     
