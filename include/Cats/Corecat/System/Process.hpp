@@ -191,7 +191,6 @@ private:
         return pathList;
         
     }
-    
     static WString enumPath(const WString& file, const Array<WString>& pathList) {
         
         for(auto&& x : pathList) {
@@ -203,8 +202,10 @@ private:
         return {};
         
     }
-    static WString enumExtension(const WString& file, const Array<WString>& pathList) {
+    static WString getPath(const ProcessOption& option) {
         
+        auto file = WString(option.file);
+        auto pathList = getPathList(option);
         WString path;
         path = enumPath(file, pathList);
         if(!path.isEmpty()) return path;
@@ -215,7 +216,6 @@ private:
         throw SystemException("File not found");
         
     }
-    
     static WString getArgument(const ProcessOption& option) {
         
         WString argument;
@@ -273,9 +273,7 @@ public:
     
     Process(const ProcessOption& option) {
 #if defined(CORECAT_OS_WINDOWS)
-        auto pathList = getPathList(option);
-        auto path = enumExtension(WString(option.file), pathList);
-        
+        auto path = getPath(option);
         auto argument = getArgument(option);
         auto environment = getEnvironment(option);
         
