@@ -57,7 +57,7 @@ struct HighResolutionClock {
     static time_point now() noexcept {
 #if defined(CORECAT_OS_WINDOWS)
         LARGE_INTEGER nf, n;
-        // TODO: move ::QueryPerformanceFrequency away
+        // TODO: Run ::QueryPerformanceFrequency only once
         ::QueryPerformanceFrequency(&nf);
         ::QueryPerformanceCounter(&n);
         return time_point(duration(double(n.QuadPart) / nf.QuadPart));
