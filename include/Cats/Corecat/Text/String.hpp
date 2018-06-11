@@ -48,6 +48,9 @@ template <typename C>
 class Formatter;
 
 
+// TODO: Use immutable string?
+
+
 template <typename C>
 class String {
     
