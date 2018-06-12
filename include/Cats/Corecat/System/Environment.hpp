@@ -55,7 +55,7 @@ class Environment {
     
 public:
     
-    static Array<String8> getEnvironment() {
+    static Array<String8> getEnvironmentVariable() {
 #if defined(CORECAT_OS_WINDOWS)
         std::size_t count = 0;
         auto env = ::GetEnvironmentStringsW();

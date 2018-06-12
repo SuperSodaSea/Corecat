@@ -37,8 +37,8 @@ int main(int argc, char** argv) {
     for(int i = 0; i < argc; ++i) std::cout << " " << argv[i];
     std::cout << std::endl;
     
-    std::cout << "Environment:" << std::endl;
-    for(auto&& x : Environment::getEnvironment())
+    std::cout << "Environment variable:" << std::endl;
+    for(auto&& x : Environment::getEnvironmentVariable())
         std::cout << "    " << x << std::endl;
     
     std::cout << "Directory:" << std::endl;
