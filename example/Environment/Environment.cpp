@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     for(auto&& x : Environment::getEnvironmentVariable())
         std::cout << "    " << x << std::endl;
     
-    std::cout << "Directory:" << std::endl;
+    std::cout << "Current directory:" << std::endl;
     std::cout << "    " << Environment::getCurrentDirectory() << std::endl;
     
     return 0;
