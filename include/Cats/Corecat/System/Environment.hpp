@@ -84,6 +84,9 @@ public:
     }
     
     static Array<String8> getEnvironmentVariable(StringView8 name) {
+#if defined(CORECAT_OS_WINDOWS)
+#else
+#endif
     }
     
     static String8 getCurrentDirectory() {
