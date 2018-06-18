@@ -89,7 +89,7 @@ public:
 #endif
     }
     
-    static void setEnvironmentVariable(StringView8 name) {
+    static void setEnvironmentVariable(StringView8 name, StringView8 value) {
 #if defined(CORECAT_OS_WINDOWS)
 #else
 #endif
