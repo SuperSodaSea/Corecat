@@ -85,6 +85,13 @@ public:
     
     static String8 getEnvironmentVariable(StringView8 name) {
 #if defined(CORECAT_OS_WINDOWS)
+        WString n(name);
+        DWORD length = ::GetEnvironmentVariableW(n.getData(), nullptr, 0);
+        if(!length) return {};
+        WString v;
+        v.setLength(length - 1);
+        ::GetEnvironmentVariableW(n.getData(), v.getData(),length);
+        return String8(v);
 #else
 #endif
     }
