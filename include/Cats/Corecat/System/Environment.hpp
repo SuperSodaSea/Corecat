@@ -90,7 +90,7 @@ public:
         if(!length) return {};
         WString v;
         v.setLength(length - 1);
-        ::GetEnvironmentVariableW(n.getData(), v.getData(),length);
+        ::GetEnvironmentVariableW(n.getData(), v.getData(), length);
         return String8(v);
 #else
 #endif
@@ -98,6 +98,9 @@ public:
     
     static void setEnvironmentVariable(StringView8 name, StringView8 value) {
 #if defined(CORECAT_OS_WINDOWS)
+        WString n(name), v(value);
+        ::SetEnvironmentVariableW(n.getData(), v.getData());
+        // TODO: Throw exception when failed
 #else
 #endif
     }
