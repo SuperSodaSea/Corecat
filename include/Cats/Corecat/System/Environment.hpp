@@ -99,8 +99,8 @@ public:
     static void setEnvironmentVariable(StringView8 name, StringView8 value) {
 #if defined(CORECAT_OS_WINDOWS)
         WString n(name), v(value);
-        ::SetEnvironmentVariableW(n.getData(), v.getData());
-        // TODO: Throw exception when failed
+        if(!::SetEnvironmentVariableW(n.getData(), v.getData())
+            throw SystemException("::SetEnvironmentVariableW failed");
 #else
 #endif
     }
