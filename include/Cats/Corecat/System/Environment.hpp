@@ -38,6 +38,7 @@
 #elif defined(CORECAT_OS_LINUX) || defined(CORECAT_OS_MACOS)
 #   include <limits.h>
 #   include <unistd.h>
+#   include <cstdlib>
 #   if defined(CORECAT_OS_MACOS)
 #       include <crt_externs.h>
 #       define environ (*_NSGetEnviron())
@@ -99,7 +100,7 @@ public:
     static void setEnvironmentVariable(StringView8 name, StringView8 value) {
 #if defined(CORECAT_OS_WINDOWS)
         WString n(name), v(value);
-        if(!::SetEnvironmentVariableW(n.getData(), v.getData())
+        if(!::SetEnvironmentVariableW(n.getData(), v.getData()))
             throw SystemException("::SetEnvironmentVariableW failed");
 #else
 #endif
