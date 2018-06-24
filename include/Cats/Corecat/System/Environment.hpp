@@ -94,6 +94,9 @@ public:
         ::GetEnvironmentVariableW(n.getData(), v.getData(), length);
         return String8(v);
 #else
+        auto value = ::getenv(String8(name).getData());
+        if(value) return value;
+        return {};
 #endif
     }
     
