@@ -106,6 +106,8 @@ public:
         if(!::SetEnvironmentVariableW(n.getData(), v.getData()))
             throw SystemException("::SetEnvironmentVariableW failed");
 #else
+        if(::setenv(String8(name).getData(), String8(value).getData(), 1))
+            throw SystemException("::setenv failed");
 #endif
     }
     
