@@ -91,7 +91,8 @@ public:
         if(!length) return {};
         WString v;
         v.setLength(length - 1);
-        ::GetEnvironmentVariableW(n.getData(), v.getData(), length);
+        if(!::GetEnvironmentVariableW(n.getData(), v.getData(), length))
+            throw SystemException("::SetEnvironmentVariableW failed");
         return String8(v);
 #else
         auto value = ::getenv(String8(name).getData());
