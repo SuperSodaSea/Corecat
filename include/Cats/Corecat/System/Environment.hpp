@@ -88,7 +88,12 @@ public:
 #if defined(CORECAT_OS_WINDOWS)
         WString n(name);
         DWORD length = ::GetEnvironmentVariableW(n.getData(), nullptr, 0);
-        if(!length) return {};
+        if(!length) {
+            
+            if(::GetLastError() == ERROR_ENVVAR_NOT_FOUND) return {};
+            else throw SystemException("::SetEnvironmentVariableW failed");
+            
+        }
         WString v;
         v.setLength(length - 1);
         if(!::GetEnvironmentVariableW(n.getData(), v.getData(), length))
